@@ -1,0 +1,16 @@
+# Build directories
+build/
+cmake-build*/
+
+# Qt Creator
+*.user
+
+# IDEs
+.vscode/
+.idea/
+
+# Generated files
+*.autosave
+
+# OS
+.DS_Store
