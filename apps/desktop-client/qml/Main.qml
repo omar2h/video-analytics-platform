@@ -1,8 +1,12 @@
 import QtQuick
+import QtQuick.Controls
 
-Window {
-    width: 640
-    height: 480
+import "views"
+
+ApplicationWindow {
     visible: true
-    title: qsTr("Hello World")
+
+    CameraView {
+        anchors.fill: parent
+    }
 }

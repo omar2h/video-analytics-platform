@@ -13,11 +13,15 @@ qt_add_qml_module(desktop_client
     VERSION 1.0
 
     QML_FILES
+        qml/components/VideoPlaceholder.qml
+        qml/components/StatusIndicator.qml
+        qml/views/CameraView.qml
         qml/Main.qml
 )
 
 target_link_libraries(desktop_client
     PRIVATE
         Qt6::Quick
+        Qt6::QuickControls2
         camera
 )

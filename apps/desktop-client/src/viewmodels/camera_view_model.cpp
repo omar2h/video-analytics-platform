@@ -8,24 +8,9 @@ CameraViewModel::CameraViewModel(ICameraService* cameraService, QObject* parent)
 {
     connect(m_cameraService, &ICameraService::stateChanged, this,
             [this](StreamState state){
-                switch(state)
-                {
-                    case StreamState::Disconnected:
-                        m_stateText = "Disconnected";
-                        break;
-                    case StreamState::Connecting:
-                        m_stateText = "Connecting";
-                        break;
-                    case StreamState::Connected:
-                        m_stateText = "Connected";
-                        break;
-                    case StreamState::Reconnecting:
-                        m_stateText = "Reconnecting";
-                        break;
-                    case StreamState::Error:
-                        m_stateText = "Error";
-                        break;
-                }
+                m_state = state;
+
+                emit stateChanged();
                 emit stateTextChanged();
             });
 }
@@ -45,7 +30,30 @@ void CameraViewModel::setUrl(const QString& url)
 
 QString CameraViewModel::stateText() const
 {
-    return m_stateText;
+    switch (m_state)
+    {
+    case StreamState::Disconnected:
+        return "Disconnected";
+
+    case StreamState::Connecting:
+        return "Connecting";
+
+    case StreamState::Connected:
+        return "Connected";
+
+    case StreamState::Reconnecting:
+        return "Reconnecting";
+
+    case StreamState::Error:
+        return "Error";
+    }
+
+    return "Unknown";
+}
+
+int CameraViewModel::state() const
+{
+    return static_cast<int>(m_state);
 }
 
 void CameraViewModel::connectCamera()

@@ -20,6 +20,10 @@ class CameraViewModel final : public QObject
                    READ stateText
                    NOTIFY stateTextChanged)
 
+    Q_PROPERTY(int state
+                   READ state
+                   NOTIFY stateChanged)
+
 public:
     explicit CameraViewModel(
         ICameraService* cameraService,
@@ -30,18 +34,21 @@ public:
 
     QString stateText() const;
 
+    int state() const;
+
     Q_INVOKABLE void connectCamera();
     Q_INVOKABLE void disconnectCamera();
 
 signals:
     void urlChanged();
     void stateTextChanged();
+    void stateChanged();
 
 private:
     // non-owning
     ICameraService* m_cameraService;
     QString m_url;
-    QString m_stateText{"Disconnected"};
+    StreamState m_state{StreamState::Disconnected};
 };
 
 }
