@@ -1,11 +1,17 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QDebug>
+
+#include "bootstrap/application_bootstrap.hpp"
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+
+    vap::ApplicationBootstrap bootstrap(engine);
+    bootstrap.initialize();
 
     QObject::connect(
         &engine,
@@ -13,11 +19,7 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    qDebug() << "Import paths:";
-    for (const auto& path : engine.importPathList())
-    {
-        qDebug() << path;
-    }
+
     engine.load(QUrl("qrc:/videoanalytics/qml/Main.qml"));
 
     return app.exec();

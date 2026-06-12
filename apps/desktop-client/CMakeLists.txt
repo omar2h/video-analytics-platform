@@ -1,6 +1,9 @@
 qt_add_executable(desktop_client
     src/main.cpp
 
+    src/bootstrap/application_bootstrap.hpp
+    src/bootstrap/application_bootstrap.cpp
+
     src/viewmodels/camera_view_model.hpp
     src/viewmodels/camera_view_model.cpp
 )
