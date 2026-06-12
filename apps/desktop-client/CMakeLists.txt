@@ -1,5 +1,8 @@
 qt_add_executable(desktop_client
     src/main.cpp
+
+    src/viewmodels/camera_view_model.hpp
+    src/viewmodels/camera_view_model.cpp
 )
 
 qt_add_qml_module(desktop_client
@@ -13,4 +16,5 @@ qt_add_qml_module(desktop_client
 target_link_libraries(desktop_client
     PRIVATE
         Qt6::Quick
+        camera
 )
