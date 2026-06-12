@@ -4,7 +4,7 @@ project(video-analytics-platform
     VERSION 0.1
     LANGUAGES CXX
 )
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -12,4 +12,7 @@ find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup()
 
+add_subdirectory(modules/common)
+add_subdirectory(modules/camera)
 add_subdirectory(apps/desktop-client)
+
