@@ -4,6 +4,9 @@
 
 #include <vap/camera/camera.hpp>
 
+namespace vap
+{
+
 class ICameraRepository
 {
 public:
@@ -11,3 +14,5 @@ public:
 
     virtual QList<vap::Camera> cameras() const = 0;
 };
+
+}
