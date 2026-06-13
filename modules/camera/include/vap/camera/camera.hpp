@@ -7,6 +7,8 @@ namespace vap
 
 struct Camera
 {
+    QString id;
+    QString name;
     CameraConfig config;
 };
 

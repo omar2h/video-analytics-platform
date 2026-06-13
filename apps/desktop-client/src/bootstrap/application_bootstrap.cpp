@@ -18,9 +18,12 @@ void ApplicationBootstrap::initialize()
 {
     m_cameraService = std::make_unique<MockCameraService>();
     m_cameraViewModel = std::make_unique<CameraViewModel>(m_cameraService.get());
+    m_cameraListModel = std::make_unique<CameraListModel>();
 
     m_engine.rootContext()->setContextProperty(
         "cameraViewModel", m_cameraViewModel.get());
+    m_engine.rootContext()->setContextProperty(
+        "cameraModel", m_cameraListModel.get());
 }
 
 }

@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "../models/camera_list_model.hpp"
+
 class QQmlApplicationEngine;
 
 namespace vap
@@ -21,5 +23,6 @@ private:
 
     std::unique_ptr<MockCameraService> m_cameraService;
     std::unique_ptr<CameraViewModel> m_cameraViewModel;
+    std::unique_ptr<CameraListModel> m_cameraListModel;
 };
 }

@@ -6,6 +6,9 @@ qt_add_executable(desktop_client
 
     src/viewmodels/camera_view_model.hpp
     src/viewmodels/camera_view_model.cpp
+
+    src/models/camera_list_model.cpp
+    src/models/camera_list_model.hpp
 )
 
 qt_add_qml_module(desktop_client
