@@ -16,18 +16,49 @@ class CameraManagementViewModel : public QObject
 
     Q_PROPERTY(
         CameraListModel* cameraModel
-        READ cameraModel CONSTANT
-    )
+        READ cameraModel CONSTANT)
+
+    Q_PROPERTY(
+        int selectedIndex
+        READ selectedIndex
+        WRITE setSelectedIndex
+        NOTIFY selectedIndexChanged)
+
+    Q_PROPERTY(
+        QString selectedCameraName
+        READ selectedCameraName
+        NOTIFY selectedCameraChanged)
+
+    Q_PROPERTY(
+        QString selectedCameraUrl
+        READ selectedCameraUrl
+        NOTIFY selectedCameraChanged)
 
 public:
-    explicit CameraManagementViewModel(vap::ICameraRepository* repository, QObject* parent = nullptr);
+    explicit CameraManagementViewModel(ICameraRepository* repository, QObject* parent = nullptr);
 
     CameraListModel* cameraModel() const;
 
+    int selectedIndex() const;
+    void setSelectedIndex(int index);
+
+    QString selectedCameraName() const;
+    QString selectedCameraUrl() const;
+
+signals:
+    void selectedIndexChanged();
+    void selectedCameraChanged();
+
 private:
-    vap::ICameraRepository* m_repository;
+    const Camera* selectedCamera() const;
+
+    ICameraRepository* m_repository{};
 
     std::unique_ptr<CameraListModel> m_cameraModel;
+
+    QList<Camera> m_cameras;
+
+    int m_selectedIndex{-1};
 };
 
 }
