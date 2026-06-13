@@ -23,6 +23,8 @@ qt_add_qml_module(desktop_client
         qml/components/StatusIndicator.qml
         qml/views/CameraView.qml
         qml/Main.qml
+        QML_FILES qml/views/CameraListPanel.qml
+        QML_FILES qml/views/CameraDetailsPanel.qml
 )
 
 target_link_libraries(desktop_client
