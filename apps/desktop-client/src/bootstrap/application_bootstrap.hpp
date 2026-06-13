@@ -10,6 +10,7 @@ namespace vap
 {
 class MockCameraService;
 class CameraViewModel;
+class InMemoryCameraRepository;
 
 class ApplicationBootstrap
 {
@@ -24,5 +25,6 @@ private:
     std::unique_ptr<MockCameraService> m_cameraService;
     std::unique_ptr<CameraViewModel> m_cameraViewModel;
     std::unique_ptr<CameraListModel> m_cameraListModel;
+    std::unique_ptr<vap::InMemoryCameraRepository> m_cameraRepository;
 };
 }

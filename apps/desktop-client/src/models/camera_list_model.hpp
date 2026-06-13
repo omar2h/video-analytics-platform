@@ -24,6 +24,8 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
+    void setCameras(const QList<vap::Camera>& cameras);
+
 private:
     QList<vap::Camera> m_cameras;
 };

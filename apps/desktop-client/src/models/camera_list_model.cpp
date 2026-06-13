@@ -3,26 +3,6 @@
 CameraListModel::CameraListModel(QObject* parent)
     : QAbstractListModel(parent)
 {
-    m_cameras =
-        {
-            {
-                "lobby",
-                "Lobby Camera",
-                {"rtsp://lobby"}
-            },
-
-            {
-                "parking",
-                "Parking Camera",
-                {"rtsp://parking"}
-            },
-
-            {
-                "warehouse",
-                "Warehouse Camera",
-                {"rtsp://warehouse"}
-            }
-        };
 }
 
 int CameraListModel::rowCount(const QModelIndex& parent) const
@@ -65,4 +45,11 @@ QVariant CameraListModel::data(const QModelIndex& index, int role) const
     default:
         return {};
     }
+}
+
+void CameraListModel::setCameras(const QList<vap::Camera>& cameras)
+{
+    beginResetModel();
+    m_cameras = cameras;
+    endResetModel();
 }
