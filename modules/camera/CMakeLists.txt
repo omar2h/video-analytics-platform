@@ -6,9 +6,12 @@ add_library(camera STATIC
     include/vap/camera/mock_camera_service.hpp
     include/vap/camera/repositories/i_camera_repository.hpp
     include/vap/camera/repositories/in_memory_camera_repository.hpp
+    include/vap/camera/services/i_camera_application_service.hpp
+    include/vap/camera/services/camera_application_service.hpp
 
     src/mock_camera_service.cpp
     src/repositories/in_memory_camera_repository.cpp
+    src/services/camera_application_service.cpp
 )
 
 target_include_directories(camera
