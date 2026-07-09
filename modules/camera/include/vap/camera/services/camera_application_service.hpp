@@ -13,7 +13,7 @@ public:
     explicit CameraApplicationService(ICameraRepository* repository);
     QList<Camera> cameras() const override;
 
-    void addCamera(const Camera& camera) override;
+    void addCamera(const QString& name, const CameraConfig& config) override;
 
     bool updateCamera(const Camera& camera) override;
 

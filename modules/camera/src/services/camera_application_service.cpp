@@ -1,5 +1,7 @@
 #include <vap/camera/services/camera_application_service.hpp>
 
+#include <QUuid>
+
 #include <vap/camera/repositories/i_camera_repository.hpp>
 
 namespace vap
@@ -14,8 +16,14 @@ QList<Camera> CameraApplicationService::cameras() const
     return m_repository->cameras();
 }
 
-void CameraApplicationService::addCamera(const Camera &camera)
+void CameraApplicationService::addCamera(const QString& name, const CameraConfig& config)
 {
+    Camera camera;
+
+    camera.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    camera.name = name;
+    camera.config = config;
+
     m_repository->addCamera(camera);
 }
 

@@ -14,7 +14,7 @@ public:
     virtual ~ICameraApplicationService() = default;
     virtual QList<Camera> cameras() const = 0;
 
-    virtual void addCamera(const Camera& camera) = 0;
+    virtual void addCamera(const QString& name, const CameraConfig& config) = 0;
 
     virtual bool updateCamera(const Camera& camera) = 0;
 

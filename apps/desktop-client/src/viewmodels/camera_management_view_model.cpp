@@ -10,13 +10,18 @@ CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* 
     m_cameraApplicationService(cameraApplicationService),
     m_cameraModel(std::make_unique<CameraListModel>())
 {
-    m_cameras = m_cameraApplicationService->cameras();
-    m_cameraModel->setCameras(m_cameras);
+    reloadCameras();
 }
 
 CameraListModel* CameraManagementViewModel::cameraModel() const
 {
     return m_cameraModel.get();
+}
+
+void CameraManagementViewModel::reloadCameras()
+{
+    m_cameras = m_cameraApplicationService->cameras();
+    m_cameraModel->setCameras(m_cameras);
 }
 
 int CameraManagementViewModel::selectedIndex() const
@@ -57,6 +62,44 @@ QString CameraManagementViewModel::selectedCameraUrl() const
     }
 
     return camera->config.url;
+}
+
+QString CameraManagementViewModel::newCameraName() const
+{
+    return m_newCameraName;
+}
+
+void CameraManagementViewModel::setNewCameraName(const QString &name)
+{
+    m_newCameraName = name;
+}
+
+QString CameraManagementViewModel::newCameraUrl() const
+{
+    return m_newCameraUrl;
+}
+
+void CameraManagementViewModel::setNewCameraUrl(const QString &url)
+{
+    m_newCameraUrl = url;
+}
+
+void CameraManagementViewModel::addCamera()
+{
+    CameraConfig config;
+    config.url = m_newCameraUrl;
+
+    m_cameraApplicationService->addCamera(
+        m_newCameraName,
+        config);
+
+    reloadCameras();
+
+    m_newCameraName.clear();
+    m_newCameraUrl.clear();
+
+    emit newCameraNameChanged();
+    emit newCameraUrlChanged();
 }
 
 const Camera* CameraManagementViewModel::selectedCamera() const

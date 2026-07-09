@@ -1,39 +1,73 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Frame {
-
-    ListView {
+    ColumnLayout {
         anchors.fill: parent
 
-        model: cameraManagementViewModel
-               ? cameraManagementViewModel.cameraModel
-               : null
+        // Form
 
-        delegate: Rectangle {
+        TextField {
+            placeholderText: "Camera Name"
 
-            required property int index
-            required property string name
+            text: cameraManagementViewModel
+                  ? cameraManagementViewModel.newCameraName
+                  : null
 
-            color: cameraManagementViewModel.selectedIndex === index
-                   ? "#d0d0d0"
-                   : "white"
+            onTextChanged: cameraManagementViewModel.newCameraName = text
+        }
 
-            width: ListView.view.width
-            height: 50
+        TextField {
+            placeholderText: "Camera URL"
 
-            border.width: 1
+            text: cameraManagementViewModel
+                  ? cameraManagementViewModel.newCameraUrl
+                  : null
 
-            Text {
-                anchors.centerIn: parent
-                text: name
-            }
+            onTextChanged: cameraManagementViewModel.newCameraUrl = text
+        }
 
-            MouseArea {
-                anchors.fill: parent
+        Button {
+            text: "Add Camera"
 
-                onClicked: {
-                    cameraManagementViewModel.selectedIndex = index
+            onClicked: cameraManagementViewModel.addCamera()
+        }
+
+
+        ListView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            model: cameraManagementViewModel
+                   ? cameraManagementViewModel.cameraModel
+                   : null
+
+            delegate: Rectangle {
+
+                required property int index
+                required property string name
+
+                color: cameraManagementViewModel.selectedIndex === index
+                       ? "#d0d0d0"
+                       : "white"
+
+                width: ListView.view.width
+                height: 50
+
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: name
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+
+                    onClicked: {
+                        cameraManagementViewModel.selectedIndex = index
+                    }
                 }
             }
         }
