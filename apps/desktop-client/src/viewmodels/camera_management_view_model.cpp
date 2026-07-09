@@ -1,14 +1,16 @@
 #include "camera_management_view_model.hpp"
 
+#include <vap/camera/services/i_camera_application_service.hpp>
+
 namespace vap
 {
 
-CameraManagementViewModel::CameraManagementViewModel(ICameraRepository* repository, QObject* parent)
+CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent)
     : QObject(parent),
-    m_repository(repository),
+    m_cameraApplicationService(cameraApplicationService),
     m_cameraModel(std::make_unique<CameraListModel>())
 {
-    m_cameras = m_repository->cameras();
+    m_cameras = m_cameraApplicationService->cameras();
     m_cameraModel->setCameras(m_cameras);
 }
 

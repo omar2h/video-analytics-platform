@@ -3,13 +3,11 @@
 #include <QObject>
 #include <memory>
 
-#include <vap/camera/repositories/i_camera_repository.hpp>
-
-#include "../models/camera_list_model.hpp"
+#include <src/models/camera_list_model.hpp>
 
 namespace vap
 {
-
+class ICameraApplicationService;
 class CameraManagementViewModel : public QObject
 {
     Q_OBJECT
@@ -35,7 +33,7 @@ class CameraManagementViewModel : public QObject
         NOTIFY selectedCameraChanged)
 
 public:
-    explicit CameraManagementViewModel(ICameraRepository* repository, QObject* parent = nullptr);
+    explicit CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent = nullptr);
 
     CameraListModel* cameraModel() const;
 
@@ -52,7 +50,7 @@ signals:
 private:
     const Camera* selectedCamera() const;
 
-    ICameraRepository* m_repository{};
+    ICameraApplicationService* m_cameraApplicationService{};
 
     std::unique_ptr<CameraListModel> m_cameraModel;
 

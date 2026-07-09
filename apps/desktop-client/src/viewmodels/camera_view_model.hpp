@@ -25,9 +25,7 @@ class CameraViewModel final : public QObject
                    NOTIFY stateChanged)
 
 public:
-    explicit CameraViewModel(
-        ICameraService* cameraService,
-        QObject* parent = nullptr);
+    explicit CameraViewModel(ICameraService* cameraService, QObject* parent = nullptr);
 
     QString url() const;
     void setUrl(const QString& url);
