@@ -62,6 +62,7 @@ public:
     void setNewCameraUrl(const QString& url);
 
     Q_INVOKABLE void addCamera();
+    Q_INVOKABLE void deleteSelectedCamera();
 
 signals:
     void selectedIndexChanged();

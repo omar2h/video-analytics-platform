@@ -102,6 +102,16 @@ void CameraManagementViewModel::addCamera()
     emit newCameraUrlChanged();
 }
 
+void CameraManagementViewModel::deleteSelectedCamera()
+{
+    CameraId selectedId = selectedCamera()->id;
+    m_cameraApplicationService->removeCamera(selectedId);
+
+    reloadCameras();
+
+    setSelectedIndex(-1);
+}
+
 const Camera* CameraManagementViewModel::selectedCamera() const
 {
     if (m_selectedIndex < 0 ||

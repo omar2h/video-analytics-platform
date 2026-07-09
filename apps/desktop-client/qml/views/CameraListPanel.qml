@@ -34,6 +34,14 @@ Frame {
             onClicked: cameraManagementViewModel.addCamera()
         }
 
+        Button {
+            text: qsTr("Delete Camera")
+
+            enabled: cameraManagementViewModel.selectedIndex >= 0
+
+            onClicked: cameraManagementViewModel.deleteSelectedCamera()
+        }
+
 
         ListView {
             Layout.fillWidth: true
