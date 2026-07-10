@@ -11,6 +11,7 @@ CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* 
     m_cameraModel(std::make_unique<CameraListModel>())
 {
     reloadCameras();
+    clearForm();
 }
 
 CameraListModel* CameraManagementViewModel::cameraModel() const
@@ -24,6 +25,26 @@ void CameraManagementViewModel::reloadCameras()
     m_cameraModel->setCameras(m_cameras);
 }
 
+void CameraManagementViewModel::loadSelectedCameraIntoForm()
+{
+    const auto* camera = selectedCamera();
+
+    if(!camera)
+    {
+        clearForm();
+        return;
+    }
+
+    setCameraName(camera->name);
+    setCameraUrl(camera->config.url);
+}
+
+void CameraManagementViewModel::clearForm()
+{
+    setCameraName({});
+    setCameraUrl({});
+}
+
 int CameraManagementViewModel::selectedIndex() const
 {
     return m_selectedIndex;
@@ -35,9 +56,10 @@ void CameraManagementViewModel::setSelectedIndex(int index)
         return;
     m_selectedIndex = index;
 
+    loadSelectedCameraIntoForm();
+
     emit selectedIndexChanged();
     emit selectedCameraChanged();
-    qDebug() << selectedCameraName();
 }
 
 QString CameraManagementViewModel::selectedCameraName() const
@@ -64,51 +86,78 @@ QString CameraManagementViewModel::selectedCameraUrl() const
     return camera->config.url;
 }
 
-QString CameraManagementViewModel::newCameraName() const
+QString CameraManagementViewModel::cameraName() const
 {
-    return m_newCameraName;
+    return m_cameraName;
 }
 
-void CameraManagementViewModel::setNewCameraName(const QString &name)
+void CameraManagementViewModel::setCameraName(const QString &name)
 {
-    m_newCameraName = name;
+    if (m_cameraName == name)
+        return;
+    m_cameraName = name;
+    emit cameraNameChanged();
 }
 
-QString CameraManagementViewModel::newCameraUrl() const
+QString CameraManagementViewModel::cameraUrl() const
 {
-    return m_newCameraUrl;
+    return m_cameraUrl;
 }
 
-void CameraManagementViewModel::setNewCameraUrl(const QString &url)
+void CameraManagementViewModel::setCameraUrl(const QString &url)
 {
-    m_newCameraUrl = url;
+    if (m_cameraUrl == url)
+        return;
+    m_cameraUrl = url;
+    emit cameraUrlChanged();
 }
 
 void CameraManagementViewModel::addCamera()
 {
     CameraConfig config;
-    config.url = m_newCameraUrl;
+    config.url = m_cameraUrl;
 
     m_cameraApplicationService->addCamera(
-        m_newCameraName,
+        m_cameraName,
         config);
 
     reloadCameras();
 
-    m_newCameraName.clear();
-    m_newCameraUrl.clear();
-
-    emit newCameraNameChanged();
-    emit newCameraUrlChanged();
+    clearForm();
 }
 
 void CameraManagementViewModel::deleteSelectedCamera()
 {
-    CameraId selectedId = selectedCamera()->id;
-    m_cameraApplicationService->removeCamera(selectedId);
+    const auto* camera = selectedCamera();
+    if(!camera)
+        return;
+
+    m_cameraApplicationService->removeCamera(camera->id);
+
+    reloadCameras();
+    clearSelection();
+}
+
+void CameraManagementViewModel::updateSelectedCamera()
+{
+    const auto* camera = selectedCamera();
+    if(!camera)
+        return;
+
+    CameraConfig config;
+    config.url = m_cameraUrl;
+
+    m_cameraApplicationService->updateCamera(camera->id, m_cameraName, config);
 
     reloadCameras();
 
+    loadSelectedCameraIntoForm();
+
+    emit selectedCameraChanged();
+}
+
+void CameraManagementViewModel::clearSelection()
+{
     setSelectedIndex(-1);
 }
 

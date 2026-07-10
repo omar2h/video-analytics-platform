@@ -33,16 +33,16 @@ class CameraManagementViewModel : public QObject
         NOTIFY selectedCameraChanged)
 
     Q_PROPERTY(
-        QString newCameraName
-        READ newCameraName
-        WRITE setNewCameraName
-        NOTIFY newCameraNameChanged)
+        QString cameraName
+        READ cameraName
+        WRITE setCameraName
+        NOTIFY cameraNameChanged)
 
     Q_PROPERTY(
-        QString newCameraUrl
-        READ newCameraUrl
-        WRITE setNewCameraUrl
-        NOTIFY newCameraUrlChanged)
+        QString cameraUrl
+        READ cameraUrl
+        WRITE setCameraUrl
+        NOTIFY cameraUrlChanged)
 
 public:
     explicit CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent = nullptr);
@@ -55,24 +55,28 @@ public:
     QString selectedCameraName() const;
     QString selectedCameraUrl() const;
 
-    QString newCameraName() const;
-    void setNewCameraName(const QString& name);
+    QString cameraName() const;
+    void setCameraName(const QString& name);
 
-    QString newCameraUrl() const;
-    void setNewCameraUrl(const QString& url);
+    QString cameraUrl() const;
+    void setCameraUrl(const QString& url);
 
     Q_INVOKABLE void addCamera();
     Q_INVOKABLE void deleteSelectedCamera();
+    Q_INVOKABLE void updateSelectedCamera();
+    Q_INVOKABLE void clearSelection();
 
 signals:
     void selectedIndexChanged();
     void selectedCameraChanged();
 
-    void newCameraNameChanged();
-    void newCameraUrlChanged();
+    void cameraNameChanged();
+    void cameraUrlChanged();
 
 private:
     void reloadCameras();
+    void loadSelectedCameraIntoForm();
+    void clearForm();
 
     const Camera* selectedCamera() const;
 
@@ -84,8 +88,9 @@ private:
 
     int m_selectedIndex{-1};
 
-    QString m_newCameraName;
-    QString m_newCameraUrl;
+    QString m_cameraName;
+    QString m_cameraUrl;
+
 };
 
 }

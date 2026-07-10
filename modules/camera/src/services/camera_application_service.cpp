@@ -27,8 +27,12 @@ void CameraApplicationService::addCamera(const QString& name, const CameraConfig
     m_repository->addCamera(camera);
 }
 
-bool CameraApplicationService::updateCamera(const Camera &camera)
+bool CameraApplicationService::updateCamera(
+    const CameraId& cameraId,
+    const QString& name,
+    const CameraConfig& config)
 {
+    Camera camera(cameraId, name, config);
     return m_repository->updateCamera(camera);
 }
 

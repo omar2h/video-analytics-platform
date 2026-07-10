@@ -15,7 +15,10 @@ public:
 
     void addCamera(const QString& name, const CameraConfig& config) override;
 
-    bool updateCamera(const Camera& camera) override;
+    bool updateCamera(
+        const CameraId& cameraId,
+        const QString& name,
+        const CameraConfig& config);
 
     void removeCamera(const CameraId& cameraId) override;
 

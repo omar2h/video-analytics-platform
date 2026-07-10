@@ -12,36 +12,50 @@ Frame {
             placeholderText: "Camera Name"
 
             text: cameraManagementViewModel
-                  ? cameraManagementViewModel.newCameraName
+                  ? cameraManagementViewModel.cameraName
                   : null
 
-            onTextChanged: cameraManagementViewModel.newCameraName = text
+            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraName = text : null
         }
 
         TextField {
             placeholderText: "Camera URL"
 
             text: cameraManagementViewModel
-                  ? cameraManagementViewModel.newCameraUrl
+                  ? cameraManagementViewModel.cameraUrl
                   : null
 
-            onTextChanged: cameraManagementViewModel.newCameraUrl = text
+            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraUrl = text : null
         }
 
         Button {
-            text: "Add Camera"
+            text: cameraManagementViewModel
+                  ? cameraManagementViewModel.selectedIndex >= 0
+                        ? "Save Camera"
+                        : "Add Camera"
+                  : null
 
-            onClicked: cameraManagementViewModel.addCamera()
+            onClicked: {
+                cameraManagementViewModel.selectedIndex >= 0 ?
+                    cameraManagementViewModel.updateSelectedCamera() : cameraManagementViewModel.addCamera()
+            }
         }
 
         Button {
             text: qsTr("Delete Camera")
 
-            enabled: cameraManagementViewModel.selectedIndex >= 0
+            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
 
             onClicked: cameraManagementViewModel.deleteSelectedCamera()
         }
 
+        Button {
+            text: "Cancel"
+
+            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
+
+            onClicked: cameraManagementViewModel.clearSelection()
+        }
 
         ListView {
             Layout.fillWidth: true
