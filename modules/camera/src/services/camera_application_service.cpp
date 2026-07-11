@@ -18,9 +18,12 @@ QList<Camera> CameraApplicationService::cameras() const
     return m_repository->cameras();
 }
 
-void CameraApplicationService::addCamera(const QString& name, const CameraConfig& config)
+CameraValidationResult CameraApplicationService::addCamera(const QString& name, const CameraConfig& config)
 {
     const auto validation = m_validator->validate(name, config);
+    if(validation.error != CameraValidationError::None)
+        return validation;
+
     Camera camera;
 
     camera.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -28,6 +31,8 @@ void CameraApplicationService::addCamera(const QString& name, const CameraConfig
     camera.config = config;
 
     m_repository->addCamera(camera);
+
+    return {};
 }
 
 bool CameraApplicationService::updateCamera(

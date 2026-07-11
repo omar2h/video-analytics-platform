@@ -14,7 +14,7 @@ public:
     explicit CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator);
     QList<Camera> cameras() const override;
 
-    void addCamera(const QString& name, const CameraConfig& config) override;
+    CameraValidationResult addCamera(const QString& name, const CameraConfig& config) override;
 
     bool updateCamera(
         const CameraId& cameraId,
