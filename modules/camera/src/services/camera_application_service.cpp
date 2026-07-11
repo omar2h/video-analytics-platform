@@ -3,11 +3,13 @@
 #include <QUuid>
 
 #include <vap/camera/repositories/i_camera_repository.hpp>
+#include <vap/camera/validation/i_camera_validator.hpp>
 
 namespace vap
 {
 
-CameraApplicationService::CameraApplicationService(ICameraRepository* repository) : m_repository(repository)
+CameraApplicationService::CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator)
+    : m_repository(repository), m_validator(validator)
 {
 }
 
@@ -18,6 +20,7 @@ QList<Camera> CameraApplicationService::cameras() const
 
 void CameraApplicationService::addCamera(const QString& name, const CameraConfig& config)
 {
+    const auto validation = m_validator->validate(name, config);
     Camera camera;
 
     camera.id = QUuid::createUuid().toString(QUuid::WithoutBraces);

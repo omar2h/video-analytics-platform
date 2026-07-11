@@ -13,6 +13,7 @@ class CameraViewModel;
 class InMemoryCameraRepository;
 class CameraApplicationService;
 class CameraManagementViewModel;
+class CameraValidator;
 
 class ApplicationBootstrap
 {
@@ -27,6 +28,7 @@ private:
     std::unique_ptr<MockCameraService> m_cameraService;
     std::unique_ptr<CameraViewModel> m_cameraViewModel;
     std::unique_ptr<InMemoryCameraRepository> m_cameraRepository;
+    std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;
 };
