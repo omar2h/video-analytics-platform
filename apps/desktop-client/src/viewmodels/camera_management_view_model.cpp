@@ -1,6 +1,7 @@
 #include "camera_management_view_model.hpp"
 
 #include <vap/camera/services/i_camera_application_service.hpp>
+#include <vap/camera/validation/camera_validation.hpp>
 
 namespace vap
 {
@@ -117,9 +118,12 @@ void CameraManagementViewModel::addCamera()
     CameraConfig config;
     config.url = m_cameraUrl;
 
-    m_cameraApplicationService->addCamera(
+    const auto validation = m_cameraApplicationService->addCamera(
         m_cameraName,
         config);
+
+    if(validation.error != CameraValidationError::None)
+        return;
 
     reloadCameras();
 
