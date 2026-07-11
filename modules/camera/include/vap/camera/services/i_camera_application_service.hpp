@@ -17,7 +17,7 @@ public:
 
     virtual CameraValidationResult addCamera(const QString& name, const CameraConfig& config) = 0;
 
-    virtual bool updateCamera(const CameraId& cameraId, const QString& name, const CameraConfig& config) = 0;
+    virtual CameraValidationResult updateCamera(const CameraId& cameraId, const QString& name, const CameraConfig& config) = 0;
 
     virtual void removeCamera(const CameraId& cameraId) = 0;
 };

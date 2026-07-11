@@ -35,13 +35,22 @@ CameraValidationResult CameraApplicationService::addCamera(const QString& name, 
     return {};
 }
 
-bool CameraApplicationService::updateCamera(
+CameraValidationResult CameraApplicationService::updateCamera(
     const CameraId& cameraId,
     const QString& name,
     const CameraConfig& config)
 {
-    Camera camera(cameraId, name, config);
-    return m_repository->updateCamera(camera);
+    const auto validation = m_validator->validate(name, config);
+    if(validation.error != CameraValidationError::None)
+        return validation;
+
+    Camera camera{
+        .id = cameraId,
+        .name = name,
+        .config = config
+    };
+    m_repository->updateCamera(camera);
+    return {};
 }
 
 void CameraApplicationService::removeCamera(const CameraId &cameraId)

@@ -16,7 +16,7 @@ public:
 
     CameraValidationResult addCamera(const QString& name, const CameraConfig& config) override;
 
-    bool updateCamera(
+    CameraValidationResult updateCamera(
         const CameraId& cameraId,
         const QString& name,
         const CameraConfig& config);

@@ -185,7 +185,12 @@ void CameraManagementViewModel::updateSelectedCamera()
     CameraConfig config;
     config.url = m_cameraUrl;
 
-    m_cameraApplicationService->updateCamera(camera->id, m_cameraName, config);
+    const auto validation = m_cameraApplicationService->updateCamera(camera->id, m_cameraName, config);
+
+    setValidationError(validation.error);
+
+    if(validation.error != CameraValidationError::None)
+        return;
 
     reloadCameras();
 
