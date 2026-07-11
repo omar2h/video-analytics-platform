@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <src/models/camera_list_model.hpp>
+#include <vap/camera/validation/camera_validation.hpp>
 
 namespace vap
 {
@@ -44,6 +45,11 @@ class CameraManagementViewModel : public QObject
         WRITE setCameraUrl
         NOTIFY cameraUrlChanged)
 
+    Q_PROPERTY(
+        QString validationMessage
+        READ validationMessage
+        NOTIFY validationErrorChanged)
+
 public:
     explicit CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent = nullptr);
 
@@ -61,6 +67,12 @@ public:
     QString cameraUrl() const;
     void setCameraUrl(const QString& url);
 
+    CameraValidationError validationError() const;
+    void setValidationError(CameraValidationError error);
+
+
+    QString validationMessage() const;
+
     Q_INVOKABLE void addCamera();
     Q_INVOKABLE void deleteSelectedCamera();
     Q_INVOKABLE void updateSelectedCamera();
@@ -72,6 +84,8 @@ signals:
 
     void cameraNameChanged();
     void cameraUrlChanged();
+
+    void validationErrorChanged();
 
 private:
     void reloadCameras();
@@ -90,6 +104,9 @@ private:
 
     QString m_cameraName;
     QString m_cameraUrl;
+    CameraValidationError m_validationError{
+        CameraValidationError::None
+    };
 
 };
 

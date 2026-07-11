@@ -1,7 +1,6 @@
 #include "camera_management_view_model.hpp"
 
 #include <vap/camera/services/i_camera_application_service.hpp>
-#include <vap/camera/validation/camera_validation.hpp>
 
 namespace vap
 {
@@ -113,6 +112,39 @@ void CameraManagementViewModel::setCameraUrl(const QString &url)
     emit cameraUrlChanged();
 }
 
+CameraValidationError CameraManagementViewModel::validationError() const
+{
+    return m_validationError;
+}
+
+void CameraManagementViewModel::setValidationError(CameraValidationError error)
+{
+    if (m_validationError == error)
+            return;
+    m_validationError = error;
+    emit validationErrorChanged();
+}
+
+QString CameraManagementViewModel::validationMessage() const
+{
+    switch(m_validationError)
+    {
+    case CameraValidationError::EmptyName:
+        return tr("Camera name is required.");
+
+    case CameraValidationError::EmptyUrl:
+        return tr("Camera URL is required.");
+
+    case CameraValidationError::InvalidUrlScheme:
+        return tr("Invalid URL");
+
+    case CameraValidationError::None:
+        return {};
+    }
+
+    return {};
+}
+
 void CameraManagementViewModel::addCamera()
 {
     CameraConfig config;
@@ -121,6 +153,8 @@ void CameraManagementViewModel::addCamera()
     const auto validation = m_cameraApplicationService->addCamera(
         m_cameraName,
         config);
+
+    setValidationError(validation.error);
 
     if(validation.error != CameraValidationError::None)
         return;

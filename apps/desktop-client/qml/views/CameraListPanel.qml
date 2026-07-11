@@ -57,6 +57,12 @@ Frame {
             onClicked: cameraManagementViewModel.clearSelection()
         }
 
+        Text {
+            text: cameraManagementViewModel ? cameraManagementViewModel.validationMessage ? cameraManagementViewModel.validationMessage : "" : ""
+            visible: text.length > 0
+            color: "red"
+        }
+
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
