@@ -7,6 +7,10 @@ add_library(streaming STATIC
     src/services/mock_streaming_service.cpp
 )
 
+pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
+pkg_check_modules(AVCODEC REQUIRED IMPORTED_TARGET libavcodec)
+pkg_check_modules(AVUTIL REQUIRED IMPORTED_TARGET libavutil)
+
 target_include_directories(streaming
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -16,4 +20,9 @@ target_link_libraries(streaming
     PUBLIC
         common
         Qt6::Core
+
+    PRIVATE
+        PkgConfig::AVFORMAT
+        PkgConfig::AVCODEC
+        PkgConfig::AVUTIL
 )

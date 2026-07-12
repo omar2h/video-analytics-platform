@@ -25,6 +25,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2
     Sql
 )
+find_package(PkgConfig REQUIRED)
 
 qt_standard_project_setup()
 
