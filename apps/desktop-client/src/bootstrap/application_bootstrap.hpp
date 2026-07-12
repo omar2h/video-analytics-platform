@@ -10,10 +10,11 @@ namespace vap
 {
 class MockCameraService;
 class CameraViewModel;
-class InMemoryCameraRepository;
+class SQLiteCameraRepository;
 class CameraApplicationService;
 class CameraManagementViewModel;
 class CameraValidator;
+class Database;
 
 class ApplicationBootstrap
 {
@@ -25,9 +26,10 @@ public:
 private:
     QQmlApplicationEngine& m_engine;
 
+    std::unique_ptr<Database> m_database;
     std::unique_ptr<MockCameraService> m_cameraService;
     std::unique_ptr<CameraViewModel> m_cameraViewModel;
-    std::unique_ptr<InMemoryCameraRepository> m_cameraRepository;
+    std::unique_ptr<SQLiteCameraRepository> m_cameraRepository;
     std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;

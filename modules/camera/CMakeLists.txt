@@ -11,11 +11,13 @@ add_library(camera STATIC
     include/vap/camera/validation/camera_validation.hpp
     include/vap/camera/validation/i_camera_validator.hpp
     include/vap/camera/validation/camera_validator.hpp
+    include/vap/camera/repositories/sqlite_camera_repository.hpp
 
     src/mock_camera_service.cpp
     src/repositories/in_memory_camera_repository.cpp
     src/services/camera_application_service.cpp
     src/validation/camera_validator.cpp
+    src/repositories/sqlite_camera_repository.cpp
 )
 
 target_include_directories(camera
@@ -26,5 +28,6 @@ target_include_directories(camera
 target_link_libraries(camera
     PUBLIC
         common
+        database
         Qt6::Core
 )

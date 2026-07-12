@@ -23,12 +23,14 @@ FetchContent_MakeAvailable(googletest)
 find_package(Qt6 REQUIRED COMPONENTS
     Quick
     QuickControls2
+    Sql
 )
 
 qt_standard_project_setup()
 
 add_subdirectory(modules/common)
 add_subdirectory(modules/camera)
+add_subdirectory(modules/database)
 add_subdirectory(apps/desktop-client)
 add_subdirectory(tests)
 
