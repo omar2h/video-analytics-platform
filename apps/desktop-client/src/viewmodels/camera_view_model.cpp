@@ -3,10 +3,10 @@
 namespace vap
 {
 
-CameraViewModel::CameraViewModel(ICameraService* cameraService, QObject* parent)
+CameraViewModel::CameraViewModel(IStreamingService* cameraService, QObject* parent)
     : QObject(parent), m_cameraService(cameraService)
 {
-    connect(m_cameraService, &ICameraService::stateChanged, this,
+    connect(m_cameraService, &IStreamingService::stateChanged, this,
             [this](StreamState state){
                 m_state = state;
 
@@ -58,10 +58,7 @@ int CameraViewModel::state() const
 
 void CameraViewModel::connectCamera()
 {
-    CameraConfig config;
-    config.url = m_url;
 
-    m_cameraService->connect(config);
 }
 
 void CameraViewModel::disconnectCamera()

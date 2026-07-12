@@ -1,8 +1,8 @@
 add_library(common STATIC
 
-    include/vap/stream_state.hpp
-    include/vap/types.hpp
-    include/vap/expected.hpp
+    include/vap/common/stream_state.hpp
+    include/vap/common/types.hpp
+    include/vap/common/expected.hpp
 )
 
 target_include_directories(common

@@ -31,5 +31,6 @@ target_link_libraries(desktop_client
     PRIVATE
         Qt6::Quick
         Qt6::QuickControls2
+        streaming
         camera
 )

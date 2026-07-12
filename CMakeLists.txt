@@ -30,6 +30,7 @@ qt_standard_project_setup()
 
 add_subdirectory(modules/common)
 add_subdirectory(modules/camera)
+add_subdirectory(modules/streaming)
 add_subdirectory(modules/database)
 add_subdirectory(apps/desktop-client)
 add_subdirectory(tests)

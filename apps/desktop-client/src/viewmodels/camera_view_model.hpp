@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <vap/camera/i_camera_service.hpp>
+#include <vap/streaming/services/i_streaming_service.hpp>
 
 namespace vap
 {
@@ -25,7 +25,7 @@ class CameraViewModel final : public QObject
                    NOTIFY stateChanged)
 
 public:
-    explicit CameraViewModel(ICameraService* cameraService, QObject* parent = nullptr);
+    explicit CameraViewModel(IStreamingService* streamingService, QObject* parent = nullptr);
 
     QString url() const;
     void setUrl(const QString& url);
@@ -44,7 +44,7 @@ signals:
 
 private:
     // non-owning
-    ICameraService* m_cameraService;
+    IStreamingService* m_cameraService;
     QString m_url;
     StreamState m_state{StreamState::Disconnected};
 };
