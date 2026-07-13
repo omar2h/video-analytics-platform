@@ -74,7 +74,6 @@ void FFmpegStreamingService::connectToStream(const QString &uri)
             << "Failed to read stream information:"
             << ffmpegErrorString(result);
 
-        qWarning(ffmpegStreamingLog) << "Failed to open stream";
         disconnectFromStream();
 
         emit stateChanged(StreamState::Error);

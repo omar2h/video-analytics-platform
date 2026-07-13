@@ -4,6 +4,7 @@
 #include <QQmlContext>
 
 #include <vap/streaming/services/mock_streaming_service.hpp>
+#include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
 #include <vap/camera/repositories/sqlite_camera_repository.hpp>
 #include <vap/camera/validation/camera_validator.hpp>
 #include <vap/camera/services/camera_application_service.hpp>
@@ -21,7 +22,7 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 
 void ApplicationBootstrap::initialize()
 {
-    m_streamingService = std::make_unique<MockStreamingService>();
+    m_streamingService = std::make_unique<FFmpegStreamingService>();
     m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingService.get());
 
     m_database = std::make_unique<Database>("video_analytics.db");

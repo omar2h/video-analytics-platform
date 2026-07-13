@@ -3,8 +3,8 @@
 namespace vap
 {
 
-CameraViewModel::CameraViewModel(IStreamingService* cameraService, QObject* parent)
-    : QObject(parent), m_cameraService(cameraService)
+CameraViewModel::CameraViewModel(IStreamingService* streamingService, QObject* parent)
+    : QObject(parent), m_streamingService(streamingService)
 {
     connect(m_cameraService, &IStreamingService::stateChanged, this,
             [this](StreamState state){
@@ -13,19 +13,6 @@ CameraViewModel::CameraViewModel(IStreamingService* cameraService, QObject* pare
                 emit stateChanged();
                 emit stateTextChanged();
             });
-}
-
-QString CameraViewModel::url() const
-{
-    return m_url;
-}
-
-void CameraViewModel::setUrl(const QString& url)
-{
-    if(m_url == url)
-        return;
-    m_url = url;
-    emit urlChanged();
 }
 
 QString CameraViewModel::stateText() const
@@ -56,14 +43,14 @@ int CameraViewModel::state() const
     return static_cast<int>(m_state);
 }
 
-void CameraViewModel::connectCamera()
+void CameraViewModel::connectCamera(const QString& url)
 {
-
+    m_streamingService->connectToStream(url);
 }
 
 void CameraViewModel::disconnectCamera()
 {
-    m_cameraService->disconnect();
+    m_streamingService->disconnectFromStream();
 }
 
 }

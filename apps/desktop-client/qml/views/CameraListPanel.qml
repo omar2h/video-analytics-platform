@@ -57,6 +57,14 @@ Frame {
             onClicked: cameraManagementViewModel.clearSelection()
         }
 
+        Button {
+            text: "Connect"
+
+            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
+
+            onClicked: cameraViewModel.connectCamera(cameraManagementViewModel.selectedCameraUrl)
+        }
+
         Text {
             text: cameraManagementViewModel ? cameraManagementViewModel.validationMessage ? cameraManagementViewModel.validationMessage : "" : ""
             visible: text.length > 0

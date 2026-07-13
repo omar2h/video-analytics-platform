@@ -11,11 +11,6 @@ class CameraViewModel final : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString url
-                   READ url
-                   WRITE setUrl
-                   NOTIFY urlChanged)
-
     Q_PROPERTY(QString stateText
                    READ stateText
                    NOTIFY stateTextChanged)
@@ -27,24 +22,20 @@ class CameraViewModel final : public QObject
 public:
     explicit CameraViewModel(IStreamingService* streamingService, QObject* parent = nullptr);
 
-    QString url() const;
-    void setUrl(const QString& url);
-
     QString stateText() const;
 
     int state() const;
 
-    Q_INVOKABLE void connectCamera();
+    Q_INVOKABLE void connectCamera(const QString& url);
     Q_INVOKABLE void disconnectCamera();
 
 signals:
-    void urlChanged();
     void stateTextChanged();
     void stateChanged();
 
 private:
     // non-owning
-    IStreamingService* m_cameraService;
+    IStreamingService* m_streamingService;
     QString m_url;
     StreamState m_state{StreamState::Disconnected};
 };
