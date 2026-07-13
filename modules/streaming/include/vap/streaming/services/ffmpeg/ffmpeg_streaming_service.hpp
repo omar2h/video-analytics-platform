@@ -4,6 +4,8 @@
 
 struct AVFormatContext;
 struct AVCodecContext;
+struct AVPacket;
+
 namespace vap
 {
 
@@ -31,6 +33,14 @@ private:
 
     bool initializeDecoder();
 
+    bool initializePacket();
+
+    bool readNextPacket();
+
+    // void streamLoop();
+
+    void cleanupPacket();
+
     void cleanupInput();
 
     void cleanupDecoder();
@@ -38,6 +48,7 @@ private:
 private:
     AVFormatContext* m_formatContext = nullptr;
     AVCodecContext* m_codecContext = nullptr;
+    AVPacket* m_packet = nullptr;
 
     int m_videoStreamIndex = -1;
 };

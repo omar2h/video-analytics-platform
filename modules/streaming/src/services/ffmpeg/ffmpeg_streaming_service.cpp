@@ -47,10 +47,9 @@ FFmpegStreamingService::~FFmpegStreamingService()
 
 void FFmpegStreamingService::connectToStream(const QString& uri)
 {
+    disconnectFromStream();
     qInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
-
-    disconnectFromStream();
 
     emit stateChanged(StreamState::Opening);
 
@@ -68,6 +67,14 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     if (!initializeDecoder())
     {
+        disconnectFromStream();
+        emit stateChanged(StreamState::Error);
+        return;
+    }
+
+    if (!initializePacket())
+    {
+        disconnectFromStream();
         emit stateChanged(StreamState::Error);
         return;
     }
@@ -76,21 +83,30 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
         << "Connected to stream successfully.";
 
     emit stateChanged(StreamState::Connected);
+
+    for (int i = 0; i < 10; ++i)
+    {
+        if (!readNextPacket())
+            break;
+    }
 }
 
 void FFmpegStreamingService::disconnectFromStream()
 {
+    const bool wasConnected =
+        m_formatContext || m_codecContext || m_packet;
 
-    if (m_formatContext || m_codecContext)
+    if (wasConnected)
     {
         qInfo(ffmpegStreamingLog)
             << "Disconnecting stream.";
     }
-
+    cleanupPacket();
     cleanupDecoder();
     cleanupInput();
 
-    emit stateChanged(StreamState::Disconnected);
+    if (wasConnected)
+        emit stateChanged(StreamState::Disconnected);
 }
 
 bool FFmpegStreamingService::openInput(const QString &url)
@@ -164,9 +180,9 @@ bool FFmpegStreamingService::findVideoStream()
 
 bool FFmpegStreamingService::createCodecContext()
 {
-    AVStream* stream = m_formatContext->streams[m_videoStreamIndex];
+    const AVStream* stream = m_formatContext->streams[m_videoStreamIndex];
 
-    AVCodecParameters* codecParameters = stream->codecpar;
+    const AVCodecParameters* codecParameters = stream->codecpar;
 
     const AVCodec* decoder =
         avcodec_find_decoder(codecParameters->codec_id);
@@ -264,6 +280,79 @@ bool FFmpegStreamingService::initializeDecoder()
     }
 
     return true;
+}
+
+bool FFmpegStreamingService::initializePacket()
+{
+    m_packet = av_packet_alloc();
+
+    if (!m_packet)
+    {
+        qCritical(ffmpegStreamingLog)
+            << "Failed to allocate AVPacket.";
+
+        return false;
+    }
+
+    qInfo(ffmpegStreamingLog)
+        << "Packet allocated successfully.";
+
+    return true;
+}
+
+bool FFmpegStreamingService::readNextPacket()
+{
+    Q_ASSERT(m_formatContext != nullptr);
+    Q_ASSERT(m_packet != nullptr);
+
+    const int result = av_read_frame(m_formatContext, m_packet);
+
+    if (result < 0)
+    {
+        if (result == AVERROR_EOF)
+        {
+            qCInfo(ffmpegStreamingLog)
+                << "End of stream reached.";
+
+            return false;
+        }
+
+        qWarning(ffmpegStreamingLog)
+            << "Failed to read packet:"
+            << ffmpegErrorString(result);
+
+        return false;
+    }
+
+    if (m_packet->stream_index != m_videoStreamIndex)
+    {
+        av_packet_unref(m_packet);
+        return true;
+    }
+
+    qDebug(ffmpegStreamingLog)
+        << "Video packet:"
+        << "stream =" << m_packet->stream_index
+        << "pts =" << m_packet->pts
+        << "dts =" << m_packet->dts
+        << "duration =" << m_packet->duration
+        << "size =" << m_packet->size
+        << "flags =" << m_packet->flags;
+
+    av_packet_unref(m_packet);
+
+    return true;
+}
+
+void FFmpegStreamingService::cleanupPacket()
+{
+    if (!m_packet)
+        return;
+
+    av_packet_free(&m_packet);
+
+    qCInfo(ffmpegStreamingLog)
+        << "Packet released.";
 }
 
 void FFmpegStreamingService::cleanupInput()
