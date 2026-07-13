@@ -23,6 +23,12 @@ private:
 
     bool readStreamInfo();
 
+    bool findVideoStream();
+
+    bool createCodecContext();
+
+    bool openDecoder();
+
     bool initializeDecoder();
 
     void cleanupInput();
@@ -31,7 +37,6 @@ private:
 
 private:
     AVFormatContext* m_formatContext = nullptr;
-
     AVCodecContext* m_codecContext = nullptr;
 
     int m_videoStreamIndex = -1;
