@@ -32,7 +32,7 @@ FFmpegStreamingService::FFmpegStreamingService(QObject* parent)
 
     if (result < 0)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to initialize FFmpeg networking:"
             << ffmpegErrorString(result);
     }
@@ -48,7 +48,7 @@ FFmpegStreamingService::~FFmpegStreamingService()
 void FFmpegStreamingService::connectToStream(const QString& uri)
 {
     disconnectFromStream();
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
 
     emit stateChanged(StreamState::Opening);
@@ -79,15 +79,15 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
         return;
     }
 
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
 
     emit stateChanged(StreamState::Connected);
 
-    for (int i = 0; i < 10; ++i)
+    if (!readNextPacket())
     {
-        if (!readNextPacket())
-            break;
+        qCWarning(ffmpegStreamingLog)
+            << "Failed to read first packet.";
     }
 }
 
@@ -98,7 +98,7 @@ void FFmpegStreamingService::disconnectFromStream()
 
     if (wasConnected)
     {
-        qInfo(ffmpegStreamingLog)
+        qCInfo(ffmpegStreamingLog)
             << "Disconnecting stream.";
     }
     cleanupPacket();
@@ -111,7 +111,7 @@ void FFmpegStreamingService::disconnectFromStream()
 
 bool FFmpegStreamingService::openInput(const QString &url)
 {
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Opening stream:" << url;
 
     int result = avformat_open_input(
@@ -122,7 +122,7 @@ bool FFmpegStreamingService::openInput(const QString &url)
 
     if (result < 0)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to open stream:"
             << ffmpegErrorString(result);
 
@@ -141,7 +141,7 @@ bool FFmpegStreamingService::readStreamInfo()
 
     if (result < 0)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to read stream information: "
             << ffmpegErrorString(result);
 
@@ -165,14 +165,14 @@ bool FFmpegStreamingService::findVideoStream()
         {
             m_videoStreamIndex = static_cast<int>(i);
 
-            qInfo(ffmpegStreamingLog)
+            qCInfo(ffmpegStreamingLog)
                 << "Found video stream:" << m_videoStreamIndex;
 
             return true;
         }
     }
 
-    qWarning(ffmpegStreamingLog)
+    qCWarning(ffmpegStreamingLog)
         << "No video stream found.";
 
     return false;
@@ -189,7 +189,7 @@ bool FFmpegStreamingService::createCodecContext()
 
     if (!decoder)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "No decoder found.";
 
         return false;
@@ -199,7 +199,7 @@ bool FFmpegStreamingService::createCodecContext()
 
     if (!m_codecContext)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to allocate codec context.";
 
         return false;
@@ -212,7 +212,7 @@ bool FFmpegStreamingService::createCodecContext()
 
     if (result < 0)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to copy codec parameters:"
             << ffmpegErrorString(result);
 
@@ -234,7 +234,7 @@ bool FFmpegStreamingService::openDecoder()
 
     if (result < 0)
     {
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to open decoder:"
             << ffmpegErrorString(result);
 
@@ -243,14 +243,14 @@ bool FFmpegStreamingService::openDecoder()
         return false;
     }
 
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Decoder opened successfully.";
 
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Codec:"
         << m_codecContext->codec->name;
 
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Resolution:"
         << m_codecContext->width
         << "x"
@@ -288,13 +288,13 @@ bool FFmpegStreamingService::initializePacket()
 
     if (!m_packet)
     {
-        qCritical(ffmpegStreamingLog)
+        qCCritical(ffmpegStreamingLog)
             << "Failed to allocate AVPacket.";
 
         return false;
     }
 
-    qInfo(ffmpegStreamingLog)
+    qCInfo(ffmpegStreamingLog)
         << "Packet allocated successfully.";
 
     return true;
@@ -317,7 +317,7 @@ bool FFmpegStreamingService::readNextPacket()
             return false;
         }
 
-        qWarning(ffmpegStreamingLog)
+        qCWarning(ffmpegStreamingLog)
             << "Failed to read packet:"
             << ffmpegErrorString(result);
 
@@ -330,7 +330,7 @@ bool FFmpegStreamingService::readNextPacket()
         return true;
     }
 
-    qDebug(ffmpegStreamingLog)
+    qCDebug(ffmpegStreamingLog)
         << "Video packet:"
         << "stream =" << m_packet->stream_index
         << "pts =" << m_packet->pts
