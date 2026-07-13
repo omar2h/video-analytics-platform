@@ -44,42 +44,33 @@ FFmpegStreamingService::~FFmpegStreamingService()
     avformat_network_deinit();
 }
 
-void FFmpegStreamingService::connectToStream(const QString &uri)
+void FFmpegStreamingService::connectToStream(const QString& uri)
 {
-    qInfo(ffmpegStreamingLog) << "Connecting to stream:" << uri;
+    qInfo(ffmpegStreamingLog)
+        << "Connecting to stream:" << uri;
+
     disconnectFromStream();
+
     emit stateChanged(StreamState::Opening);
 
-    const QByteArray uriUtf8 = uri.toUtf8();
-    int result = avformat_open_input(
-        &m_formatContext,
-        uriUtf8.constData(),
-        nullptr,
-        nullptr);
-    if (result < 0)
+    if (!openInput(uri))
     {
-        qWarning(ffmpegStreamingLog)
-            << "Failed to open stream:"
-            << ffmpegErrorString(result);
         emit stateChanged(StreamState::Error);
         return;
     }
 
-
-    result = avformat_find_stream_info(m_formatContext, nullptr);
-
-    if (result < 0)
+    if (!readStreamInfo())
     {
-        qWarning(ffmpegStreamingLog)
-            << "Failed to read stream information:"
-            << ffmpegErrorString(result);
-
-        disconnectFromStream();
-
         emit stateChanged(StreamState::Error);
-
         return;
     }
+
+    if (!initializeDecoder())
+    {
+        emit stateChanged(StreamState::Error);
+        return;
+    }
+
     qInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
 
@@ -88,14 +79,81 @@ void FFmpegStreamingService::connectToStream(const QString &uri)
 
 void FFmpegStreamingService::disconnectFromStream()
 {
-    if (!m_formatContext)
-        return;
 
-    qInfo(ffmpegStreamingLog)
-        << "Disconnecting stream.";
+    if (m_formatContext || m_codecContext)
+    {
+        qInfo(ffmpegStreamingLog)
+            << "Disconnecting stream.";
+    }
 
-    avformat_close_input(&m_formatContext);
+    cleanupDecoder();
+    cleanupInput();
 
     emit stateChanged(StreamState::Disconnected);
+}
+
+bool FFmpegStreamingService::openInput(const QString &url)
+{
+    qInfo(ffmpegStreamingLog)
+        << "Opening stream:" << url;
+
+    int result = avformat_open_input(
+        &m_formatContext,
+        url.toUtf8().constData(),
+        nullptr,
+        nullptr);
+
+    if (result < 0)
+    {
+        qWarning(ffmpegStreamingLog)
+            << "Failed to open stream:"
+            << ffmpegErrorString(result);
+
+        cleanupInput();
+
+        emit stateChanged(StreamState::Error);
+
+        return false;
+    }
+
+    return true;
+}
+
+bool FFmpegStreamingService::readStreamInfo()
+{
+    int result =
+        avformat_find_stream_info(m_formatContext, nullptr);
+
+    if (result < 0)
+    {
+        qWarning(ffmpegStreamingLog)
+            << "Failed to read stream information: "
+            << ffmpegErrorString(result);
+
+        disconnectFromStream();
+
+        return false;
+    }
+
+    return true;
+}
+
+bool FFmpegStreamingService::initializeDecoder()
+{
+    return true;
+}
+
+void FFmpegStreamingService::cleanupInput()
+{
+    if (m_formatContext)
+    {
+        avformat_close_input(&m_formatContext);
+        m_formatContext = nullptr;
+    }
+}
+
+void FFmpegStreamingService::cleanupDecoder()
+{
+
 }
 }

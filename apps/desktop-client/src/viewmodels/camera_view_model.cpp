@@ -6,7 +6,7 @@ namespace vap
 CameraViewModel::CameraViewModel(IStreamingService* streamingService, QObject* parent)
     : QObject(parent), m_streamingService(streamingService)
 {
-    connect(m_cameraService, &IStreamingService::stateChanged, this,
+    connect(m_streamingService, &IStreamingService::stateChanged, this,
             [this](StreamState state){
                 m_state = state;
 
