@@ -7,6 +7,7 @@ extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/pixdesc.h>
 #include <libavutil/error.h>
 }
 
@@ -79,28 +80,41 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
         return;
     }
 
+    if (!initializeFrame())
+    {
+        disconnectFromStream();
+        emit stateChanged(StreamState::Error);
+        return;
+    }
+
     qCInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
 
     emit stateChanged(StreamState::Connected);
 
-    if (!readNextPacket())
+    while (readNextPacket())
     {
-        qCWarning(ffmpegStreamingLog)
-            << "Failed to read first packet.";
+        // Continue reading and decoding packets.
     }
+
+    qCInfo(ffmpegStreamingLog)
+        << "Stopped reading packets.";
 }
 
 void FFmpegStreamingService::disconnectFromStream()
 {
     const bool wasConnected =
-        m_formatContext || m_codecContext || m_packet;
+        m_formatContext ||
+        m_codecContext ||
+        m_packet ||
+        m_frame;
 
     if (wasConnected)
     {
         qCInfo(ffmpegStreamingLog)
             << "Disconnecting stream.";
     }
+    cleanupFrame();
     cleanupPacket();
     cleanupDecoder();
     cleanupInput();
@@ -300,6 +314,24 @@ bool FFmpegStreamingService::initializePacket()
     return true;
 }
 
+bool FFmpegStreamingService::initializeFrame()
+{
+    m_frame = av_frame_alloc();
+
+    if (!m_frame)
+    {
+        qCCritical(ffmpegStreamingLog)
+            << "Failed to allocate AVFrame.";
+
+        return false;
+    }
+
+    qCInfo(ffmpegStreamingLog)
+        << "Allocated reusable AVFrame.";
+
+    return true;
+}
+
 bool FFmpegStreamingService::readNextPacket()
 {
     Q_ASSERT(m_formatContext != nullptr);
@@ -307,41 +339,125 @@ bool FFmpegStreamingService::readNextPacket()
 
     const int result = av_read_frame(m_formatContext, m_packet);
 
+    if (result == AVERROR_EOF)
+    {
+        qCInfo(ffmpegStreamingLog)
+            << "End of stream.";
+
+        return false;
+    }
+
     if (result < 0)
     {
-        if (result == AVERROR_EOF)
-        {
-            qCInfo(ffmpegStreamingLog)
-                << "End of stream reached.";
-
-            return false;
-        }
-
-        qCWarning(ffmpegStreamingLog)
+        qCCritical(ffmpegStreamingLog)
             << "Failed to read packet:"
             << ffmpegErrorString(result);
 
         return false;
     }
 
-    if (m_packet->stream_index != m_videoStreamIndex)
+    if (m_packet->stream_index == m_videoStreamIndex)
     {
-        av_packet_unref(m_packet);
-        return true;
-    }
+        qCDebug(ffmpegStreamingLog)
+            << "Packet:"
+            << "PTS =" << m_packet->pts
+            << "DTS =" << m_packet->dts
+            << "Duration =" << m_packet->duration
+            << "Size =" << m_packet->size;
 
-    qCDebug(ffmpegStreamingLog)
-        << "Video packet:"
-        << "stream =" << m_packet->stream_index
-        << "pts =" << m_packet->pts
-        << "dts =" << m_packet->dts
-        << "duration =" << m_packet->duration
-        << "size =" << m_packet->size
-        << "flags =" << m_packet->flags;
+        if (sendPacketToDecoder())
+        {
+            receiveFrames();
+        }
+    }
 
     av_packet_unref(m_packet);
 
     return true;
+}
+
+bool FFmpegStreamingService::sendPacketToDecoder()
+{
+    Q_ASSERT(m_codecContext != nullptr);
+    Q_ASSERT(m_packet != nullptr);
+    const int result =
+        avcodec_send_packet(m_codecContext, m_packet);
+
+    if (result == 0)
+    {
+        return true;
+    }
+
+    if (result == AVERROR(EAGAIN))
+    {
+        qCWarning(ffmpegStreamingLog)
+            << "Decoder is not ready to accept another packet.";
+
+        return false;
+    }
+
+    if (result == AVERROR_EOF)
+    {
+        qCInfo(ffmpegStreamingLog)
+            << "Decoder has been flushed.";
+
+        return false;
+    }
+
+    qCCritical(ffmpegStreamingLog)
+        << "Failed to send packet to decoder:"
+        << ffmpegErrorString(result);
+
+    return false;
+}
+
+void FFmpegStreamingService::receiveFrames()
+{
+    Q_ASSERT(m_codecContext != nullptr);
+    Q_ASSERT(m_frame != nullptr);
+
+    while (true)
+    {
+        const int result =
+            avcodec_receive_frame(m_codecContext, m_frame);
+
+        if (result == AVERROR(EAGAIN))
+        {
+            break;
+        }
+
+        if (result == AVERROR_EOF)
+        {
+            qCInfo(ffmpegStreamingLog)
+                << "Decoder reached end of stream.";
+
+            break;
+        }
+
+        if (result < 0)
+        {
+            qCCritical(ffmpegStreamingLog)
+                << "Failed to receive decoded frame:"
+                << ffmpegErrorString(result);
+
+            break;
+        }
+
+        const char* pixelFormat =
+            av_get_pix_fmt_name(
+                static_cast<AVPixelFormat>(m_frame->format));
+
+        const bool isKeyFrame =
+            (m_frame->flags & AV_FRAME_FLAG_KEY) != 0;
+
+        qCDebug(ffmpegStreamingLog)
+            << "Decoded frame:"
+            << "PTS =" << m_frame->pts
+            << "Resolution =" << m_frame->width << "x" << m_frame->height
+            << "Pixel Format =" << (pixelFormat ? pixelFormat : "unknown")
+            << "Type =" << (isKeyFrame ? "Key" : "Inter");
+        av_frame_unref(m_frame);
+    }
 }
 
 void FFmpegStreamingService::cleanupPacket()
@@ -372,5 +488,16 @@ void FFmpegStreamingService::cleanupDecoder()
     }
 
     m_videoStreamIndex = -1;
+}
+
+void FFmpegStreamingService::cleanupFrame()
+{
+    if (!m_frame)
+        return;
+
+    av_frame_free(&m_frame);
+
+    qCDebug(ffmpegStreamingLog)
+        << "Released AVFrame.";
 }
 }
