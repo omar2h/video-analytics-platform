@@ -15,7 +15,7 @@ namespace vap
 class FFmpegFrameConverter : public IFrameConverter
 {
 public:
-    FFmpegFrameConverter();
+    FFmpegFrameConverter() = default;
     ~FFmpegFrameConverter() override;
 
     [[nodiscard]]

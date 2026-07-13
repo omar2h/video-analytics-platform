@@ -24,6 +24,8 @@ public:
 
 signals:
     void stateChanged(StreamState state);
+    void frameReady(const QImage& frame);
+
 };
 
 }

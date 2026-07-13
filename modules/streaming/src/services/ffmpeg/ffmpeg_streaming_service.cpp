@@ -3,6 +3,8 @@
 #include <vap/streaming/logging.hpp>
 Q_LOGGING_CATEGORY(ffmpegStreamingLog, "vap.streaming.ffmpeg")
 
+#include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -26,9 +28,13 @@ QString ffmpegErrorString(int errorCode)
 namespace vap
 {
 
-FFmpegStreamingService::FFmpegStreamingService(QObject* parent)
-    : IStreamingService(parent)
+FFmpegStreamingService::FFmpegStreamingService(std::unique_ptr<IFrameConverter> frameConverter,
+                                               QObject* parent)
+    : IStreamingService(parent),
+     m_frameConverter(std::move(frameConverter))
 {
+    Q_ASSERT(m_frameConverter);
+
     const int result = avformat_network_init();
 
     if (result < 0)
@@ -456,6 +462,14 @@ void FFmpegStreamingService::receiveFrames()
             << "Resolution =" << m_frame->width << "x" << m_frame->height
             << "Pixel Format =" << (pixelFormat ? pixelFormat : "unknown")
             << "Type =" << (isKeyFrame ? "Key" : "Inter");
+
+        QImage image = m_frameConverter->convert(m_frame);
+
+        if (image.isNull())
+        {
+            qCWarning(ffmpegStreamingLog)
+                << "Failed to convert decoded frame.";
+        }
         av_frame_unref(m_frame);
     }
 }

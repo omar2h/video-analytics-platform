@@ -8,13 +8,14 @@ struct AVPacket;
 struct AVFrame;
 namespace vap
 {
-
+class IFrameConverter;
 class FFmpegStreamingService : public IStreamingService
 {
     Q_OBJECT
 
 public:
-    explicit FFmpegStreamingService(QObject* parent = nullptr);
+    explicit FFmpegStreamingService(std::unique_ptr<IFrameConverter> frameConverter,
+                                    QObject* parent = nullptr);
     ~FFmpegStreamingService() override;
 
     void connectToStream(const QString& uri) override;
@@ -61,6 +62,6 @@ private:
 
     int m_videoStreamIndex = -1;
 
-
+    std::unique_ptr<IFrameConverter> m_frameConverter;
 };
 }
