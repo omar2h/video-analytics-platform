@@ -41,8 +41,6 @@ void ApplicationBootstrap::initialize()
 
     m_engine.rootContext()->setContextProperty("cameraViewModel", m_cameraViewModel.get());
     m_engine.rootContext()->setContextProperty("cameraManagementViewModel", m_cameraManagementViewModel.get());
-
-
 }
 
 }

@@ -13,6 +13,12 @@ CameraViewModel::CameraViewModel(IStreamingService* streamingService, QObject* p
                 emit stateChanged();
                 emit stateTextChanged();
             });
+
+    connect(
+        m_streamingService,
+        &IStreamingService::frameReady,
+        this,
+        &CameraViewModel::onFrameReady);
 }
 
 QString CameraViewModel::stateText() const
@@ -43,6 +49,11 @@ int CameraViewModel::state() const
     return static_cast<int>(m_state);
 }
 
+QImage CameraViewModel::currentFrame() const
+{
+    return m_currentFrame;
+}
+
 void CameraViewModel::connectCamera(const QString& url)
 {
     m_streamingService->connectToStream(url);
@@ -51,6 +62,12 @@ void CameraViewModel::connectCamera(const QString& url)
 void CameraViewModel::disconnectCamera()
 {
     m_streamingService->disconnectFromStream();
+}
+
+void CameraViewModel::onFrameReady(const QImage& frame)
+{
+    m_currentFrame = frame;
+    emit currentFrameChanged();
 }
 
 }
