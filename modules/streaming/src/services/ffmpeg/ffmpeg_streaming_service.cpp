@@ -470,6 +470,9 @@ void FFmpegStreamingService::receiveFrames()
             qCWarning(ffmpegStreamingLog)
                 << "Failed to convert decoded frame.";
         }
+        else
+            emit frameReady(image);
+
         av_frame_unref(m_frame);
     }
 }
