@@ -14,7 +14,7 @@ qt_add_executable(desktop_client
     src/viewmodels/camera_management_view_model.hpp
 
     src/providers/video_frame_provider.hpp
-    src/providers/video_frame_provider.hpp
+    src/providers/video_frame_provider.cpp
 )
 
 qt_add_qml_module(desktop_client

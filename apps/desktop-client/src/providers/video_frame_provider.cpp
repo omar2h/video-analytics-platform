@@ -6,6 +6,7 @@ namespace vap
 VideoFrameProvider::VideoFrameProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
 {
+
 }
 
 void VideoFrameProvider::setImage(const QImage& image)

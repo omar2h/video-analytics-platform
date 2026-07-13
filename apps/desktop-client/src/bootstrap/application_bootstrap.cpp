@@ -10,6 +10,7 @@
 #include <vap/camera/validation/camera_validator.hpp>
 #include <vap/camera/services/camera_application_service.hpp>
 #include <vap/database/database.hpp>
+#include <src/providers/video_frame_provider.hpp>
 
 #include <src/viewmodels/camera_view_model.hpp>
 #include <src/viewmodels/camera_management_view_model.hpp>
@@ -38,6 +39,12 @@ void ApplicationBootstrap::initialize()
     m_cameraValidator = std::make_unique<CameraValidator>();
     m_cameraApplicationService = std::make_unique<CameraApplicationService>(m_cameraRepository.get(), m_cameraValidator.get());
     m_cameraManagementViewModel = std::make_unique<CameraManagementViewModel>(m_cameraApplicationService.get());
+
+    m_videoFrameProvider = new VideoFrameProvider();
+
+    m_engine.addImageProvider(
+        "video",
+        m_videoFrameProvider);
 
     m_engine.rootContext()->setContextProperty("cameraViewModel", m_cameraViewModel.get());
     m_engine.rootContext()->setContextProperty("cameraManagementViewModel", m_cameraManagementViewModel.get());

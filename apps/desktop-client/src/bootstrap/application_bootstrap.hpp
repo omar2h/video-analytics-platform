@@ -16,6 +16,7 @@ class CameraApplicationService;
 class CameraManagementViewModel;
 class CameraValidator;
 class Database;
+class VideoFrameProvider;
 
 class ApplicationBootstrap
 {
@@ -34,5 +35,7 @@ private:
     std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;
+
+    VideoFrameProvider* m_videoFrameProvider = nullptr;
 };
 }
