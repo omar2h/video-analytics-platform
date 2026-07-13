@@ -1,6 +1,6 @@
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
 
-#include <QLoggingCategory>
+#include <vap/streaming/logging.hpp>
 Q_LOGGING_CATEGORY(ffmpegStreamingLog, "vap.streaming.ffmpeg")
 
 extern "C"

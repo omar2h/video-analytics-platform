@@ -24,6 +24,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Quick
     QuickControls2
     Sql
+    Gui
 )
 find_package(PkgConfig REQUIRED)
 
