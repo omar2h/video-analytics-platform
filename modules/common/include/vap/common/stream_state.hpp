@@ -1,3 +1,5 @@
+#pragma once
+
 namespace vap
 {
 enum class StreamState

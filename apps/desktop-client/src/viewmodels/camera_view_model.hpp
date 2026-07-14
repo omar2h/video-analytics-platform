@@ -3,11 +3,11 @@
 #include <QObject>
 #include <QImage>
 
-#include <vap/streaming/services/i_streaming_service.hpp>
+#include <vap/common/stream_state.hpp>
 
 namespace vap
 {
-
+class StreamingWorker;
 class CameraViewModel final : public QObject
 {
     Q_OBJECT
@@ -31,7 +31,7 @@ class CameraViewModel final : public QObject
         NOTIFY frameRevisionChanged)
 
 public:
-    explicit CameraViewModel(IStreamingService* streamingService, QObject* parent = nullptr);
+    explicit CameraViewModel(StreamingWorker* streamingWorker, QObject* parent = nullptr);
 
     QString stateText() const;
     int state() const;
@@ -52,7 +52,7 @@ signals:
 
 private:
     // non-owning
-    IStreamingService* m_streamingService;
+    StreamingWorker* m_streamingWorker;
     QString m_url;
     StreamState m_state{StreamState::Disconnected};
     QImage m_currentFrame;

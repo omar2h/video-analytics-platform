@@ -1,26 +1,27 @@
 #include "camera_view_model.hpp"
 
-#include <QDebug>
+#include <vap/streaming/worker/streaming_worker.hpp>
 
 namespace vap
 {
 
-CameraViewModel::CameraViewModel(IStreamingService* streamingService, QObject* parent)
-    : QObject(parent), m_streamingService(streamingService)
+CameraViewModel::CameraViewModel(StreamingWorker* streamingWorker, QObject* parent)
+    : QObject(parent), m_streamingWorker(streamingWorker)
 {
-    connect(m_streamingService, &IStreamingService::stateChanged, this,
-            [this](StreamState state){
+    Q_ASSERT(m_streamingWorker != nullptr);
+    connect(m_streamingWorker,
+            &StreamingWorker::stateChanged,
+            this,
+            [this](StreamState state) {
                 m_state = state;
-
                 emit stateChanged();
                 emit stateTextChanged();
             });
 
-    connect(
-        m_streamingService,
-        &IStreamingService::frameReady,
-        this,
-        &CameraViewModel::onFrameReady);
+    connect(m_streamingWorker,
+            &StreamingWorker::frameReady,
+            this,
+            &CameraViewModel::onFrameReady);
 }
 
 QString CameraViewModel::stateText() const
@@ -63,17 +64,16 @@ int CameraViewModel::frameRevision() const
 
 void CameraViewModel::connectCamera(const QString& url)
 {
-    m_streamingService->connectToStream(url);
+    m_streamingWorker->start(url);
 }
 
 void CameraViewModel::disconnectCamera()
 {
-    m_streamingService->disconnectFromStream();
+    m_streamingWorker->stop();
 }
 
 void CameraViewModel::onFrameReady(const QImage& frame)
 {
-    qDebug() << "CameraViewModel::onFrameReady";
     m_currentFrame = frame;
     emit currentFrameChanged();
 

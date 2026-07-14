@@ -4,11 +4,13 @@ add_library(streaming STATIC
     include/vap/streaming/services/mock_streaming_service.hpp
     include/vap/streaming/frame/i_frame_converter.hpp
     include/vap/streaming/frame/ffmpeg_frame_converter.hpp
+    include/vap/streaming/worker/streaming_worker.hpp
     include/vap/streaming/logging.hpp
 
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp
     src/frame/ffmpeg_frame_converter.cpp
+    src/worker/streaming_worker.cpp
 )
 
 pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)

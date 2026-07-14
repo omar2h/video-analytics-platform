@@ -10,6 +10,7 @@
 #include <vap/camera/repositories/sqlite_camera_repository.hpp>
 #include <vap/camera/validation/camera_validator.hpp>
 #include <vap/camera/services/camera_application_service.hpp>
+#include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/database/database.hpp>
 #include <src/providers/video_frame_provider.hpp>
 
@@ -26,7 +27,8 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 void ApplicationBootstrap::initialize()
 {
     m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
-    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingService.get());
+    m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
+    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingWorker.get());
 
     m_database = std::make_unique<Database>("video_analytics.db");
 
@@ -40,6 +42,7 @@ void ApplicationBootstrap::initialize()
     m_cameraValidator = std::make_unique<CameraValidator>();
     m_cameraApplicationService = std::make_unique<CameraApplicationService>(m_cameraRepository.get(), m_cameraValidator.get());
     m_cameraManagementViewModel = std::make_unique<CameraManagementViewModel>(m_cameraApplicationService.get());
+
 
     m_videoFrameProvider = new VideoFrameProvider();
 
