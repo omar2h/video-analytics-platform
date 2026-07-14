@@ -3,6 +3,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QObject>
+#include <QThread>
 
 #include <vap/streaming/services/mock_streaming_service.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
@@ -26,8 +27,16 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 
 void ApplicationBootstrap::initialize()
 {
+    m_streamingThread = std::make_unique<QThread>();
+
     m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
     m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
+
+    m_streamingService->moveToThread(m_streamingThread.get());
+    m_streamingWorker->moveToThread(m_streamingThread.get());
+
+    m_streamingThread->start();
+
     m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingWorker.get());
 
     m_database = std::make_unique<Database>("video_analytics.db");

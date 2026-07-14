@@ -37,6 +37,7 @@ private:
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;
     std::unique_ptr<StreamingWorker> m_streamingWorker;
+    std::unique_ptr<QThread> m_streamingThread;
 
     VideoFrameProvider* m_videoFrameProvider = nullptr;
 };

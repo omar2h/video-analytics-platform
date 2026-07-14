@@ -64,12 +64,19 @@ int CameraViewModel::frameRevision() const
 
 void CameraViewModel::connectCamera(const QString& url)
 {
-    m_streamingWorker->start(url);
+    QMetaObject::invokeMethod(
+        m_streamingWorker,
+        "start",
+        Qt::QueuedConnection,
+        Q_ARG(QString, url));
 }
 
 void CameraViewModel::disconnectCamera()
 {
-    m_streamingWorker->stop();
+    QMetaObject::invokeMethod(
+        m_streamingWorker,
+        "stop",
+        Qt::QueuedConnection);
 }
 
 void CameraViewModel::onFrameReady(const QImage& frame)
