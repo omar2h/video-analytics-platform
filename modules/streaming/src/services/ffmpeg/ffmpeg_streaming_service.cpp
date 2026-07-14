@@ -47,48 +47,23 @@ FFmpegStreamingService::FFmpegStreamingService(std::unique_ptr<IFrameConverter> 
 
 FFmpegStreamingService::~FFmpegStreamingService()
 {
-    disconnectFromStream();
+    cleanup();
 
     avformat_network_deinit();
 }
 
 void FFmpegStreamingService::connectToStream(const QString& uri)
 {
-    disconnectFromStream();
+    m_stopRequested = false;
+
     qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
 
     emit stateChanged(StreamState::Opening);
 
-    if (!openInput(uri))
+    if (!initializeEverything(uri))
     {
-        emit stateChanged(StreamState::Error);
-        return;
-    }
-
-    if (!readStreamInfo())
-    {
-        emit stateChanged(StreamState::Error);
-        return;
-    }
-
-    if (!initializeDecoder())
-    {
-        disconnectFromStream();
-        emit stateChanged(StreamState::Error);
-        return;
-    }
-
-    if (!initializePacket())
-    {
-        disconnectFromStream();
-        emit stateChanged(StreamState::Error);
-        return;
-    }
-
-    if (!initializeFrame())
-    {
-        disconnectFromStream();
+        cleanup();
         emit stateChanged(StreamState::Error);
         return;
     }
@@ -98,40 +73,24 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     emit stateChanged(StreamState::Connected);
 
-    // TODO(v1.1):
-    // Move the packet reading and decoding loop to a dedicated worker thread.
-    // Running this loop on the GUI thread blocks the Qt event loop and freezes
-    // the user interface.
-
-    while (readNextPacket())
+    while (!m_stopRequested)
     {
-        // Continue reading and decoding packets.
+        if (!readNextPacket())
+        {
+            break;
+        }
     }
-
     qCInfo(ffmpegStreamingLog)
         << "Stopped reading packets.";
+
+    cleanup();
+
+    emit stateChanged(StreamState::Disconnected);
 }
 
 void FFmpegStreamingService::disconnectFromStream()
 {
-    const bool wasConnected =
-        m_formatContext ||
-        m_codecContext ||
-        m_packet ||
-        m_frame;
-
-    if (wasConnected)
-    {
-        qCInfo(ffmpegStreamingLog)
-            << "Disconnecting stream.";
-    }
-    cleanupFrame();
-    cleanupPacket();
-    cleanupDecoder();
-    cleanupInput();
-
-    if (wasConnected)
-        emit stateChanged(StreamState::Disconnected);
+    m_stopRequested = true;
 }
 
 bool FFmpegStreamingService::openInput(const QString &url)
@@ -343,6 +302,35 @@ bool FFmpegStreamingService::initializeFrame()
     return true;
 }
 
+bool FFmpegStreamingService::initializeEverything(const QString& uri)
+{
+    if (!openInput(uri))
+    {
+        return false;
+    }
+
+    if (!readStreamInfo())
+    {
+        return false;
+    }
+
+    if (!initializeDecoder())
+    {
+        return false;
+    }
+
+    if (!initializePacket())
+    {
+        return false;
+    }
+
+    if (!initializeFrame())
+    {
+        return false;
+    }
+    return true;
+}
+
 bool FFmpegStreamingService::readNextPacket()
 {
     Q_ASSERT(m_formatContext != nullptr);
@@ -523,4 +511,13 @@ void FFmpegStreamingService::cleanupFrame()
     qCDebug(ffmpegStreamingLog)
         << "Released AVFrame.";
 }
+
+void FFmpegStreamingService::cleanup()
+{
+    cleanupFrame();
+    cleanupPacket();
+    cleanupDecoder();
+    cleanupInput();
+}
+
 }

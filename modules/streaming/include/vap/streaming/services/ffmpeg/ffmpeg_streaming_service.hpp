@@ -2,6 +2,8 @@
 
 #include <vap/streaming/services/i_streaming_service.hpp>
 
+#include <atomic>
+
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVPacket;
@@ -38,6 +40,8 @@ private:
 
     bool initializeFrame();
 
+    bool initializeEverything(const QString& uri);
+
     bool readNextPacket();
 
     bool sendPacketToDecoder();
@@ -54,6 +58,8 @@ private:
 
     void cleanupDecoder();
 
+    void cleanup();
+
 private:
     AVFormatContext* m_formatContext = nullptr;
     AVCodecContext* m_codecContext = nullptr;
@@ -63,5 +69,7 @@ private:
     int m_videoStreamIndex = -1;
 
     std::unique_ptr<IFrameConverter> m_frameConverter;
+
+    std::atomic_bool m_stopRequested{false};
 };
 }
