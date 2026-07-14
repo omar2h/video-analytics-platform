@@ -86,7 +86,7 @@ QImage FFmpegFrameConverter::convert(const AVFrame* frame)
         return {};
     }
 
-    return image;
+    return image.copy();
 }
 
 bool FFmpegFrameConverter::ensureContext(const AVFrame* frame)

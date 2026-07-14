@@ -1,5 +1,7 @@
 #include "camera_view_model.hpp"
 
+#include <QDebug>
+
 namespace vap
 {
 
@@ -54,6 +56,11 @@ QImage CameraViewModel::currentFrame() const
     return m_currentFrame;
 }
 
+int CameraViewModel::frameRevision() const
+{
+    return m_frameRevision;
+}
+
 void CameraViewModel::connectCamera(const QString& url)
 {
     m_streamingService->connectToStream(url);
@@ -66,8 +73,12 @@ void CameraViewModel::disconnectCamera()
 
 void CameraViewModel::onFrameReady(const QImage& frame)
 {
+    qDebug() << "CameraViewModel::onFrameReady";
     m_currentFrame = frame;
     emit currentFrameChanged();
+
+    ++m_frameRevision;
+    emit frameRevisionChanged();
 }
 
 }

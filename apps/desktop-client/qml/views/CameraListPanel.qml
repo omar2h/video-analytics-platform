@@ -71,6 +71,17 @@ Frame {
             color: "red"
         }
 
+        Image {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 360
+
+            fillMode: Image.PreserveAspectFit
+            cache: false
+
+            source: "image://video/current?rev="
+                    + cameraViewModel.frameRevision
+        }
+
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true

@@ -2,6 +2,7 @@
 
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QObject>
 
 #include <vap/streaming/services/mock_streaming_service.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
@@ -45,6 +46,16 @@ void ApplicationBootstrap::initialize()
     m_engine.addImageProvider(
         "video",
         m_videoFrameProvider);
+
+    QObject::connect(
+        m_cameraViewModel.get(),
+        &CameraViewModel::currentFrameChanged,
+        &m_engine,
+        [this]()
+        {
+            m_videoFrameProvider->setImage(
+                m_cameraViewModel->currentFrame());
+        });
 
     m_engine.rootContext()->setContextProperty("cameraViewModel", m_cameraViewModel.get());
     m_engine.rootContext()->setContextProperty("cameraManagementViewModel", m_cameraManagementViewModel.get());

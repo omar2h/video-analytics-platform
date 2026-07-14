@@ -98,6 +98,11 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     emit stateChanged(StreamState::Connected);
 
+    // TODO(v1.1):
+    // Move the packet reading and decoding loop to a dedicated worker thread.
+    // Running this loop on the GUI thread blocks the Qt event loop and freezes
+    // the user interface.
+
     while (readNextPacket())
     {
         // Continue reading and decoding packets.
@@ -470,8 +475,9 @@ void FFmpegStreamingService::receiveFrames()
             qCWarning(ffmpegStreamingLog)
                 << "Failed to convert decoded frame.";
         }
-        else
+        else {
             emit frameReady(image);
+        }
 
         av_frame_unref(m_frame);
     }

@@ -25,12 +25,18 @@ class CameraViewModel final : public QObject
         READ currentFrame
         NOTIFY currentFrameChanged)
 
+    Q_PROPERTY(
+        int frameRevision
+        READ frameRevision
+        NOTIFY frameRevisionChanged)
+
 public:
     explicit CameraViewModel(IStreamingService* streamingService, QObject* parent = nullptr);
 
     QString stateText() const;
     int state() const;
     QImage currentFrame() const;
+    int frameRevision() const;
 
     Q_INVOKABLE void connectCamera(const QString& url);
     Q_INVOKABLE void disconnectCamera();
@@ -42,6 +48,7 @@ signals:
     void stateTextChanged();
     void stateChanged();
     void currentFrameChanged();
+    void frameRevisionChanged();
 
 private:
     // non-owning
@@ -49,6 +56,7 @@ private:
     QString m_url;
     StreamState m_state{StreamState::Disconnected};
     QImage m_currentFrame;
+    int m_frameRevision = 0;
 };
 
 }

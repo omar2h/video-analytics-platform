@@ -21,6 +21,7 @@ QImage VideoFrameProvider::requestImage(
     const QSize& requestedSize)
 {
     Q_UNUSED(id);
+
     QMutexLocker locker(&m_mutex);
 
     if (m_image.isNull())
