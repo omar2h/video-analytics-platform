@@ -9,7 +9,6 @@ class QQmlApplicationEngine;
 namespace vap
 {
 class MockStreamingService;
-class FFmpegStreamingService;
 class CameraViewModel;
 class SQLiteCameraRepository;
 class CameraApplicationService;
@@ -17,7 +16,7 @@ class CameraManagementViewModel;
 class CameraValidator;
 class Database;
 class VideoFrameProvider;
-class StreamingWorker;
+class StreamingSession;
 
 class ApplicationBootstrap
 {
@@ -30,14 +29,12 @@ private:
     QQmlApplicationEngine& m_engine;
 
     std::unique_ptr<Database> m_database;
-    std::unique_ptr<FFmpegStreamingService> m_streamingService;
     std::unique_ptr<CameraViewModel> m_cameraViewModel;
     std::unique_ptr<SQLiteCameraRepository> m_cameraRepository;
     std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;
-    std::unique_ptr<StreamingWorker> m_streamingWorker;
-    std::unique_ptr<QThread> m_streamingThread;
+    std::unique_ptr<StreamingSession> m_streamingSession;
 
     VideoFrameProvider* m_videoFrameProvider = nullptr;
 };

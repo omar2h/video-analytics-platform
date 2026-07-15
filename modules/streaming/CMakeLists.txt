@@ -8,12 +8,14 @@ add_library(streaming STATIC
     include/vap/streaming/logging.hpp
     include/vap/streaming/streaming_exit_reason.hpp
     include/vap/streaming/reconnect/reconnect_policy.hpp
+    include/vap/streaming/session/streaming_session.hpp
 
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp
     src/frame/ffmpeg_frame_converter.cpp
     src/reconnect/reconnect_policy.cpp
     src/worker/streaming_worker.cpp
+    src/session/streaming_session.cpp
 )
 
 pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)

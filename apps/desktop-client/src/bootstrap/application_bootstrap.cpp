@@ -13,7 +13,10 @@
 #include <vap/camera/services/camera_application_service.hpp>
 #include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/database/database.hpp>
+#include <vap/streaming/session/streaming_session.hpp>
+
 #include <src/providers/video_frame_provider.hpp>
+
 
 #include <src/viewmodels/camera_view_model.hpp>
 #include <src/viewmodels/camera_management_view_model.hpp>
@@ -23,28 +26,12 @@ namespace vap
 ApplicationBootstrap::ApplicationBootstrap(QQmlApplicationEngine& engine)
     : m_engine(engine) {}
 
-ApplicationBootstrap::~ApplicationBootstrap()
-{
-    m_streamingWorker->requestCancellation();
-
-    m_streamingThread->quit();
-    m_streamingThread->wait();
-}
+ApplicationBootstrap::~ApplicationBootstrap() = default;
 
 void ApplicationBootstrap::initialize()
 {
-    m_streamingThread = std::make_unique<QThread>();
-
-    m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
-    m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
-
-    m_streamingService->moveToThread(m_streamingThread.get());
-    m_streamingWorker->moveToThread(m_streamingThread.get());
-
-    m_streamingThread->start();
-
-    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingWorker.get());
-
+    m_streamingSession = std::make_unique<StreamingSession>();
+    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingSession->worker());
     m_database = std::make_unique<Database>("video_analytics.db");
 
     if (!m_database->open())
