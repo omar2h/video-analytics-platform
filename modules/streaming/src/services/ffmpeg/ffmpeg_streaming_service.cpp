@@ -62,7 +62,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     if (!initializeEverything(uri))
     {
         cleanup();
-        return StreamingExitReason::UnknownError;
+        return StreamingExitReason::InitializationFailure;
     }
 
     qCInfo(ffmpegStreamingLog)
@@ -86,7 +86,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     {
         return StreamingExitReason::Cancelled;
     }
-    return StreamingExitReason::StreamEnded;
+    return StreamingExitReason::NetworkFailure;
 }
 
 void FFmpegStreamingService::requestCancellation()

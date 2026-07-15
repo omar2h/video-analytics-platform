@@ -7,6 +7,7 @@ enum class StreamingExitReason
 {
     Cancelled,
     NetworkFailure,
+    InitializationFailure,
     AuthenticationFailure,
     InvalidUrl,
     Timeout,

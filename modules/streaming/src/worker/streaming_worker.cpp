@@ -33,10 +33,18 @@ void StreamingWorker::start(const QString& uri)
 
     const auto result = m_streamingService->stream(uri);
 
-    switch(result)
+    switch (result)
     {
     case StreamingExitReason::Cancelled:
         emit stateChanged(ConnectionState::Disconnected);
+        break;
+
+    case StreamingExitReason::NetworkFailure:
+        emit stateChanged(ConnectionState::Reconnecting);
+        break;
+
+    case StreamingExitReason::InitializationFailure:
+        emit stateChanged(ConnectionState::Error);
         break;
 
     case StreamingExitReason::StreamEnded:
