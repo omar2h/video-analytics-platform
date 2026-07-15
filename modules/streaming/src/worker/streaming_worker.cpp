@@ -34,9 +34,9 @@ void StreamingWorker::start(const QString& uri)
     m_streamingService->connectToStream(uri);
 }
 
-void StreamingWorker::stop()
+void StreamingWorker::requestCancellation()
 {
-    m_streamingService->disconnectFromStream();
+    m_streamingService->requestCancellation();
 }
 
 }

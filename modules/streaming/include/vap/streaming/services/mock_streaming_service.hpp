@@ -14,7 +14,7 @@ public:
 
     void connectToStream(const QString& uri) override;
 
-    void disconnectFromStream() override;
+    void requestCancellation() override;
 };
 
 }

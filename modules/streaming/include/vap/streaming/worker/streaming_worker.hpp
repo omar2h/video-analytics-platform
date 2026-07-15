@@ -16,9 +16,10 @@ public:
         IStreamingService* streamingService,
         QObject* parent = nullptr);
 
+    void requestCancellation();
+
 public slots:
     void start(const QString& uri);
-    void stop();
 
 signals:
     void frameReady(const QImage& image);

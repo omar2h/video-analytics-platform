@@ -21,7 +21,7 @@ public:
     ~FFmpegStreamingService() override;
 
     void connectToStream(const QString& uri) override;
-    void disconnectFromStream() override;
+    void requestCancellation() override;
 
 private:
     bool openInput(const QString& url);
@@ -61,6 +61,8 @@ private:
     void cleanup();
 
 private:
+    static int interruptCallback(void* opaque);
+
     AVFormatContext* m_formatContext = nullptr;
     AVCodecContext* m_codecContext = nullptr;
     AVPacket* m_packet = nullptr;

@@ -23,7 +23,13 @@ namespace vap
 ApplicationBootstrap::ApplicationBootstrap(QQmlApplicationEngine& engine)
     : m_engine(engine) {}
 
-ApplicationBootstrap::~ApplicationBootstrap() = default;
+ApplicationBootstrap::~ApplicationBootstrap()
+{
+    m_streamingWorker->requestCancellation();
+
+    m_streamingThread->quit();
+    m_streamingThread->wait();
+}
 
 void ApplicationBootstrap::initialize()
 {

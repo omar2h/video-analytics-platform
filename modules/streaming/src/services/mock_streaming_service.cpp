@@ -14,7 +14,7 @@ void MockStreamingService::connectToStream(const QString& uri)
 
 }
 
-void MockStreamingService::disconnectFromStream()
+void MockStreamingService::requestCancellation()
 {
     emit stateChanged(StreamState::Disconnected);
 }

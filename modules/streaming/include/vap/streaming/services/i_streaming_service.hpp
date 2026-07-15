@@ -20,7 +20,15 @@ public:
     virtual ~IStreamingService() = default;
 
     virtual void connectToStream(const QString& uri) = 0;
-    virtual void disconnectFromStream() = 0;
+
+    /// Requests cooperative cancellation of the active streaming session.
+    ///
+    /// Thread-safe.
+    /// May be called from any thread.
+    ///
+    /// The streaming thread will observe the cancellation request
+    /// through the FFmpeg interrupt callback.
+    virtual void requestCancellation() = 0;
 
 signals:
     void stateChanged(StreamState state);

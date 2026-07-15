@@ -54,7 +54,7 @@ FFmpegStreamingService::~FFmpegStreamingService()
 
 void FFmpegStreamingService::connectToStream(const QString& uri)
 {
-    m_stopRequested = false;
+    m_stopRequested.store(false);
 
     qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
@@ -73,7 +73,7 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     emit stateChanged(StreamState::Connected);
 
-    while (!m_stopRequested)
+    while (!m_stopRequested.load())
     {
         if (!readNextPacket())
         {
@@ -88,13 +88,28 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
     emit stateChanged(StreamState::Disconnected);
 }
 
-void FFmpegStreamingService::disconnectFromStream()
+void FFmpegStreamingService::requestCancellation()
 {
-    m_stopRequested = true;
+    m_stopRequested.store(true);
 }
 
 bool FFmpegStreamingService::openInput(const QString &url)
 {
+    m_formatContext = avformat_alloc_context();
+
+    if (!m_formatContext)
+    {
+        qCCritical(ffmpegStreamingLog)
+            << "Failed to allocate AVFormatContext.";
+
+        return false;
+    }
+
+    m_formatContext->interrupt_callback.callback =
+        &FFmpegStreamingService::interruptCallback;
+
+    m_formatContext->interrupt_callback.opaque = this;
+
     qCInfo(ffmpegStreamingLog)
         << "Opening stream:" << url;
 
@@ -104,13 +119,24 @@ bool FFmpegStreamingService::openInput(const QString &url)
         nullptr,
         nullptr);
 
+    if (result == AVERROR_EXIT)
+    {
+        qCInfo(ffmpegStreamingLog)
+            << "Opening stream interrupted.";
+
+        avformat_free_context(m_formatContext);
+        m_formatContext = nullptr;
+        return false;
+    }
+
     if (result < 0)
     {
         qCWarning(ffmpegStreamingLog)
             << "Failed to open stream:"
             << ffmpegErrorString(result);
 
-        cleanupInput();
+        avformat_free_context(m_formatContext);
+        m_formatContext = nullptr;
 
         return false;
     }
@@ -122,6 +148,15 @@ bool FFmpegStreamingService::readStreamInfo()
 {
     int result =
         avformat_find_stream_info(m_formatContext, nullptr);
+
+    if (result == AVERROR_EXIT)
+    {
+        qCInfo(ffmpegStreamingLog)
+            << "Reading stream information interrupted.";
+
+        cleanupInput();
+        return false;
+    }
 
     if (result < 0)
     {
@@ -346,6 +381,14 @@ bool FFmpegStreamingService::readNextPacket()
         return false;
     }
 
+    if (result == AVERROR_EXIT)
+    {
+        qCInfo(ffmpegStreamingLog)
+            << "Streaming interrupted.";
+
+        return false;
+    }
+
     if (result < 0)
     {
         qCCritical(ffmpegStreamingLog)
@@ -514,10 +557,20 @@ void FFmpegStreamingService::cleanupFrame()
 
 void FFmpegStreamingService::cleanup()
 {
+    qCInfo(ffmpegStreamingLog)
+        << "Cleanup started.";
     cleanupFrame();
     cleanupPacket();
     cleanupDecoder();
     cleanupInput();
+}
+
+int FFmpegStreamingService::interruptCallback(void* opaque)
+{
+    auto* service =
+        static_cast<FFmpegStreamingService*>(opaque);
+
+    return service->m_stopRequested.load() ? 1 : 0;
 }
 
 }
