@@ -17,21 +17,11 @@ StreamingWorker::StreamingWorker(
             &IStreamingService::frameReady,
             this,
             &StreamingWorker::frameReady);
-
-    connect(m_streamingService,
-            &IStreamingService::stateChanged,
-            this,
-            &StreamingWorker::stateChanged);
-
-    connect(m_streamingService,
-            &IStreamingService::errorOccurred,
-            this,
-            &StreamingWorker::errorOccurred);
 }
 
 void StreamingWorker::start(const QString& uri)
 {
-    m_streamingService->connectToStream(uri);
+    m_streamingService->stream(uri);
 }
 
 void StreamingWorker::requestCancellation()

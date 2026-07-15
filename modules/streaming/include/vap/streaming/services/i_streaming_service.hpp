@@ -3,6 +3,7 @@
 #include <QObject>
 
 #include <vap/common/connection_state.hpp>
+#include <vap/streaming/streaming_exit_reason.hpp>
 
 namespace vap
 {
@@ -19,7 +20,7 @@ public:
 
     virtual ~IStreamingService() = default;
 
-    virtual void connectToStream(const QString& uri) = 0;
+    virtual StreamingExitReason stream(const QString& uri) = 0;
 
     /// Requests cooperative cancellation of the active streaming session.
     ///
@@ -31,9 +32,7 @@ public:
     virtual void requestCancellation() = 0;
 
 signals:
-    void stateChanged(ConnectionState state);
     void frameReady(const QImage& frame);
-    void errorOccurred(const QString& error);
 
 };
 

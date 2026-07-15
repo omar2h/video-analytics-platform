@@ -12,7 +12,7 @@ class MockStreamingService final : public IStreamingService
 public:
     explicit MockStreamingService(QObject* parent = nullptr);
 
-    void connectToStream(const QString& uri) override;
+    StreamingExitReason stream(const QString& uri) override;
 
     void requestCancellation() override;
 };

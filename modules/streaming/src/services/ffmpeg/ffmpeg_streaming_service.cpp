@@ -52,26 +52,21 @@ FFmpegStreamingService::~FFmpegStreamingService()
     avformat_network_deinit();
 }
 
-void FFmpegStreamingService::connectToStream(const QString& uri)
+StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
 {
     m_stopRequested.store(false);
 
     qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
 
-    emit stateChanged(ConnectionState::Connecting);
-
     if (!initializeEverything(uri))
     {
         cleanup();
-        emit stateChanged(ConnectionState::Error);
-        return;
+        return StreamingExitReason::UnknownError;
     }
 
     qCInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
-
-    emit stateChanged(ConnectionState::Connected);
 
     while (!m_stopRequested.load())
     {
@@ -85,7 +80,11 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     cleanup();
 
-    emit stateChanged(ConnectionState::Disconnected);
+    if (m_stopRequested.load())
+    {
+        return StreamingExitReason::Cancelled;
+    }
+    return StreamingExitReason::StreamEnded;
 }
 
 void FFmpegStreamingService::requestCancellation()
@@ -140,19 +139,16 @@ bool FFmpegStreamingService::openInput(const QString &url)
 
         return false;
     }
-
     return true;
 }
 
 bool FFmpegStreamingService::readStreamInfo()
 {
-    int result =
-        avformat_find_stream_info(m_formatContext, nullptr);
+    int result = avformat_find_stream_info(m_formatContext, nullptr);
 
     if (result == AVERROR_EXIT)
     {
-        qCInfo(ffmpegStreamingLog)
-            << "Reading stream information interrupted.";
+        qCInfo(ffmpegStreamingLog) << "Reading stream information interrupted.";
 
         cleanupInput();
         return false;
@@ -184,16 +180,12 @@ bool FFmpegStreamingService::findVideoStream()
         {
             m_videoStreamIndex = static_cast<int>(i);
 
-            qCInfo(ffmpegStreamingLog)
-                << "Found video stream:" << m_videoStreamIndex;
-
+            qCInfo(ffmpegStreamingLog) << "Found video stream:" << m_videoStreamIndex;
             return true;
         }
     }
 
-    qCWarning(ffmpegStreamingLog)
-        << "No video stream found.";
-
+    qCWarning(ffmpegStreamingLog) << "No video stream found.";
     return false;
 }
 
@@ -203,14 +195,11 @@ bool FFmpegStreamingService::createCodecContext()
 
     const AVCodecParameters* codecParameters = stream->codecpar;
 
-    const AVCodec* decoder =
-        avcodec_find_decoder(codecParameters->codec_id);
+    const AVCodec* decoder = avcodec_find_decoder(codecParameters->codec_id);
 
     if (!decoder)
     {
-        qCWarning(ffmpegStreamingLog)
-            << "No decoder found.";
-
+        qCWarning(ffmpegStreamingLog) << "No decoder found.";
         return false;
     }
 
@@ -218,28 +207,19 @@ bool FFmpegStreamingService::createCodecContext()
 
     if (!m_codecContext)
     {
-        qCWarning(ffmpegStreamingLog)
-            << "Failed to allocate codec context.";
-
+        qCWarning(ffmpegStreamingLog) << "Failed to allocate codec context.";
         return false;
     }
 
-    const int result =
-        avcodec_parameters_to_context(
-            m_codecContext,
-            codecParameters);
+    const int result = avcodec_parameters_to_context(m_codecContext, codecParameters);
 
     if (result < 0)
     {
         qCWarning(ffmpegStreamingLog)
-            << "Failed to copy codec parameters:"
-            << ffmpegErrorString(result);
-
+            << "Failed to copy codec parameters:" << ffmpegErrorString(result);
         cleanupDecoder();
-
         return false;
     }
-
     return true;
 }
 

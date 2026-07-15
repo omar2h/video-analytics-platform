@@ -9,14 +9,13 @@ MockStreamingService::MockStreamingService(QObject* parent) : IStreamingService(
 {
 }
 
-void MockStreamingService::connectToStream(const QString& uri)
+StreamingExitReason MockStreamingService::stream(const QString& uri)
 {
-
+    return StreamingExitReason::StreamEnded;
 }
 
 void MockStreamingService::requestCancellation()
 {
-    emit stateChanged(ConnectionState::Disconnected);
 }
 
 }

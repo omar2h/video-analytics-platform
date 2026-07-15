@@ -20,7 +20,7 @@ public:
                                     QObject* parent = nullptr);
     ~FFmpegStreamingService() override;
 
-    void connectToStream(const QString& uri) override;
+    StreamingExitReason stream(const QString& uri) override;
     void requestCancellation() override;
 
 private:
