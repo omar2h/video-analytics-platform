@@ -32,6 +32,7 @@ public:
     virtual void requestCancellation() = 0;
 
 signals:
+    void connected();
     void frameReady(const QImage& frame);
 
 };

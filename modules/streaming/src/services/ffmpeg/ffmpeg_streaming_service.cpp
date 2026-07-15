@@ -68,6 +68,8 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     qCInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
 
+    emit connected();
+
     while (!m_stopRequested.load())
     {
         if (!readNextPacket())
