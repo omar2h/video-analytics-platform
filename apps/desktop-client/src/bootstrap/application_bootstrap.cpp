@@ -28,7 +28,8 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 void ApplicationBootstrap::initialize()
 {
     m_streamingManager = std::make_unique<StreamingManager>();
-    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingManager->session()->worker());
+    m_streamingManager->createSession("camera-1");
+    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingManager->session("camera-1")->worker());
     m_database = std::make_unique<Database>("video_analytics.db");
 
     if (!m_database->open())
