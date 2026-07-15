@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QImage>
 
-#include <vap/common/stream_state.hpp>
+#include <vap/common/connection_state.hpp>
 
 namespace vap
 {
@@ -54,7 +54,7 @@ private:
     // non-owning
     StreamingWorker* m_streamingWorker;
     QString m_url;
-    StreamState m_state{StreamState::Disconnected};
+    ConnectionState m_state{ConnectionState::Disconnected};
     QImage m_currentFrame;
     int m_frameRevision = 0;
 };

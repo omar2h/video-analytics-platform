@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <vap/common/stream_state.hpp>
+#include <vap/common/connection_state.hpp>
 
 namespace vap
 {
@@ -23,7 +23,7 @@ public slots:
 
 signals:
     void frameReady(const QImage& image);
-    void stateChanged(StreamState state);
+    void stateChanged(ConnectionState state);
     void errorOccurred(const QString& error);
 
 private:

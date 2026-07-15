@@ -12,7 +12,7 @@ CameraViewModel::CameraViewModel(StreamingWorker* streamingWorker, QObject* pare
     connect(m_streamingWorker,
             &StreamingWorker::stateChanged,
             this,
-            [this](StreamState state) {
+            [this](ConnectionState state) {
                 m_state = state;
                 emit stateChanged();
                 emit stateTextChanged();
@@ -28,19 +28,19 @@ QString CameraViewModel::stateText() const
 {
     switch (m_state)
     {
-    case StreamState::Disconnected:
+    case ConnectionState::Disconnected:
         return "Disconnected";
 
-    case StreamState::Connecting:
+    case ConnectionState::Connecting:
         return "Connecting";
 
-    case StreamState::Connected:
+    case ConnectionState::Connected:
         return "Connected";
 
-    case StreamState::Reconnecting:
+    case ConnectionState::Reconnecting:
         return "Reconnecting";
 
-    case StreamState::Error:
+    case ConnectionState::Error:
         return "Error";
     }
 

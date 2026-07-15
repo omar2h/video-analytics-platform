@@ -59,19 +59,19 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
     qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
 
-    emit stateChanged(StreamState::Opening);
+    emit stateChanged(ConnectionState::Connecting);
 
     if (!initializeEverything(uri))
     {
         cleanup();
-        emit stateChanged(StreamState::Error);
+        emit stateChanged(ConnectionState::Error);
         return;
     }
 
     qCInfo(ffmpegStreamingLog)
         << "Connected to stream successfully.";
 
-    emit stateChanged(StreamState::Connected);
+    emit stateChanged(ConnectionState::Connected);
 
     while (!m_stopRequested.load())
     {
@@ -85,7 +85,7 @@ void FFmpegStreamingService::connectToStream(const QString& uri)
 
     cleanup();
 
-    emit stateChanged(StreamState::Disconnected);
+    emit stateChanged(ConnectionState::Disconnected);
 }
 
 void FFmpegStreamingService::requestCancellation()

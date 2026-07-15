@@ -6,6 +6,8 @@ add_library(streaming STATIC
     include/vap/streaming/frame/ffmpeg_frame_converter.hpp
     include/vap/streaming/worker/streaming_worker.hpp
     include/vap/streaming/logging.hpp
+    include/vap/streaming/streaming_exit_reason.hpp
+    include/vap/streaming/reconnect_policy.hpp
 
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp

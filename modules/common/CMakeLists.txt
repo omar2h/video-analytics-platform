@@ -1,6 +1,6 @@
 add_library(common STATIC
 
-    include/vap/common/stream_state.hpp
+    include/vap/common/connection_state.hpp
     include/vap/common/types.hpp
     include/vap/common/expected.hpp
 )

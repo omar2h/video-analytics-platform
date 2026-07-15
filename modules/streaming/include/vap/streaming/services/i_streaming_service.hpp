@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <vap/common/stream_state.hpp>
+#include <vap/common/connection_state.hpp>
 
 namespace vap
 {
@@ -31,7 +31,7 @@ public:
     virtual void requestCancellation() = 0;
 
 signals:
-    void stateChanged(StreamState state);
+    void stateChanged(ConnectionState state);
     void frameReady(const QImage& frame);
     void errorOccurred(const QString& error);
 
