@@ -29,32 +29,39 @@ StreamingWorker::StreamingWorker(
 
 void StreamingWorker::start(const QString& uri)
 {
-    emit stateChanged(ConnectionState::Connecting);
+    bool reconnect = true;
+    while(reconnect)
+    {
+        emit stateChanged(ConnectionState::Connecting);
+        reconnect = handleExitReason(m_streamingService->stream(uri));
+    }
+}
 
-    const auto result = m_streamingService->stream(uri);
-
-    switch (result)
+bool StreamingWorker::handleExitReason(StreamingExitReason reason)
+{
+    switch (reason)
     {
     case StreamingExitReason::Cancelled:
         emit stateChanged(ConnectionState::Disconnected);
-        break;
-
-    case StreamingExitReason::NetworkFailure:
-        emit stateChanged(ConnectionState::Reconnecting);
-        break;
+        return false;
 
     case StreamingExitReason::InitializationFailure:
         emit stateChanged(ConnectionState::Error);
-        break;
+        return false;
 
     case StreamingExitReason::StreamEnded:
         emit stateChanged(ConnectionState::Disconnected);
-        break;
+        return false;
+
+    case StreamingExitReason::NetworkFailure:
+        emit stateChanged(ConnectionState::Reconnecting);
+        return true;
 
     case StreamingExitReason::UnknownError:
         emit stateChanged(ConnectionState::Error);
-        break;
+        return false;
     }
+    return false;
 }
 
 void StreamingWorker::requestCancellation()
