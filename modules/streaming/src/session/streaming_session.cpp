@@ -9,7 +9,7 @@
 namespace vap
 {
 
-vap::StreamingSession::StreamingSession()
+StreamingSession::StreamingSession()
 {
     m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
     m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
@@ -21,7 +21,7 @@ vap::StreamingSession::StreamingSession()
     m_streamingThread->start();
 }
 
-vap::StreamingSession::~StreamingSession()
+StreamingSession::~StreamingSession()
 {
     m_streamingWorker->requestCancellation();
 
@@ -29,7 +29,7 @@ vap::StreamingSession::~StreamingSession()
     m_streamingThread->wait();
 }
 
-vap::StreamingWorker *vap::StreamingSession::worker() const noexcept
+StreamingWorker *StreamingSession::worker() const noexcept
 {
     return m_streamingWorker.get();
 }

@@ -3,17 +3,14 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QObject>
-#include <QThread>
 
 #include <vap/streaming/services/mock_streaming_service.hpp>
-#include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
-#include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
 #include <vap/camera/repositories/sqlite_camera_repository.hpp>
 #include <vap/camera/validation/camera_validator.hpp>
 #include <vap/camera/services/camera_application_service.hpp>
-#include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/database/database.hpp>
 #include <vap/streaming/session/streaming_session.hpp>
+#include <vap/streaming/manager/streaming_manager.hpp>
 
 #include <src/providers/video_frame_provider.hpp>
 
@@ -30,8 +27,8 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 
 void ApplicationBootstrap::initialize()
 {
-    m_streamingSession = std::make_unique<StreamingSession>();
-    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingSession->worker());
+    m_streamingManager = std::make_unique<StreamingManager>();
+    m_cameraViewModel = std::make_unique<CameraViewModel>(m_streamingManager->session()->worker());
     m_database = std::make_unique<Database>("video_analytics.db");
 
     if (!m_database->open())

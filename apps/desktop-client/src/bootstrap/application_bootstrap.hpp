@@ -16,7 +16,7 @@ class CameraManagementViewModel;
 class CameraValidator;
 class Database;
 class VideoFrameProvider;
-class StreamingSession;
+class StreamingManager;
 
 class ApplicationBootstrap
 {
@@ -34,7 +34,7 @@ private:
     std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
     std::unique_ptr<CameraManagementViewModel> m_cameraManagementViewModel;
-    std::unique_ptr<StreamingSession> m_streamingSession;
+    std::unique_ptr<StreamingManager> m_streamingManager;
 
     VideoFrameProvider* m_videoFrameProvider = nullptr;
 };
