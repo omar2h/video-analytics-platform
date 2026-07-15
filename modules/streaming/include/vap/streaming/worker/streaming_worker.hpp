@@ -4,6 +4,7 @@
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/streaming_exit_reason.hpp>
+#include <vap/streaming/reconnect/reconnect_policy.hpp>
 
 namespace vap
 {
@@ -31,6 +32,7 @@ private:
     bool handleExitReason(StreamingExitReason reason);
 
     IStreamingService* m_streamingService;
+    ReconnectPolicy m_reconnectPolicy;
 };
 
 }

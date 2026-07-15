@@ -19,6 +19,7 @@ StreamingWorker::StreamingWorker(
         &IStreamingService::connected, this,
         [this]
         {
+            m_reconnectPolicy.reset();
             emit stateChanged(ConnectionState::Connected);
         }
     );
@@ -31,16 +32,24 @@ StreamingWorker::StreamingWorker(
 
 void StreamingWorker::start(const QString& uri)
 {
+    emit stateChanged(ConnectionState::Connecting);
     while (true)
     {
-        emit stateChanged(ConnectionState::Connecting);
-
         const auto reason = m_streamingService->stream(uri);
 
         if (!handleExitReason(reason))
             break;
 
-        QThread::sleep(1);
+        if (!m_reconnectPolicy.shouldRetry())
+        {
+            emit stateChanged(ConnectionState::Error);
+            break;
+        }
+
+        QThread::msleep(
+            m_reconnectPolicy.retryDelay().count());
+
+        m_reconnectPolicy.recordRetry();
     }
 }
 
@@ -53,7 +62,7 @@ bool StreamingWorker::handleExitReason(StreamingExitReason reason)
         return false;
 
     case StreamingExitReason::InitializationFailure:
-        emit stateChanged(ConnectionState::Error);
+        emit stateChanged(ConnectionState::Reconnecting);
         return true;
 
     case StreamingExitReason::StreamEnded:
