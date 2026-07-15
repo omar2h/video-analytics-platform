@@ -1,5 +1,7 @@
 #include <vap/streaming/worker/streaming_worker.hpp>
 
+#include <QThread>
+
 #include <vap/streaming/services/i_streaming_service.hpp>
 
 namespace vap
@@ -29,11 +31,16 @@ StreamingWorker::StreamingWorker(
 
 void StreamingWorker::start(const QString& uri)
 {
-    bool reconnect = true;
-    while(reconnect)
+    while (true)
     {
         emit stateChanged(ConnectionState::Connecting);
-        reconnect = handleExitReason(m_streamingService->stream(uri));
+
+        const auto reason = m_streamingService->stream(uri);
+
+        if (!handleExitReason(reason))
+            break;
+
+        QThread::sleep(1);
     }
 }
 
@@ -47,7 +54,7 @@ bool StreamingWorker::handleExitReason(StreamingExitReason reason)
 
     case StreamingExitReason::InitializationFailure:
         emit stateChanged(ConnectionState::Error);
-        return false;
+        return true;
 
     case StreamingExitReason::StreamEnded:
         emit stateChanged(ConnectionState::Disconnected);
