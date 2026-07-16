@@ -2,7 +2,6 @@
 
 #include <QObject>
 
-#include <vap/common/connection_state.hpp>
 #include <vap/streaming/streaming_exit_reason.hpp>
 
 namespace vap

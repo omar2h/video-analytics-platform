@@ -13,6 +13,9 @@ qt_add_executable(desktop_client
     src/viewmodels/camera_management_view_model.cpp
     src/viewmodels/camera_management_view_model.hpp
 
+    src/viewmodels/camera_item_view_model.hpp
+    src/viewmodels/camera_item_view_model.cpp
+
     src/providers/video_frame_provider.hpp
     src/providers/video_frame_provider.cpp
 )

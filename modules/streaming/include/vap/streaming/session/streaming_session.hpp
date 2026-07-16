@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <memory>
+
 #include <vap/common/connection_state.hpp>
 
 class QThread;
@@ -24,7 +25,7 @@ public:
 
 signals:
     void frameReady(const QImage&);
-    void stateChanged(ConnectionState);
+    void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
 
 private:

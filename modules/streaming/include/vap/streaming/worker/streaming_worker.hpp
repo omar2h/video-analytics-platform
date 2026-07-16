@@ -2,9 +2,9 @@
 
 #include <QObject>
 
-#include <vap/common/connection_state.hpp>
 #include <vap/streaming/streaming_exit_reason.hpp>
 #include <vap/streaming/reconnect/reconnect_policy.hpp>
+#include <vap/common/connection_state.hpp>
 
 namespace vap
 {
@@ -25,7 +25,7 @@ public slots:
 
 signals:
     void frameReady(const QImage& image);
-    void stateChanged(ConnectionState state);
+    void stateChanged(const ConnectionState& state);
     void errorOccurred(const QString& error);
 
 private:
