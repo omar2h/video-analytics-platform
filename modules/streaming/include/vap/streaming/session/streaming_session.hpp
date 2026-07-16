@@ -1,23 +1,31 @@
 #pragma once
 
+#include <QObject>
 #include <memory>
+#include <vap/common/connection_state.hpp>
 
 class QThread;
+class QImage;
 namespace vap
 {
 class StreamingWorker;
 class CameraConfig;
 class IStreamingService;
 
-class StreamingSession
+class StreamingSession : public QObject
 {
+    Q_OBJECT
 public:
-    StreamingSession();
+    StreamingSession(QObject* parent = nullptr);
     ~StreamingSession();
 
     void start(const CameraConfig&);
     void stop();
-    StreamingWorker* worker() const noexcept;
+
+signals:
+    void frameReady(const QImage&);
+    void stateChanged(ConnectionState);
+    void errorOccurred(const QString& error);
 
 private:
     std::unique_ptr<QThread> m_streamingThread;

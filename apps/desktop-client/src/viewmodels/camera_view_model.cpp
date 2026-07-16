@@ -1,16 +1,16 @@
 #include "camera_view_model.hpp"
 
-#include <vap/streaming/worker/streaming_worker.hpp>
+#include <vap/streaming/session/streaming_session.hpp>
 
 namespace vap
 {
 
-CameraViewModel::CameraViewModel(StreamingWorker* streamingWorker, QObject* parent)
-    : QObject(parent), m_streamingWorker(streamingWorker)
+CameraViewModel::CameraViewModel(StreamingSession* streamingSession, QObject* parent)
+    : QObject(parent), m_streamingSession(streamingSession)
 {
-    Q_ASSERT(m_streamingWorker != nullptr);
-    connect(m_streamingWorker,
-            &StreamingWorker::stateChanged,
+    Q_ASSERT(m_streamingSession != nullptr);
+    connect(m_streamingSession,
+            &StreamingSession::stateChanged,
             this,
             [this](ConnectionState state) {
                 m_state = state;
@@ -18,8 +18,8 @@ CameraViewModel::CameraViewModel(StreamingWorker* streamingWorker, QObject* pare
                 emit stateTextChanged();
             });
 
-    connect(m_streamingWorker,
-            &StreamingWorker::frameReady,
+    connect(m_streamingSession,
+            &StreamingSession::frameReady,
             this,
             &CameraViewModel::onFrameReady);
 }
@@ -60,23 +60,6 @@ QImage CameraViewModel::currentFrame() const
 int CameraViewModel::frameRevision() const
 {
     return m_frameRevision;
-}
-
-void CameraViewModel::connectCamera(const QString& url)
-{
-    QMetaObject::invokeMethod(
-        m_streamingWorker,
-        "start",
-        Qt::QueuedConnection,
-        Q_ARG(QString, url));
-}
-
-void CameraViewModel::disconnectCamera()
-{
-    QMetaObject::invokeMethod(
-        m_streamingWorker,
-        "stop",
-        Qt::QueuedConnection);
 }
 
 void CameraViewModel::onFrameReady(const QImage& frame)

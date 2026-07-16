@@ -10,11 +10,29 @@
 namespace vap
 {
 
-StreamingSession::StreamingSession()
+StreamingSession::StreamingSession(QObject* parent)
 {
     m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
     m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
     m_streamingThread = std::make_unique<QThread>();
+
+    connect(
+        m_streamingWorker.get(),
+        &StreamingWorker::frameReady,
+        this,
+        &StreamingSession::frameReady);
+
+    connect(
+        m_streamingWorker.get(),
+        &StreamingWorker::stateChanged,
+        this,
+        &StreamingSession::stateChanged);
+
+    connect(
+        m_streamingWorker.get(),
+        &StreamingWorker::errorOccurred,
+        this,
+        &StreamingSession::errorOccurred);
 
     m_streamingService->moveToThread(m_streamingThread.get());
     m_streamingWorker->moveToThread(m_streamingThread.get());
@@ -42,11 +60,6 @@ void StreamingSession::start(const CameraConfig& config)
 void StreamingSession::stop()
 {
     m_streamingWorker->requestCancellation();
-}
-
-StreamingWorker *StreamingSession::worker() const noexcept
-{
-    return m_streamingWorker.get();
 }
 
 }
