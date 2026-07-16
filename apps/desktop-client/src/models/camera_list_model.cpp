@@ -1,5 +1,8 @@
 #include "camera_list_model.hpp"
 
+namespace vap
+{
+
 CameraListModel::CameraListModel(QObject* parent)
     : QAbstractListModel(parent)
 {
@@ -52,4 +55,6 @@ void CameraListModel::setCameras(const QList<vap::Camera>& cameras)
     beginResetModel();
     m_cameras = cameras;
     endResetModel();
+}
+
 }

@@ -4,6 +4,9 @@
 
 #include <vap/camera/camera.hpp>
 
+namespace vap
+{
+
 class CameraListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -24,8 +27,10 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
-    void setCameras(const QList<vap::Camera>& cameras);
+    void setCameras(const QList<Camera>& cameras);
 
 private:
-    QList<vap::Camera> m_cameras;
+    QList<Camera> m_cameras;
 };
+
+}

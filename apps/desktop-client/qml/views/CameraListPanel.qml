@@ -79,7 +79,7 @@ Frame {
             cache: false
 
             source: "image://video/current?rev="
-                    + cameraViewModel.frameRevision
+                    + cameraStreamViewModel.frameRevision
         }
 
         ListView {

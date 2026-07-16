@@ -9,7 +9,7 @@ class QQmlApplicationEngine;
 namespace vap
 {
 class MockStreamingService;
-class CameraViewModel;
+class CameraStreamViewModel;
 class SQLiteCameraRepository;
 class CameraApplicationService;
 class CameraManagementViewModel;
@@ -29,7 +29,7 @@ private:
     QQmlApplicationEngine& m_engine;
 
     std::unique_ptr<Database> m_database;
-    std::unique_ptr<CameraViewModel> m_cameraViewModel;
+    std::unique_ptr<CameraStreamViewModel> m_cameraStreamViewModel;
     std::unique_ptr<SQLiteCameraRepository> m_cameraRepository;
     std::unique_ptr<CameraValidator> m_cameraValidator;
     std::unique_ptr<CameraApplicationService> m_cameraApplicationService;
