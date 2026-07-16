@@ -24,8 +24,10 @@ qt_add_qml_module(desktop_client
     QML_FILES
         qml/components/VideoPlaceholder.qml
         qml/components/StatusIndicator.qml
-        qml/views/CameraView.qml
+        qml/pages/CameraManagementPage.qml
+        qml/pages/LiveMonitoringPage.qml
         qml/views/CameraTile.qml
+        qml/views/CameraGrid.qml
         qml/Main.qml
         QML_FILES qml/views/CameraListPanel.qml
         QML_FILES qml/views/CameraDetailsPanel.qml

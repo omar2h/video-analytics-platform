@@ -2,11 +2,12 @@ import QtQuick
 import QtQuick.Controls
 
 import "views"
+import "pages"
 
 ApplicationWindow {
     visible: true
 
-    CameraView {
+    CameraManagementPage {
         anchors.fill: parent
     }
 }
