@@ -62,7 +62,7 @@ Frame {
 
             enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
 
-            onClicked: cameraViewModel.connectCamera(cameraManagementViewModel.selectedCameraUrl)
+            onClicked: cameraManagementViewModel.connectSelectedCamera()
         }
 
         Text {

@@ -33,6 +33,7 @@ target_include_directories(streaming
 target_link_libraries(streaming
     PUBLIC
         common
+        camera
         Qt6::Core
         Qt6::Gui
 

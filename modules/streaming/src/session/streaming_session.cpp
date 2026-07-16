@@ -5,6 +5,7 @@
 #include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
+#include <vap/camera/camera_config.hpp>
 
 namespace vap
 {
@@ -27,6 +28,20 @@ StreamingSession::~StreamingSession()
 
     m_streamingThread->quit();
     m_streamingThread->wait();
+}
+
+void StreamingSession::start(const CameraConfig& config)
+{
+    QMetaObject::invokeMethod(
+        m_streamingWorker.get(),
+        "start",
+        Qt::QueuedConnection,
+        Q_ARG(QString, config.url));
+}
+
+void StreamingSession::stop()
+{
+    m_streamingWorker->requestCancellation();
 }
 
 StreamingWorker *StreamingSession::worker() const noexcept

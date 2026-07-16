@@ -9,6 +9,7 @@
 namespace vap
 {
 class ICameraApplicationService;
+class StreamingManager;
 class CameraManagementViewModel : public QObject
 {
     Q_OBJECT
@@ -51,7 +52,8 @@ class CameraManagementViewModel : public QObject
         NOTIFY validationErrorChanged)
 
 public:
-    explicit CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent = nullptr);
+    explicit CameraManagementViewModel(ICameraApplicationService* cameraApplicationService,
+                                       StreamingManager* streamingManager, QObject* parent = nullptr);
 
     CameraListModel* cameraModel() const;
 
@@ -74,6 +76,8 @@ public:
     QString validationMessage() const;
 
     Q_INVOKABLE void addCamera();
+    Q_INVOKABLE void connectSelectedCamera();
+    Q_INVOKABLE void disconnectSelectedCamera();
     Q_INVOKABLE void deleteSelectedCamera();
     Q_INVOKABLE void updateSelectedCamera();
     Q_INVOKABLE void clearSelection();
@@ -95,6 +99,7 @@ private:
     const Camera* selectedCamera() const;
 
     ICameraApplicationService* m_cameraApplicationService{};
+    StreamingManager* m_streamingManager;
 
     std::unique_ptr<CameraListModel> m_cameraModel;
 

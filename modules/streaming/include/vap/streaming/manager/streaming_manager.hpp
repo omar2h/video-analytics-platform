@@ -7,6 +7,7 @@
 namespace vap
 {
 class StreamingSession;
+class Camera;
 class StreamingManager
 {
 public:
@@ -19,6 +20,11 @@ public:
     StreamingSession* session(const QString& cameraId) const;
 
     bool contains(const QString& cameraId) const;
+
+    void startStreaming(const Camera& camera);
+
+    void stopStreaming(const QString& cameraId);
+
 private:
     std::map<QString, std::unique_ptr<StreamingSession>> m_sessions;
 };

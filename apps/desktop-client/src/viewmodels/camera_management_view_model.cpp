@@ -1,13 +1,17 @@
 #include "camera_management_view_model.hpp"
 
 #include <vap/camera/services/i_camera_application_service.hpp>
+#include <vap/streaming/manager/streaming_manager.hpp>
+#include <vap/streaming/session/streaming_session.hpp>
 
 namespace vap
 {
 
-CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* cameraApplicationService, QObject* parent)
+CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* cameraApplicationService,
+                                                     StreamingManager* streamingManager, QObject* parent)
     : QObject(parent),
     m_cameraApplicationService(cameraApplicationService),
+    m_streamingManager(streamingManager),
     m_cameraModel(std::make_unique<CameraListModel>())
 {
     reloadCameras();
@@ -162,6 +166,22 @@ void CameraManagementViewModel::addCamera()
     reloadCameras();
 
     clearForm();
+}
+
+void CameraManagementViewModel::connectSelectedCamera()
+{
+    const Camera* camera = selectedCamera();
+
+    if (!camera)
+        return;
+
+    m_streamingManager->startStreaming(*camera);
+}
+
+void CameraManagementViewModel::disconnectSelectedCamera()
+{
+    const Camera* camera = selectedCamera();
+    m_streamingManager->stopStreaming(camera->id);
 }
 
 void CameraManagementViewModel::deleteSelectedCamera()

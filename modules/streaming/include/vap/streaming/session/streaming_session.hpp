@@ -6,6 +6,7 @@ class QThread;
 namespace vap
 {
 class StreamingWorker;
+class CameraConfig;
 class IStreamingService;
 
 class StreamingSession
@@ -14,6 +15,8 @@ public:
     StreamingSession();
     ~StreamingSession();
 
+    void start(const CameraConfig&);
+    void stop();
     StreamingWorker* worker() const noexcept;
 
 private:
