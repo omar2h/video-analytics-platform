@@ -4,9 +4,6 @@ qt_add_executable(desktop_client
     src/bootstrap/application_bootstrap.hpp
     src/bootstrap/application_bootstrap.cpp
 
-    src/viewmodels/camera_view_model.hpp
-    src/viewmodels/camera_view_model.cpp
-
     src/models/camera_list_model.cpp
     src/models/camera_list_model.hpp
 
@@ -28,6 +25,7 @@ qt_add_qml_module(desktop_client
         qml/components/VideoPlaceholder.qml
         qml/components/StatusIndicator.qml
         qml/views/CameraView.qml
+        qml/views/CameraTile.qml
         qml/Main.qml
         QML_FILES qml/views/CameraListPanel.qml
         QML_FILES qml/views/CameraDetailsPanel.qml

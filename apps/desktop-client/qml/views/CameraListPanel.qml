@@ -71,15 +71,11 @@ Frame {
             color: "red"
         }
 
-        Image {
+        CameraTile {
             Layout.fillWidth: true
-            Layout.preferredHeight: 360
 
-            fillMode: Image.PreserveAspectFit
-            cache: false
-
-            source: "image://video/current?rev="
-                    + cameraStreamViewModel.frameRevision
+            state: cameraStreamViewModel.state
+            frameRevision: cameraStreamViewModel.frameRevision
         }
 
         ListView {
