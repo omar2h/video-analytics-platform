@@ -4,8 +4,9 @@
 
 namespace vap
 {
-CameraStreamViewModel::CameraStreamViewModel(StreamingSession *session, QObject *parent)
+CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingSession *session, QObject *parent)
     : QObject(parent),
+    m_cameraId(cameraId),
     m_streamingSession(session)
 {
     Q_ASSERT(m_streamingSession);

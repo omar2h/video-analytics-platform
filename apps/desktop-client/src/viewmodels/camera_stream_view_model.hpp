@@ -27,7 +27,7 @@ class CameraStreamViewModel : public QObject
         NOTIFY frameRevisionChanged)
 
 public:
-    CameraStreamViewModel(StreamingSession* session, QObject* parent = nullptr);
+    CameraStreamViewModel(const QString& cameraId, StreamingSession* session, QObject* parent = nullptr);
 
     int state() const;
     QImage currentFrame() const;
@@ -47,6 +47,7 @@ private:
     ConnectionState m_state{ConnectionState::Disconnected};
     QImage m_currentFrame;
     int m_frameRevision = 0;
+    QString m_cameraId;
 
 };
 }

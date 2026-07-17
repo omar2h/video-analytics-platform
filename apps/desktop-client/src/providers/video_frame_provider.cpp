@@ -9,10 +9,10 @@ VideoFrameProvider::VideoFrameProvider()
 
 }
 
-void VideoFrameProvider::setImage(const QImage& image)
+void VideoFrameProvider::setImage(const QString& cameraId, const QImage& image)
 {
     QMutexLocker locker(&m_mutex);
-    m_image = image;
+    m_images[cameraId] = image;
 }
 
 QImage VideoFrameProvider::requestImage(
@@ -20,25 +20,27 @@ QImage VideoFrameProvider::requestImage(
     QSize* size,
     const QSize& requestedSize)
 {
-    Q_UNUSED(id);
-
     QMutexLocker locker(&m_mutex);
+    auto it = m_images.find(id);
+    if(it == m_images.end())
+        return {};
 
-    if (m_image.isNull())
+    const QImage& image = it->second;
+
+    if (image.isNull())
         return {};
 
     if (size)
-        *size = m_image.size();
+        *size = image.size();
 
     if (requestedSize.isValid())
     {
-        return m_image.scaled(
+        return image.scaled(
             requestedSize,
             Qt::KeepAspectRatio,
             Qt::SmoothTransformation);
     }
-
-    return m_image;
+    return image;
 }
 
 }

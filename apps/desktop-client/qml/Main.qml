@@ -7,7 +7,7 @@ import "pages"
 ApplicationWindow {
     visible: true
 
-    CameraManagementPage {
+    LiveMonitoringPage {
         anchors.fill: parent
     }
 }

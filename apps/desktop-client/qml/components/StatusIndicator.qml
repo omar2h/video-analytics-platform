@@ -1,32 +1,33 @@
 import QtQuick
+import QtQuick.Controls
 
 Row {
     id: root
-    property int state: 0
-    property string stateText: ""
+
+    property int state: ConnectionState.Disconnected
 
     spacing: 8
-    Rectangle{
+
+    Rectangle {
         width: 12
-        height:12
-        radius: width/2
+        height: 12
+        radius: width / 2
 
         color: {
-            switch(root.state) {
-
-            case 0: // Disconnected
+            switch (root.state) {
+            case ConnectionState.Disconnected:
                 return "gray"
 
-            case 1: // Connecting
+            case ConnectionState.Connecting:
                 return "orange"
 
-            case 2: // Connected
+            case ConnectionState.Connected:
                 return "green"
 
-            case 3: // Reconnecting
+            case ConnectionState.Reconnecting:
                 return "orange"
 
-            case 4: // Error
+            case ConnectionState.Error:
                 return "red"
 
             default:
@@ -34,7 +35,30 @@ Row {
             }
         }
     }
-    Text {
-        text: root.stateText
+
+    Label {
+        text: {
+            switch (root.state) {
+            case ConnectionState.Disconnected:
+                return qsTr("Disconnected")
+
+            case ConnectionState.Connecting:
+                return qsTr("Connecting")
+
+            case ConnectionState.Connected:
+                return qsTr("Connected")
+
+            case ConnectionState.Reconnecting:
+                return qsTr("Reconnecting")
+
+            case ConnectionState.Error:
+                return qsTr("Error")
+
+            default:
+                return qsTr("Unknown")
+            }
+        }
+
+        color: "#CFCFCF"
     }
 }

@@ -14,9 +14,10 @@
 
 #include <src/providers/video_frame_provider.hpp>
 
-
 #include <src/viewmodels/camera_stream_view_model.hpp>
 #include <src/viewmodels/camera_management_view_model.hpp>
+#include <src/viewmodels/live_monitoring_view_model.hpp>
+
 
 namespace vap
 {
@@ -28,7 +29,7 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 void ApplicationBootstrap::initialize()
 {
     m_streamingManager = std::make_unique<StreamingManager>();
-    m_cameraStreamViewModel = std::make_unique<CameraStreamViewModel>(m_streamingManager->session("camera-1"));
+    m_liveMonitoringViewModel = std::make_unique<LiveMonitoringViewModel>(m_streamingManager.get());
     m_database = std::make_unique<Database>("video_analytics.db");
 
     if (!m_database->open())
@@ -49,17 +50,8 @@ void ApplicationBootstrap::initialize()
         "video",
         m_videoFrameProvider);
 
-    QObject::connect(
-        m_cameraStreamViewModel.get(),
-        &CameraStreamViewModel::currentFrameChanged,
-        &m_engine,
-        [this]()
-        {
-            m_videoFrameProvider->setImage(m_cameraStreamViewModel->currentFrame());
-        });
-
-    m_engine.rootContext()->setContextProperty("cameraStreamViewModel", m_cameraStreamViewModel.get());
     m_engine.rootContext()->setContextProperty("cameraManagementViewModel", m_cameraManagementViewModel.get());
+    m_engine.rootContext()->setContextProperty("liveMonitoringViewModel", m_liveMonitoringViewModel.get());
 }
 
 }

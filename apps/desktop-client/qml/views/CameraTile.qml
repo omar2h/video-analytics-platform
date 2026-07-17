@@ -2,40 +2,52 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Frame
-{
+import "../components"
+
+Frame {
     id: root
 
     property string name: ""
-    property int state: 0
-    property string stateText: ""
-    property int frameRevision: 0
+    property int state: ConnectionState.Disconnected
+    property url imageSource: ""
 
     ColumnLayout {
         anchors.fill: parent
+        anchors.margins: 8
         spacing: 8
 
         Label {
+            Layout.fillWidth: true
+
             text: root.name
             font.bold: true
+            font.pixelSize: 16
         }
 
         StatusIndicator {
             state: root.state
-            stateText: root.stateText
         }
 
-        Image {
+        Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 360
+            Layout.fillHeight: true
 
-            fillMode: Image.PreserveAspectFit
-            cache: false
+            Image {
+                anchors.fill: parent
 
-            source: "image://video/current?rev="
-                    + cameraStreamViewModel.frameRevision
+                visible: root.imageSource.toString() !== ""
+
+                fillMode: Image.PreserveAspectFit
+                cache: false
+
+                source: root.imageSource
+            }
+
+            VideoPlaceholder {
+                anchors.fill: parent
+
+                visible: root.imageSource.toString() === ""
+            }
         }
     }
 }
-
-

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <QMutex>
 #include <QQuickImageProvider>
 
@@ -11,7 +12,7 @@ class VideoFrameProvider : public QQuickImageProvider
 public:
     VideoFrameProvider();
 
-    void setImage(const QImage& image);
+    void setImage(const QString& cameraId, const QImage& image);
 
     QImage requestImage(const QString& id,
                         QSize* size,
@@ -19,7 +20,7 @@ public:
 
 private:
     mutable QMutex m_mutex;
-    QImage m_image;
+    std::map<QString, QImage> m_images;
 };
 
 }

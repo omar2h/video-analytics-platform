@@ -1,12 +1,16 @@
 import QtQuick
+import QtQuick.Controls
 
-Rectangle
-{
+Rectangle {
     color: "#202020"
     border.color: "#404040"
+    border.width: 1
+    radius: 4
 
-    Text {
+    Label {
         anchors.centerIn: parent
-        text: "Video Placeholder"
+
+        text: qsTr("No Video")
+        color: "#A0A0A0"
     }
 }
