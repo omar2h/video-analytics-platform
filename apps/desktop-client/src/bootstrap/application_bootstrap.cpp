@@ -11,6 +11,7 @@
 #include <vap/database/database.hpp>
 #include <vap/streaming/session/streaming_session.hpp>
 #include <vap/streaming/manager/streaming_manager.hpp>
+#include <vap/common/connection_state.hpp>
 
 #include <src/providers/video_frame_provider.hpp>
 
@@ -29,7 +30,6 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 void ApplicationBootstrap::initialize()
 {
     m_streamingManager = std::make_unique<StreamingManager>();
-    m_liveMonitoringViewModel = std::make_unique<LiveMonitoringViewModel>(m_streamingManager.get());
     m_database = std::make_unique<Database>("video_analytics.db");
 
     if (!m_database->open())
@@ -50,8 +50,18 @@ void ApplicationBootstrap::initialize()
         "video",
         m_videoFrameProvider);
 
+    m_liveMonitoringViewModel = std::make_unique<LiveMonitoringViewModel>(m_streamingManager.get(), m_videoFrameProvider);
+
     m_engine.rootContext()->setContextProperty("cameraManagementViewModel", m_cameraManagementViewModel.get());
     m_engine.rootContext()->setContextProperty("liveMonitoringViewModel", m_liveMonitoringViewModel.get());
+
+    qmlRegisterUncreatableMetaObject(
+        vap::staticMetaObject,
+        "VAP",
+        1,
+        0,
+        "ConnectionState",
+        "Enum only");
 }
 
 }

@@ -1,7 +1,11 @@
 #pragma once
 
+#include <QObject>
+
 namespace vap
 {
+
+Q_NAMESPACE
 
 enum class ConnectionState
 {
@@ -12,4 +16,6 @@ enum class ConnectionState
     Error
 };
 
-}
+Q_ENUM_NS(ConnectionState)
+
+} // namespace vap

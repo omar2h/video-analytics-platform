@@ -4,15 +4,18 @@
 
 #include <vap/streaming/manager/streaming_manager.hpp>
 #include <vap/streaming/session/streaming_session.hpp>
+#include <src/providers/video_frame_provider.hpp>
 
 namespace vap
 {
 
 LiveMonitoringViewModel::LiveMonitoringViewModel(
     StreamingManager* streamingManager,
+    VideoFrameProvider* provider,
     QObject* parent)
     : QObject(parent)
-    , m_streamingManager(streamingManager)
+    , m_streamingManager(streamingManager),
+    m_videoFrameProvider(provider)
 {
 }
 
@@ -31,13 +34,20 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
 
     auto viewModel = std::make_unique<CameraStreamViewModel>(cameraId, session);
 
-    auto* result = viewModel.get();
+    auto* streamViewModel = viewModel.get();
+
+    connect(streamViewModel,
+            &CameraStreamViewModel::currentFrameChanged,
+            this,
+            [this, &cameraId, streamViewModel]{
+                m_videoFrameProvider->setImage(cameraId, streamViewModel->currentFrame());
+            });
 
     m_streamViewModels.emplace(
         cameraId,
         std::move(viewModel));
 
-    return result;
+    return streamViewModel;
 }
 
 bool LiveMonitoringViewModel::hasStream(const QString &cameraId) const

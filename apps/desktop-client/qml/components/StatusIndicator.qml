@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
+import VAP 1.0
+
 Row {
     id: root
 
