@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
+import VAP 1.0
+
 Rectangle {
     color: "#202020"
     border.color: "#404040"
@@ -10,7 +12,21 @@ Rectangle {
     Label {
         anchors.centerIn: parent
 
-        text: qsTr("No Video")
+        text: {
+            switch (root.state) {
+            case ConnectionState.Connecting:
+                return qsTr("Connecting...")
+
+            case ConnectionState.Reconnecting:
+                return qsTr("Reconnecting...")
+
+            case ConnectionState.Disconnected:
+                return qsTr("Disconnected")
+
+            default:
+                return qsTr("No Video")
+            }
+        }
         color: "#A0A0A0"
     }
 }

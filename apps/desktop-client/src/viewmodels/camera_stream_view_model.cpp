@@ -15,12 +15,7 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
         qDebug() << "CameraStreamViewModel created for" << cameraId;
     connect(m_streamingSession,
             &StreamingSession::stateChanged,
-            this,
-            [this](const ConnectionState& state)
-            {
-                m_state = state;
-                emit stateChanged();
-            });
+                this, &CameraStreamViewModel::onStateChanged);
     connect(
         m_streamingSession,
         &StreamingSession::frameReady,
@@ -43,14 +38,52 @@ int CameraStreamViewModel::frameRevision() const
     return m_frameRevision;
 }
 
+bool CameraStreamViewModel::hasVideo() const
+{
+    return m_hasVideo;
+}
+
 void CameraStreamViewModel::onFrameReady(const QImage& frame)
 {
-        qDebug() << "CameraStreamViewModel received frame";
+    if (!m_hasVideo)
+    {
+        m_hasVideo = true;
+        emit hasVideoChanged();
+    }
+
     m_currentFrame = frame;
     emit currentFrameChanged();
 
     ++m_frameRevision;
     emit frameRevisionChanged();
+}
+
+void CameraStreamViewModel::onStateChanged(ConnectionState state)
+{
+    m_state = state;
+
+    switch (state)
+    {
+    case ConnectionState::Connecting:
+    case ConnectionState::Disconnected:
+        m_currentFrame = {};
+        emit currentFrameChanged();
+
+        if (m_hasVideo)
+        {
+            m_hasVideo = false;
+            emit hasVideoChanged();
+        }
+        break;
+
+    case ConnectionState::Connected:
+        break;
+
+    case ConnectionState::Reconnecting:
+        break;
+    }
+
+    emit stateChanged();
 }
 
 }

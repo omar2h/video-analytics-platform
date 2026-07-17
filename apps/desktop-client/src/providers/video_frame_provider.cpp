@@ -45,4 +45,9 @@ QImage VideoFrameProvider::requestImage(
     return image;
 }
 
+void VideoFrameProvider::clearImage(const QString& cameraId)
+{
+    m_images.erase(cameraId);
+}
+
 }

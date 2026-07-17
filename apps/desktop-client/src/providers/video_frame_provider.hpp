@@ -18,6 +18,8 @@ public:
                         QSize* size,
                         const QSize& requestedSize) override;
 
+    void clearImage(const QString& cameraId);
+
 private:
     mutable QMutex m_mutex;
     std::map<QString, QImage> m_images;

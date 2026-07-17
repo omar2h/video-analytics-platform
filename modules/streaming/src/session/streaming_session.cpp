@@ -28,8 +28,6 @@ StreamingSession::StreamingSession(QObject* parent)
             this,
             [this](const QImage& image)
             {
-                qDebug() << "StreamingSession::frameReady";
-
                 emit frameReady(image);
             });
 

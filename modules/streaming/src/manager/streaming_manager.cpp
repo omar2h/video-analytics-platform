@@ -29,10 +29,11 @@ bool StreamingManager::contains(const QString& cameraId) const
 
 void StreamingManager::startStreaming(const Camera& camera)
 {
-    if (!contains(camera.id))
-        createSession(camera.id);
+    auto* session = this->session(camera.id);
 
-    session(camera.id)->start(camera.config);
+    Q_ASSERT(session);
+
+    session->start(camera.config);
 }
 
 void StreamingManager::stopStreaming(const QString& cameraId)

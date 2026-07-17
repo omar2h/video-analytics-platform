@@ -10,6 +10,7 @@ Frame {
     property string name: ""
     property int state: ConnectionState.Disconnected
     property url imageSource: ""
+    property bool hasVideo: false
 
     ColumnLayout {
         anchors.fill: parent
@@ -33,9 +34,11 @@ Frame {
             Layout.fillHeight: true
 
             Image {
+                id: videoImage
+
                 anchors.fill: parent
 
-                visible: root.imageSource.toString() !== ""
+                visible: root.hasVideo
 
                 fillMode: Image.PreserveAspectFit
                 cache: false
@@ -46,7 +49,9 @@ Frame {
             VideoPlaceholder {
                 anchors.fill: parent
 
-                visible: root.imageSource.toString() === ""
+                visible: !root.hasVideo
+
+                state: root.state
             }
         }
     }

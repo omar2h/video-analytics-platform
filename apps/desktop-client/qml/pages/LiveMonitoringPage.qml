@@ -52,6 +52,10 @@ Page {
                 imageSource: stream
                     ? "image://video/" + model.id + "?rev=" + stream.frameRevision
                     : ""
+
+                hasVideo: stream
+                    ? stream.hasVideo
+                    : false
             }
 
             ScrollBar.vertical: ScrollBar { }

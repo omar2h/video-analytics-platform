@@ -42,9 +42,18 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     connect(streamViewModel,
             &CameraStreamViewModel::currentFrameChanged,
             this,
-            [this, cameraId, streamViewModel]{
-                qDebug() << "Updating provider for" << cameraId;
-                m_videoFrameProvider->setImage(cameraId, streamViewModel->currentFrame());
+            [this, cameraId, streamViewModel]
+            {
+                if (streamViewModel->currentFrame().isNull())
+                {
+                    m_videoFrameProvider->clearImage(cameraId);
+                }
+                else
+                {
+                    m_videoFrameProvider->setImage(
+                        cameraId,
+                        streamViewModel->currentFrame());
+                }
             });
 
     m_streamViewModels.emplace(
