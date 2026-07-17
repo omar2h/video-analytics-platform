@@ -1,6 +1,7 @@
 #include <vap/streaming/session/streaming_session.hpp>
 
 #include <QThread>
+#include <QDebug>
 
 #include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
@@ -16,11 +17,21 @@ StreamingSession::StreamingSession(QObject* parent)
     m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
     m_streamingThread = std::make_unique<QThread>();
 
-    connect(
-        m_streamingWorker.get(),
-        &StreamingWorker::frameReady,
-        this,
-        &StreamingSession::frameReady);
+    // connect(
+    //     m_streamingWorker.get(),
+    //     &StreamingWorker::frameReady,
+    //     this,
+    //     &StreamingSession::frameReady);
+
+    connect(m_streamingWorker.get(),
+            &StreamingWorker::frameReady,
+            this,
+            [this](const QImage& image)
+            {
+                qDebug() << "StreamingSession::frameReady";
+
+                emit frameReady(image);
+            });
 
     connect(
         m_streamingWorker.get(),

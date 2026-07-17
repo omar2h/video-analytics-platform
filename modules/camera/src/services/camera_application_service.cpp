@@ -4,12 +4,13 @@
 
 #include <vap/camera/repositories/i_camera_repository.hpp>
 #include <vap/camera/validation/i_camera_validator.hpp>
+#include <vap/streaming/manager/streaming_manager.hpp>
 
 namespace vap
 {
 
-CameraApplicationService::CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator)
-    : m_repository(repository), m_validator(validator)
+CameraApplicationService::CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator, StreamingManager* streamingManager)
+    : m_repository(repository), m_validator(validator), m_streamingManager(streamingManager)
 {
 }
 
@@ -31,6 +32,7 @@ CameraValidationResult CameraApplicationService::addCamera(const QString& name, 
     camera.config = config;
 
     m_repository->addCamera(camera);
+    m_streamingManager->createSession(camera.id);
 
     return {};
 }
@@ -55,6 +57,7 @@ CameraValidationResult CameraApplicationService::updateCamera(
 
 void CameraApplicationService::removeCamera(const CameraId &cameraId)
 {
+    m_streamingManager->removeSession(cameraId);
     m_repository->removeCamera(cameraId);
 }
 

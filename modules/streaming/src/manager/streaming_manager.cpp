@@ -1,5 +1,7 @@
 #include <vap/streaming/manager/streaming_manager.hpp>
 
+#include <QDebug>
+
 #include <vap/streaming/session/streaming_session.hpp>
 #include <vap/camera/camera.hpp>
 
@@ -11,6 +13,7 @@ void StreamingManager::createSession(const QString &cameraId)
 {
     if(contains(cameraId))
         return;
+    qDebug() << "Creating session:" << cameraId;
     m_sessions.emplace(cameraId, std::make_unique<StreamingSession>());
 }
 
@@ -44,6 +47,8 @@ void StreamingManager::stopStreaming(const QString& cameraId)
 
 StreamingSession* StreamingManager::session(const QString& cameraId) const
 {
+    qDebug() << "Requesting session:" << cameraId
+             << contains(cameraId);
     auto it = m_sessions.find(cameraId);
 
     if (it == m_sessions.end())

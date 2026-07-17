@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import VAP 1.0
+
 import "../views"
 
 Page {
@@ -34,16 +36,22 @@ Page {
             model: cameraManagementViewModel.cameraModel
 
             delegate: CameraTile {
+                id: tile
+
+                property var stream:
+                    liveMonitoringViewModel.streamViewModel(model.id)
+
                 width: cameraGrid.cellWidth - 16
                 height: cameraGrid.cellHeight - 16
 
                 name: model.name
 
-                // Temporary values.
-                // These will be connected to StreamingManager
-                // in the next milestone.
-                state: 0
-                imageSource: ""
+                state: stream
+                       ? stream.state
+                       : ConnectionState.Disconnected
+                imageSource: stream
+                    ? "image://video/" + model.id + "?rev=" + stream.frameRevision
+                    : ""
             }
 
             ScrollBar.vertical: ScrollBar { }

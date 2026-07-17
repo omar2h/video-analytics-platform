@@ -24,6 +24,7 @@ target_include_directories(camera
 
 target_link_libraries(camera
     PUBLIC
+        streaming
         common
         database
         Qt6::Core

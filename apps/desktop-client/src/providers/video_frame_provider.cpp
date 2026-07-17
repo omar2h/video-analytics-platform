@@ -21,7 +21,9 @@ QImage VideoFrameProvider::requestImage(
     const QSize& requestedSize)
 {
     QMutexLocker locker(&m_mutex);
-    auto it = m_images.find(id);
+    QString cameraId = id.section('?', 0, 0);
+
+    auto it = m_images.find(cameraId);
     if(it == m_images.end())
         return {};
 

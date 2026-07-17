@@ -1,5 +1,7 @@
 #include "camera_stream_view_model.hpp"
 
+#include <QDebug>
+
 #include <vap/streaming/session/streaming_session.hpp>
 
 namespace vap
@@ -10,6 +12,7 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
     m_streamingSession(session)
 {
     Q_ASSERT(m_streamingSession);
+        qDebug() << "CameraStreamViewModel created for" << cameraId;
     connect(m_streamingSession,
             &StreamingSession::stateChanged,
             this,
@@ -42,6 +45,7 @@ int CameraStreamViewModel::frameRevision() const
 
 void CameraStreamViewModel::onFrameReady(const QImage& frame)
 {
+        qDebug() << "CameraStreamViewModel received frame";
     m_currentFrame = frame;
     emit currentFrameChanged();
 

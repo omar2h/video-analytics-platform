@@ -7,11 +7,12 @@ namespace vap
 
 class ICameraRepository;
 class ICameraValidator;
+class StreamingManager;
 
 class CameraApplicationService final : public ICameraApplicationService
 {
 public:
-    explicit CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator);
+    explicit CameraApplicationService(ICameraRepository* repository, ICameraValidator* validator, StreamingManager* streamingManager);
     QList<Camera> cameras() const override;
 
     CameraValidationResult addCamera(const QString& name, const CameraConfig& config) override;
@@ -26,6 +27,7 @@ public:
 private:
     ICameraRepository* m_repository{};
     ICameraValidator* m_validator{};
+    StreamingManager* m_streamingManager;
 };
 
 }

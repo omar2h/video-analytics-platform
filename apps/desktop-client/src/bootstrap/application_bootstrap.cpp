@@ -39,8 +39,13 @@ void ApplicationBootstrap::initialize()
 
     m_cameraRepository = std::make_unique<SQLiteCameraRepository>(*m_database);
 
+    for (const auto& camera : m_cameraRepository->cameras())
+    {
+        m_streamingManager->createSession(camera.id);
+    }
+
     m_cameraValidator = std::make_unique<CameraValidator>();
-    m_cameraApplicationService = std::make_unique<CameraApplicationService>(m_cameraRepository.get(), m_cameraValidator.get());
+    m_cameraApplicationService = std::make_unique<CameraApplicationService>(m_cameraRepository.get(), m_cameraValidator.get(), m_streamingManager.get());
     m_cameraManagementViewModel = std::make_unique<CameraManagementViewModel>(m_cameraApplicationService.get(), m_streamingManager.get());
 
 

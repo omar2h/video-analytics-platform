@@ -22,6 +22,7 @@ LiveMonitoringViewModel::LiveMonitoringViewModel(
 CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     const QString& cameraId)
 {
+    qDebug() << "streamViewModel called for" << cameraId;
     auto it = m_streamViewModels.find(cameraId);
 
     if (it != m_streamViewModels.end())
@@ -29,8 +30,10 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
 
     auto* session = m_streamingManager->session(cameraId);
 
-    if (!session)
+    if (!session) {
+        qDebug() << "No session for" << cameraId;
         return nullptr;
+    }
 
     auto viewModel = std::make_unique<CameraStreamViewModel>(cameraId, session);
 
@@ -39,7 +42,8 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     connect(streamViewModel,
             &CameraStreamViewModel::currentFrameChanged,
             this,
-            [this, &cameraId, streamViewModel]{
+            [this, cameraId, streamViewModel]{
+                qDebug() << "Updating provider for" << cameraId;
                 m_videoFrameProvider->setImage(cameraId, streamViewModel->currentFrame());
             });
 

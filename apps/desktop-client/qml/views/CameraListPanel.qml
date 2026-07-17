@@ -71,13 +71,6 @@ Frame {
             color: "red"
         }
 
-        CameraTile {
-            Layout.fillWidth: true
-
-            state: cameraStreamViewModel.state
-            frameRevision: cameraStreamViewModel.frameRevision
-        }
-
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
