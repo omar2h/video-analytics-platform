@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
 
-    engine.load(QUrl("qrc:/videoanalytics/qml/Main.qml"));
+    engine.load(QUrl("qrc:/VAP/qml/Main.qml"));
 
     return app.exec();
 }

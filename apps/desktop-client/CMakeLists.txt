@@ -20,20 +20,35 @@ qt_add_executable(desktop_client
     src/providers/video_frame_provider.cpp
 )
 
+set_source_files_properties(
+    qml/style/Colors.qml
+    qml/style/Metrics.qml
+    qml/style/Fonts.qml
+    PROPERTIES
+        QT_QML_SINGLETON_TYPE TRUE
+)
+
 qt_add_qml_module(desktop_client
-    URI videoanalytics
+    URI VAP
     VERSION 1.0
 
     QML_FILES
+        qml/Main.qml
+
         qml/components/VideoPlaceholder.qml
         qml/components/StatusIndicator.qml
+
         qml/pages/CameraManagementPage.qml
         qml/pages/LiveMonitoringPage.qml
+
         qml/views/CameraTile.qml
         qml/views/CameraGrid.qml
-        qml/Main.qml
-        QML_FILES qml/views/CameraListPanel.qml
-        QML_FILES qml/views/CameraDetailsPanel.qml
+        qml/views/CameraListPanel.qml
+        qml/views/CameraDetailsPanel.qml
+
+        qml/style/Colors.qml
+        qml/style/Metrics.qml
+        qml/style/Fonts.qml
 )
 
 target_link_libraries(desktop_client
