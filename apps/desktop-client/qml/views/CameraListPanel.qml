@@ -2,7 +2,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Frame {
+import "../components"
+
+Card {
     ColumnLayout {
         anchors.fill: parent
 
