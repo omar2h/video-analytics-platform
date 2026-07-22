@@ -40,7 +40,10 @@ Card {
                   ? cameraManagementViewModel.cameraName
                   : ""
 
-            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraName = text : ""
+            onTextChanged: {
+                if (cameraManagementViewModel)
+                    cameraManagementViewModel.cameraName = text
+            }
         }
 
         Label {
@@ -57,7 +60,10 @@ Card {
                   ? cameraManagementViewModel.cameraUrl
                   : ""
 
-            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraUrl = text : ""
+            onTextChanged: {
+                if (cameraManagementViewModel)
+                    cameraManagementViewModel.cameraUrl = text
+            }
         }
 
         Button {
@@ -104,7 +110,9 @@ Card {
         }
 
         Label {
-            text: cameraManagementViewModel ? cameraManagementViewModel.validationMessage ? cameraManagementViewModel.validationMessage : "" : ""
+            text: cameraManagementViewModel
+                  ? cameraManagementViewModel.validationMessage
+                  : ""
             visible: text.length > 0
             color: Colors.error
         }

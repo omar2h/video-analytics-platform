@@ -9,6 +9,22 @@ Rectangle {
 
     required property int state
 
+    readonly property string placeholderText: {
+        switch (state) {
+        case ConnectionState.Connecting:
+            return qsTr("Connecting...")
+
+        case ConnectionState.Reconnecting:
+            return qsTr("Reconnecting...")
+
+        case ConnectionState.Disconnected:
+            return qsTr("Disconnected")
+
+        default:
+            return qsTr("No Video")
+        }
+    }
+
     color: Colors.background
     radius: Metrics.radiusSmall
 
@@ -19,28 +35,7 @@ Rectangle {
         Label {
             Layout.alignment: Qt.AlignHCenter
 
-            text: "📹"
-            font.pixelSize: 40
-        }
-
-        Label {
-            Layout.alignment: Qt.AlignHCenter
-
-            text: {
-                switch (root.state) {
-                case ConnectionState.Connecting:
-                    return qsTr("Connecting...")
-
-                case ConnectionState.Reconnecting:
-                    return qsTr("Reconnecting...")
-
-                case ConnectionState.Disconnected:
-                    return qsTr("Disconnected")
-
-                default:
-                    return qsTr("No Video")
-                }
-            }
+            text: root.placeholderText
 
             color: Colors.textSecondary
             font.pixelSize: Fonts.body

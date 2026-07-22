@@ -9,10 +9,10 @@ import VAP 1.0
 Card {
     id: root
 
-    property string name: ""
-    property int state: ConnectionState.Disconnected
-    property url imageSource: ""
-    property bool hasVideo: false
+    required property string name
+    required property int state
+    required property url imageSource
+    required property bool hasVideo
 
     ColumnLayout {
         anchors.fill: parent
