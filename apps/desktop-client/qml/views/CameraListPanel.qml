@@ -3,42 +3,72 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import "../components"
+import VAP 1.0
 
 Card {
+    readonly property bool hasSelection:
+        cameraManagementViewModel
+        && cameraManagementViewModel.selectedIndex >= 0
+
     ColumnLayout {
         anchors.fill: parent
+        anchors.margins: Metrics.panelPadding
+        spacing: Metrics.spacingMedium
+
+        Label {
+            text: qsTr("Cameras")
+
+            font.pixelSize: Fonts.sectionTitle
+            font.bold: true
+
+            color: Colors.textPrimary
+        }
 
         // Form
+        Label {
+            text: qsTr("Camera Name")
+            color: Colors.textSecondary
+            font.pixelSize: Fonts.caption
+        }
+
 
         TextField {
-            placeholderText: "Camera Name"
+            Layout.fillWidth: true
+            placeholderText: qsTr("Camera Name")
 
             text: cameraManagementViewModel
                   ? cameraManagementViewModel.cameraName
-                  : null
+                  : ""
 
-            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraName = text : null
+            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraName = text : ""
+        }
+
+        Label {
+            text: qsTr("Camera URL")
+            color: Colors.textSecondary
+            font.pixelSize: Fonts.caption
         }
 
         TextField {
-            placeholderText: "Camera URL"
+            Layout.fillWidth: true
+            placeholderText: qsTr("Camera URL")
 
             text: cameraManagementViewModel
                   ? cameraManagementViewModel.cameraUrl
-                  : null
+                  : ""
 
-            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraUrl = text : null
+            onTextChanged: cameraManagementViewModel ? cameraManagementViewModel.cameraUrl = text : ""
         }
 
         Button {
-            text: cameraManagementViewModel
-                  ? cameraManagementViewModel.selectedIndex >= 0
-                        ? "Save Camera"
-                        : "Add Camera"
-                  : null
+            text: hasSelection
+                    ? qsTr("Save Camera")
+                    : qsTr("Add Camera")
+
+            Layout.fillWidth: true
 
             onClicked: {
-                cameraManagementViewModel.selectedIndex >= 0 ?
+                hasSelection ?
                     cameraManagementViewModel.updateSelectedCamera() : cameraManagementViewModel.addCamera()
             }
         }
@@ -46,31 +76,37 @@ Card {
         Button {
             text: qsTr("Delete Camera")
 
-            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
+            Layout.fillWidth: true
+
+            enabled: hasSelection
 
             onClicked: cameraManagementViewModel.deleteSelectedCamera()
         }
 
         Button {
-            text: "Cancel"
+            text: qsTr("Cancel")
 
-            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
+            Layout.fillWidth: true
+
+            enabled: hasSelection
 
             onClicked: cameraManagementViewModel.clearSelection()
         }
 
         Button {
-            text: "Connect"
+            text: qsTr("Connect")
 
-            enabled: cameraManagementViewModel ? cameraManagementViewModel.selectedIndex >= 0 ? true : false : false
+            Layout.fillWidth: true
+
+            enabled: hasSelection
 
             onClicked: cameraManagementViewModel.connectSelectedCamera()
         }
 
-        Text {
+        Label {
             text: cameraManagementViewModel ? cameraManagementViewModel.validationMessage ? cameraManagementViewModel.validationMessage : "" : ""
             visible: text.length > 0
-            color: "red"
+            color: Colors.error
         }
 
         ListView {
