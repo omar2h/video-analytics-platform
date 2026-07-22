@@ -4,7 +4,9 @@ import QtQuick.Layouts
 
 import "../components"
 
-Frame {
+import VAP 1.0
+
+Card {
     id: root
 
     property string name: ""
@@ -14,24 +16,46 @@ Frame {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 8
-        spacing: 8
+        anchors.margins: Metrics.panelPadding
+        spacing: Metrics.spacingMedium
 
-        Label {
+        Rectangle {
             Layout.fillWidth: true
+            implicitHeight: 44
 
-            text: root.name
-            font.bold: true
-            font.pixelSize: 16
+            color: Colors.surfaceVariant
+            radius: Metrics.radiusSmall
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: Metrics.panelPadding
+
+                Label {
+                    Layout.fillWidth: true
+
+                    text: root.name
+
+                    color: Colors.textPrimary
+                    font.pixelSize: Fonts.body
+                    font.bold: true
+
+                    elide: Text.ElideRight
+                }
+
+                StatusIndicator {
+                    state: root.state
+                }
+            }
         }
 
-        StatusIndicator {
-            state: root.state
-        }
-
-        Item {
+        Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            radius: Metrics.radiusSmall
+            color: Colors.background
+
+            clip: true
 
             Image {
                 id: videoImage
