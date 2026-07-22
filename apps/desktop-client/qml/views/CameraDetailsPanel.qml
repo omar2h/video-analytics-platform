@@ -9,26 +9,39 @@ Card {
 
     ColumnLayout {
         anchors.fill: parent
+        anchors.margins: Metrics.panelPadding
+        spacing: Metrics.spacingMedium
 
         Label {
-            text: "Camera Details"
+            text: qsTr("Camera Details")
+            font.pixelSize: Fonts.sectionTitle
             font.bold: true
+            color: Colors.textPrimary
         }
 
         Label {
-            text: "Name:"
+            text: qsTr("Name")
+            color: Colors.textSecondary
+            font.pixelSize: Fonts.caption
         }
 
         Label {
             text: vm ? vm.selectedCameraName : ""
+            color: Colors.textPrimary
+            font.pixelSize: Fonts.body
         }
 
         Label {
-            text: "URL:"
+            text: qsTr("URL")
+            color: Colors.textSecondary
+            font.pixelSize: Fonts.caption
         }
 
         Label {
             text: vm ? vm.selectedCameraUrl : ""
+            color: Colors.textPrimary
+            font.pixelSize: Fonts.body
+            wrapMode: Text.WrapAnywhere
         }
     }
 }
