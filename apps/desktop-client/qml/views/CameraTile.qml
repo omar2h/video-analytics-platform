@@ -9,7 +9,7 @@ import VAP 1.0
 Card {
     id: root
 
-    required property string name
+    required property string cameraName
     required property int state
     required property url imageSource
     required property bool hasVideo
@@ -33,7 +33,7 @@ Card {
                 Label {
                     Layout.fillWidth: true
 
-                    text: root.name
+                    text: root.cameraName
 
                     color: Colors.textPrimary
                     font.pixelSize: Fonts.body

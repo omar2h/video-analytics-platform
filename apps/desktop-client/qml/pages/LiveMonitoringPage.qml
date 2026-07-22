@@ -45,15 +45,16 @@ Page {
             model: cameraManagementViewModel.cameraModel
 
             delegate: CameraTile {
-                id: tile
+                required property string id
+                required property string name
 
                 property var stream:
-                    liveMonitoringViewModel.streamViewModel(model.id)
+                    liveMonitoringViewModel.streamViewModel(id)
 
                 width: cameraGrid.cellWidth - Metrics.spacingMedium
                 height: cameraGrid.cellHeight - Metrics.spacingMedium
 
-                name: model.name
+                cameraName: name
 
                 hasVideo: stream
                     ? stream.hasVideo
@@ -63,7 +64,7 @@ Page {
                        ? stream.state
                        : ConnectionState.Disconnected
                 imageSource: stream
-                    ? "image://video/" + model.id + "?rev=" + stream.frameRevision
+                    ? "image://video/" + id + "?rev=" + stream.frameRevision
                     : ""
 
 
