@@ -20,4 +20,6 @@ QtObject {
 
     readonly property int cameraTileWidth: 340
     readonly property int cameraTileHeight: 260
+
+    readonly property int statusIndicatorSize: 10
 }

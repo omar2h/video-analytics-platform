@@ -4,6 +4,8 @@ import QtQuick.Layouts
 
 import "../components"
 
+import VAP 1.0
+
 Card {
     readonly property var vm: cameraManagementViewModel
 
