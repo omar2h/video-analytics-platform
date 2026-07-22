@@ -113,35 +113,63 @@ Card {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            spacing: Metrics.spacingSmall
+            clip: true
+
             model: cameraManagementViewModel
                    ? cameraManagementViewModel.cameraModel
                    : null
 
             delegate: Rectangle {
-
                 required property int index
                 required property string name
+                required property string url
+
+                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+                height: 72
+
+                radius: Metrics.radiusSmall
 
                 color: cameraManagementViewModel.selectedIndex === index
-                       ? "#d0d0d0"
-                       : "white"
+                       ? Colors.primary
+                       : Colors.surfaceVariant
 
-                width: ListView.view.width
-                height: 50
-
+                border.color: Colors.border
                 border.width: 1
 
-                Text {
-                    anchors.centerIn: parent
-                    text: name
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: Metrics.panelPadding
+                    spacing: 4
+
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: name
+
+                        color: Colors.textPrimary
+                        font.pixelSize: Fonts.body
+                        font.bold: true
+
+                        elide: Text.ElideRight
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: url
+
+                        color: Colors.textSecondary
+                        font.pixelSize: Fonts.caption
+
+                        elide: Text.ElideMiddle
+                    }
                 }
 
                 MouseArea {
                     anchors.fill: parent
 
-                    onClicked: {
-                        cameraManagementViewModel.selectedIndex = index
-                    }
+                    onClicked: cameraManagementViewModel.selectedIndex = index
                 }
             }
         }
