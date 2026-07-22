@@ -17,4 +17,7 @@ QtObject {
     readonly property int radiusSmall: 4
     readonly property int radiusMedium: 8
     readonly property int radiusLarge: 12
+
+    readonly property int cameraTileWidth: 340
+    readonly property int cameraTileHeight: 260
 }

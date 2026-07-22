@@ -13,13 +13,15 @@ Page {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 16
-        spacing: 16
+        anchors.margins: Metrics.pageMargin
+        spacing: Metrics.spacingMedium
 
         Label {
             text: qsTr("Live Monitoring")
-            font.pixelSize: 24
+            font.pixelSize: Fonts.title
             font.bold: true
+
+            color: Colors.textPrimary
         }
 
         GridView {
@@ -28,10 +30,17 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            leftMargin: Metrics.spacingSmall
+            rightMargin: Metrics.spacingSmall
+            topMargin: Metrics.spacingSmall
+            bottomMargin: Metrics.spacingSmall
+
             clip: true
 
-            cellWidth: 380
-            cellHeight: 320
+            cellWidth: Metrics.cameraTileWidth
+            cellHeight: Metrics.cameraTileHeight
+
+            boundsBehavior: Flickable.StopAtBounds
 
             model: cameraManagementViewModel.cameraModel
 
@@ -41,10 +50,14 @@ Page {
                 property var stream:
                     liveMonitoringViewModel.streamViewModel(model.id)
 
-                width: cameraGrid.cellWidth - 16
-                height: cameraGrid.cellHeight - 16
+                width: cameraGrid.cellWidth - Metrics.spacingMedium
+                height: cameraGrid.cellHeight - Metrics.spacingMedium
 
                 name: model.name
+
+                hasVideo: stream
+                    ? stream.hasVideo
+                    : false
 
                 state: stream
                        ? stream.state
@@ -53,9 +66,7 @@ Page {
                     ? "image://video/" + model.id + "?rev=" + stream.frameRevision
                     : ""
 
-                hasVideo: stream
-                    ? stream.hasVideo
-                    : false
+
             }
 
             ScrollBar.vertical: ScrollBar { }
