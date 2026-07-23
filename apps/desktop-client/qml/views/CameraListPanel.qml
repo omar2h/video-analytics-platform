@@ -24,11 +24,7 @@ Card {
             color: Colors.textPrimary
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Colors.border
-        }
+        Separator {}
 
         Label {
             text: qsTr("Camera Information")
@@ -86,11 +82,7 @@ Card {
             color: Colors.error
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Colors.border
-        }
+        Separator {}
 
         Label {
             text: qsTr("Editing")
@@ -133,11 +125,7 @@ Card {
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Colors.border
-        }
+        Separator {}
 
         Label {
             text: qsTr("Streaming")
@@ -178,11 +166,7 @@ Card {
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Colors.border
-        }
+        Separator {}
 
         Label {
             text: qsTr("Camera List")

@@ -69,7 +69,7 @@ RowLayout {
 
         text: root.statusText
 
-        color: Colors.textSecondary
+        color: Colors.textPrimary
         font.pixelSize: Fonts.caption
     }
 }

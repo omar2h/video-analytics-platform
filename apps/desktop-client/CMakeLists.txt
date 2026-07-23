@@ -38,6 +38,7 @@ qt_add_qml_module(desktop_client
         qml/components/VideoPlaceholder.qml
         qml/components/StatusIndicator.qml
         qml/components/Card.qml
+        qml/components/Separator.qml
 
         qml/pages/CameraManagementPage.qml
         qml/pages/LiveMonitoringPage.qml

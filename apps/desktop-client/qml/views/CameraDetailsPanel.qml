@@ -12,7 +12,7 @@ Card {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Metrics.panelPadding
-        spacing: Metrics.spacingMedium
+        spacing: Metrics.spacingSmall
 
         Label {
             text: qsTr("Camera Details")
@@ -20,6 +20,8 @@ Card {
             font.bold: true
             color: Colors.textPrimary
         }
+
+        Separator {}
 
         Label {
             text: qsTr("Name")
@@ -43,7 +45,21 @@ Card {
             text: vm ? vm.selectedCameraUrl : ""
             color: Colors.textPrimary
             font.pixelSize: Fonts.body
-            wrapMode: Text.WrapAnywhere
+            wrapMode: Text.Wrap
+        }
+
+        Separator {}
+
+        Label {
+            text: qsTr("Status")
+            color: Colors.textSecondary
+            font.pixelSize: Fonts.caption
+        }
+
+        StatusIndicator {
+            state: vm
+                       ? vm.selectedCameraState
+                       : ConnectionState.Disconnected
         }
     }
 }
