@@ -24,42 +24,108 @@ Card {
         Separator {}
 
         Label {
-            text: qsTr("Name")
-            color: Colors.textSecondary
-            font.pixelSize: Fonts.caption
+            text: qsTr("General")
+            font.bold: true
         }
 
-        Label {
-            text: vm ? vm.selectedCameraName : ""
-            color: Colors.textPrimary
-            font.pixelSize: Fonts.body
-        }
+        Separator {}
 
-        Label {
-            text: qsTr("URL")
-            color: Colors.textSecondary
-            font.pixelSize: Fonts.caption
-        }
+        GridLayout {
+            Layout.fillWidth: true
 
-        Label {
-            text: vm ? vm.selectedCameraUrl : ""
-            color: Colors.textPrimary
-            font.pixelSize: Fonts.body
-            wrapMode: Text.Wrap
+            columns: 2
+            rowSpacing: Metrics.spacingSmall
+            columnSpacing: Metrics.spacingMedium
+
+            Label {
+                text: qsTr("Name")
+                color: Colors.textSecondary
+            }
+
+            Label {
+                text: vm ? vm.selectedCameraName : ""
+                color: Colors.textPrimary
+            }
+
+            Label {
+                text: qsTr("RTSP URL")
+                color: Colors.textSecondary
+            }
+
+            Label {
+                text: vm ? vm.selectedCameraUrl : ""
+                color: Colors.textPrimary
+                wrapMode: Text.Wrap
+            }
         }
 
         Separator {}
 
         Label {
-            text: qsTr("Status")
-            color: Colors.textSecondary
-            font.pixelSize: Fonts.caption
+            text: qsTr("Connection")
+            font.bold: true
         }
 
-        StatusIndicator {
-            state: vm
-                       ? vm.selectedCameraState
-                       : ConnectionState.Disconnected
+        GridLayout {
+            Layout.fillWidth: true
+
+            columns: 2
+            rowSpacing: Metrics.spacingSmall
+            columnSpacing: Metrics.spacingMedium
+
+            Label {
+                text: qsTr("Status")
+                color: Colors.textSecondary
+            }
+
+            StatusIndicator {
+                state: vm
+                    ? vm.selectedCameraState
+                    : ConnectionState.Disconnected
+            }
+        }
+
+        Separator {}
+
+        Label {
+            text: qsTr("Stream")
+            font.bold: true
+        }
+
+        Label {
+            text: qsTr("Resolution")
+            color: Colors.textSecondary
+        }
+
+        Label {
+            text: "—"
+        }
+
+        Label {
+            text: qsTr("FPS")
+            color: Colors.textSecondary
+        }
+
+        Label {
+            text: "—"
+        }
+
+        Label {
+            text: qsTr("Codec")
+            color: Colors.textSecondary
+        }
+
+        Label {
+            text: "—"
+        }
+
+        Label {
+            text: qsTr("Recording")
+            color: Colors.textSecondary
+        }
+
+        Label {
+            text: "No"
         }
     }
 }
