@@ -10,6 +10,7 @@ add_library(streaming STATIC
     include/vap/streaming/reconnect/reconnect_policy.hpp
     include/vap/streaming/session/streaming_session.hpp
     include/vap/streaming/manager/streaming_manager.hpp
+    include/vap/streaming/domain/stream_statistics.hpp
 
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp

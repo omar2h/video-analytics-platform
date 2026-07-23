@@ -12,6 +12,7 @@
 #include <vap/streaming/session/streaming_session.hpp>
 #include <vap/streaming/manager/streaming_manager.hpp>
 #include <vap/common/connection_state.hpp>
+#include <vap/streaming/domain/stream_statistics.hpp>
 
 #include <src/providers/video_frame_provider.hpp>
 
@@ -29,6 +30,8 @@ ApplicationBootstrap::~ApplicationBootstrap() = default;
 
 void ApplicationBootstrap::initialize()
 {
+    qRegisterMetaType<vap::StreamStatistics>();
+
     m_streamingManager = std::make_unique<StreamingManager>();
     m_database = std::make_unique<Database>("video_analytics.db");
 

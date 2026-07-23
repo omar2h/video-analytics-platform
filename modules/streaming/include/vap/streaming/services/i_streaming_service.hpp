@@ -6,7 +6,7 @@
 
 namespace vap
 {
-
+class StreamStatistics;
 class IStreamingService : public QObject
 {
     Q_OBJECT
@@ -33,6 +33,7 @@ public:
 signals:
     void connected();
     void frameReady(const QImage& frame);
+    void statisticsUpdated(const StreamStatistics& statistics);
 
 };
 

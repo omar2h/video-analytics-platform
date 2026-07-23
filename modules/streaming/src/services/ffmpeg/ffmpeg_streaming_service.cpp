@@ -55,6 +55,8 @@ FFmpegStreamingService::~FFmpegStreamingService()
 StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
 {
     m_stopRequested.store(false);
+    m_statistics = {};
+    m_statisticsTimer.restart();
 
     qCInfo(ffmpegStreamingLog)
         << "Connecting to stream:" << uri;
@@ -79,6 +81,8 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     }
     qCInfo(ffmpegStreamingLog)
         << "Stopped reading packets.";
+
+    emit statisticsUpdated(m_statistics);
 
     cleanup();
 
@@ -257,6 +261,15 @@ bool FFmpegStreamingService::openDecoder()
         << "x"
         << m_codecContext->height;
 
+    m_statistics.codec =
+        avcodec_get_name(m_codecContext->codec_id);
+
+    m_statistics.resolution =
+        QSize(m_codecContext->width,
+              m_codecContext->height);
+
+    emit statisticsUpdated(m_statistics);
+
     return true;
 }
 
@@ -389,6 +402,8 @@ bool FFmpegStreamingService::readNextPacket()
             << "Duration =" << m_packet->duration
             << "Size =" << m_packet->size;
 
+        ++m_statistics.packetsReceived;
+
         if (sendPacketToDecoder())
         {
             receiveFrames();
@@ -491,6 +506,8 @@ void FFmpegStreamingService::receiveFrames()
         else {
             emit frameReady(image);
         }
+        ++m_statistics.framesDecoded;
+        publishStatisticsIfNeeded();
 
         av_frame_unref(m_frame);
     }
@@ -545,6 +562,17 @@ void FFmpegStreamingService::cleanup()
     cleanupPacket();
     cleanupDecoder();
     cleanupInput();
+}
+
+void FFmpegStreamingService::publishStatisticsIfNeeded()
+{
+    constexpr qint64 UpdateIntervalMs = 1000;
+
+    if (m_statisticsTimer.elapsed() >= UpdateIntervalMs)
+    {
+        emit statisticsUpdated(m_statistics);
+        m_statisticsTimer.restart();
+    }
 }
 
 int FFmpegStreamingService::interruptCallback(void* opaque)

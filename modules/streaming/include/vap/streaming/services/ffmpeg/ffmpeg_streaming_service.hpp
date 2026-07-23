@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vap/streaming/services/i_streaming_service.hpp>
+#include <vap/streaming/domain/stream_statistics.hpp>
 
 #include <atomic>
+#include <QElapsedTimer>
 
 struct AVFormatContext;
 struct AVCodecContext;
@@ -60,6 +62,8 @@ private:
 
     void cleanup();
 
+    void publishStatisticsIfNeeded();
+
 private:
     static int interruptCallback(void* opaque);
 
@@ -67,6 +71,8 @@ private:
     AVCodecContext* m_codecContext = nullptr;
     AVPacket* m_packet = nullptr;
     AVFrame* m_frame = nullptr;
+    StreamStatistics m_statistics;
+    QElapsedTimer m_statisticsTimer;
 
     int m_videoStreamIndex = -1;
 
