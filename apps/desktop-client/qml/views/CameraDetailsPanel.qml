@@ -92,40 +92,78 @@ Card {
             font.bold: true
         }
 
-        Label {
-            text: qsTr("Resolution")
-            color: Colors.textSecondary
-        }
+        GridLayout {
+            Layout.fillWidth: true
 
-        Label {
-            text: "—"
-        }
+            columns: 2
+            rowSpacing: Metrics.spacingSmall
+            columnSpacing: Metrics.spacingMedium
 
-        Label {
-            text: qsTr("FPS")
-            color: Colors.textSecondary
-        }
+            Label {
+                text: qsTr("Resolution")
+                color: Colors.textSecondary
+            }
 
-        Label {
-            text: "—"
-        }
+            Label {
+                text: vm ? vm.selectedCameraResolution : "—"
+                color: Colors.textPrimary
+            }
 
-        Label {
-            text: qsTr("Codec")
-            color: Colors.textSecondary
-        }
+            Label {
+                text: qsTr("Codec")
+                color: Colors.textSecondary
+            }
 
-        Label {
-            text: "—"
-        }
+            Label {
+                text: vm && vm.selectedCameraCodec !== ""
+                        ? vm.selectedCameraCodec
+                        : "—"
+                color: Colors.textPrimary
+            }
 
-        Label {
-            text: qsTr("Recording")
-            color: Colors.textSecondary
-        }
+            Label {
+                text: qsTr("FPS")
+                color: Colors.textSecondary
+            }
 
-        Label {
-            text: "No"
+            Label {
+                text: vm && vm.selectedCameraFps > 0
+                        ? Number(vm.selectedCameraFps).toFixed(1)
+                        : "—"
+                color: Colors.textPrimary
+            }
+
+            Label {
+                text: qsTr("Bitrate")
+                color: Colors.textSecondary
+            }
+
+            Label {
+                text: vm && vm.selectedCameraBitrateMbps > 0
+                        ? Number(vm.selectedCameraBitrateMbps).toFixed(2) + " Mbps"
+                        : "—"
+                color: Colors.textPrimary
+            }
+
+            Label {
+                text: qsTr("Frames")
+                color: Colors.textSecondary
+            }
+
+            Label {
+                text: vm ? vm.selectedCameraFramesDecoded : "0"
+                color: Colors.textPrimary
+            }
+
+            Label {
+                text: qsTr("Packets")
+                color: Colors.textSecondary
+            }
+
+            Label {
+                text: vm ? vm.selectedCameraPacketsReceived : "0"
+                color: Colors.textPrimary
+            }
         }
     }
 }

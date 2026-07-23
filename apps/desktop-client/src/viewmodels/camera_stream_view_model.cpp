@@ -14,7 +14,9 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
     Q_ASSERT(m_streamingSession);
     connect(m_streamingSession,
             &StreamingSession::stateChanged,
-                this, &CameraStreamViewModel::onStateChanged);
+            this,
+            &CameraStreamViewModel::onStateChanged);
+
     connect(
         m_streamingSession,
         &StreamingSession::frameReady,

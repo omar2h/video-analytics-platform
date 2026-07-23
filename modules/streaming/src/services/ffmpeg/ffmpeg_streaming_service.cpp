@@ -261,12 +261,23 @@ bool FFmpegStreamingService::openDecoder()
         << "x"
         << m_codecContext->height;
 
+    const AVStream* stream =
+        m_formatContext->streams[m_videoStreamIndex];
+
+    Q_ASSERT(stream);
+
     m_statistics.codec =
         avcodec_get_name(m_codecContext->codec_id);
 
     m_statistics.resolution =
         QSize(m_codecContext->width,
               m_codecContext->height);
+
+    m_statistics.fps =
+        av_q2d(stream->avg_frame_rate);
+
+    m_statistics.bitrateMbps =
+        static_cast<double>(m_codecContext->bit_rate) / 1'000'000.0;
 
     emit statisticsUpdated(m_statistics);
 

@@ -10,6 +10,8 @@ namespace vap
 {
 class ICameraApplicationService;
 class StreamingManager;
+class StreamStatistics;
+class StreamingSession;
 class CameraManagementViewModel : public QObject
 {
     Q_OBJECT
@@ -38,6 +40,30 @@ class CameraManagementViewModel : public QObject
         int selectedCameraState
         READ selectedCameraState
         NOTIFY selectedCameraStateChanged)
+
+    Q_PROPERTY(QString selectedCameraCodec
+        READ selectedCameraCodec
+        NOTIFY selectedCameraStatisticsChanged)
+
+    Q_PROPERTY(QString selectedCameraResolution
+        READ selectedCameraResolution
+        NOTIFY selectedCameraStatisticsChanged)
+
+    Q_PROPERTY(quint64 selectedCameraFramesDecoded
+        READ selectedCameraFramesDecoded
+        NOTIFY selectedCameraStatisticsChanged)
+
+    Q_PROPERTY(quint64 selectedCameraPacketsReceived
+        READ selectedCameraPacketsReceived
+        NOTIFY selectedCameraStatisticsChanged)
+
+    Q_PROPERTY(double selectedCameraFps
+        READ selectedCameraFps
+        NOTIFY selectedCameraStatisticsChanged)
+
+    Q_PROPERTY(double selectedCameraBitrateMbps
+        READ selectedCameraBitrateMbps
+        NOTIFY selectedCameraStatisticsChanged)
 
     Q_PROPERTY(
         QString cameraName
@@ -80,6 +106,13 @@ public:
 
     int selectedCameraState() const;
 
+    QString selectedCameraCodec() const;
+    QString selectedCameraResolution() const;
+    quint64 selectedCameraFramesDecoded() const;
+    quint64 selectedCameraPacketsReceived() const;
+    double selectedCameraFps() const;
+    double selectedCameraBitrateMbps() const;
+
     Q_INVOKABLE void addCamera();
     Q_INVOKABLE void connectSelectedCamera();
     Q_INVOKABLE void stopSelectedCamera();
@@ -98,10 +131,17 @@ signals:
 
     void selectedCameraStateChanged();
 
+    void selectedCameraStatisticsChanged();
+
 private:
     void reloadCameras();
     void loadSelectedCameraIntoForm();
     void clearForm();
+
+    [[nodiscard]]
+    StreamingSession* selectedSession() const;
+    [[nodiscard]]
+    const StreamStatistics *currentStatistics() const;
 
     const Camera* selectedCamera() const;
 
@@ -121,6 +161,7 @@ private:
     };
 
     QMetaObject::Connection m_sessionStateConnection;
+    QMetaObject::Connection m_sessionStatisticsConnection;
 
 };
 

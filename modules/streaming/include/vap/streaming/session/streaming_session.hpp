@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <vap/common/connection_state.hpp>
+#include <vap/streaming/domain/stream_statistics.hpp>
 
 class QThread;
 class QImage;
@@ -29,20 +30,26 @@ public:
     void stop();
 
     ConnectionState state() const;
+    const StreamStatistics& statistics() const;
 
 signals:
     void frameReady(const QImage&);
     void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
+    void statisticsUpdated(const StreamStatistics& statistics);
+    void statisticsChanged();
 
 private slots:
     void onStateChanged(const ConnectionState&);
+    void onStatisticsUpdated(const StreamStatistics& statistics);
 
 private:
     std::unique_ptr<QThread> m_streamingThread;
     std::unique_ptr<IStreamingService> m_streamingService;
     std::unique_ptr<StreamingWorker> m_streamingWorker;
     ConnectionState m_state{ConnectionState::Disconnected};
+
+    StreamStatistics m_statistics;
 };
 
 }
