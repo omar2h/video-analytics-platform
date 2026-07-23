@@ -24,6 +24,18 @@ Card {
             color: Colors.textPrimary
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Colors.border
+        }
+
+        Label {
+            text: qsTr("Camera Information")
+            font.bold: true
+            color: Colors.textPrimary
+        }
+
         // Form
         Label {
             text: qsTr("Camera Name")
@@ -66,6 +78,25 @@ Card {
             }
         }
 
+        Label {
+            text: cameraManagementViewModel
+                  ? cameraManagementViewModel.validationMessage
+                  : ""
+            visible: text.length > 0
+            color: Colors.error
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Colors.border
+        }
+
+        Label {
+            text: qsTr("Editing")
+            font.bold: true
+        }
+
         Button {
             text: hasSelection
                     ? qsTr("Save Camera")
@@ -79,24 +110,38 @@ Card {
             }
         }
 
-        Button {
-            text: qsTr("Delete Camera")
-
+        RowLayout {
             Layout.fillWidth: true
+            spacing: Metrics.spacingSmall
 
-            enabled: hasSelection
+            Button {
+                Layout.fillWidth: true
+                text: qsTr("Cancel")
 
-            onClicked: cameraManagementViewModel.deleteSelectedCamera()
+                enabled: hasSelection
+
+                onClicked: cameraManagementViewModel.clearSelection()
+            }
+
+            Button {
+                Layout.fillWidth: true
+                text: qsTr("Delete Camera")
+
+                enabled: hasSelection
+
+                onClicked: cameraManagementViewModel.deleteSelectedCamera()
+            }
         }
 
-        Button {
-            text: qsTr("Cancel")
-
+        Rectangle {
             Layout.fillWidth: true
+            height: 1
+            color: Colors.border
+        }
 
-            enabled: hasSelection
-
-            onClicked: cameraManagementViewModel.clearSelection()
+        Label {
+            text: qsTr("Streaming")
+            font.bold: true
         }
 
         Button {
@@ -133,12 +178,15 @@ Card {
             }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Colors.border
+        }
+
         Label {
-            text: cameraManagementViewModel
-                  ? cameraManagementViewModel.validationMessage
-                  : ""
-            visible: text.length > 0
-            color: Colors.error
+            text: qsTr("Camera List")
+            font.bold: true
         }
 
         ListView {
