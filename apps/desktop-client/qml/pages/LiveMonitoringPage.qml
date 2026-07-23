@@ -9,6 +9,10 @@ import "../views"
 Page {
     id: root
 
+    background: Rectangle {
+        color: Colors.background
+    }
+
     title: qsTr("Live Monitoring")
 
     ColumnLayout {
