@@ -100,13 +100,37 @@ Card {
         }
 
         Button {
-            text: qsTr("Connect")
-
             Layout.fillWidth: true
 
             enabled: hasSelection
 
-            onClicked: cameraManagementViewModel.connectSelectedCamera()
+            text: {
+                switch (cameraManagementViewModel.selectedCameraState) {
+
+                case ConnectionState.Connecting:
+                case ConnectionState.Connected:
+                case ConnectionState.Reconnecting:
+                    return qsTr("Stop")
+
+                default:
+                    return qsTr("Connect")
+                }
+            }
+
+            onClicked: {
+                switch (cameraManagementViewModel.selectedCameraState) {
+
+                case ConnectionState.Connecting:
+                case ConnectionState.Connected:
+                case ConnectionState.Reconnecting:
+                    cameraManagementViewModel.stopSelectedCamera()
+                    break
+
+                default:
+                    cameraManagementViewModel.connectSelectedCamera()
+                    break
+                }
+            }
         }
 
         Label {

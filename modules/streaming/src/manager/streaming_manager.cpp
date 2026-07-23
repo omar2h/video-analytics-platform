@@ -48,8 +48,6 @@ void StreamingManager::stopStreaming(const QString& cameraId)
 
 StreamingSession* StreamingManager::session(const QString& cameraId) const
 {
-    qDebug() << "Requesting session:" << cameraId
-             << contains(cameraId);
     auto it = m_sessions.find(cameraId);
 
     if (it == m_sessions.end())

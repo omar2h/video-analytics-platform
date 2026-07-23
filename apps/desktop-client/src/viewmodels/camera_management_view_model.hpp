@@ -35,6 +35,11 @@ class CameraManagementViewModel : public QObject
         NOTIFY selectedCameraChanged)
 
     Q_PROPERTY(
+        int selectedCameraState
+        READ selectedCameraState
+        NOTIFY selectedCameraStateChanged)
+
+    Q_PROPERTY(
         QString cameraName
         READ cameraName
         WRITE setCameraName
@@ -71,13 +76,13 @@ public:
 
     CameraValidationError validationError() const;
     void setValidationError(CameraValidationError error);
-
-
     QString validationMessage() const;
+
+    int selectedCameraState() const;
 
     Q_INVOKABLE void addCamera();
     Q_INVOKABLE void connectSelectedCamera();
-    Q_INVOKABLE void disconnectSelectedCamera();
+    Q_INVOKABLE void stopSelectedCamera();
     Q_INVOKABLE void deleteSelectedCamera();
     Q_INVOKABLE void updateSelectedCamera();
     Q_INVOKABLE void clearSelection();
@@ -90,6 +95,8 @@ signals:
     void cameraUrlChanged();
 
     void validationErrorChanged();
+
+    void selectedCameraStateChanged();
 
 private:
     void reloadCameras();
@@ -112,6 +119,8 @@ private:
     CameraValidationError m_validationError{
         CameraValidationError::None
     };
+
+    QMetaObject::Connection m_sessionStateConnection;
 
 };
 

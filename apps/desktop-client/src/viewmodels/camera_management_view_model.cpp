@@ -56,14 +56,32 @@ int CameraManagementViewModel::selectedIndex() const
 
 void CameraManagementViewModel::setSelectedIndex(int index)
 {
-    if(m_selectedIndex == index)
+    if (m_selectedIndex == index)
         return;
+
+    QObject::disconnect(m_sessionStateConnection);
+
     m_selectedIndex = index;
 
     loadSelectedCameraIntoForm();
 
     emit selectedIndexChanged();
     emit selectedCameraChanged();
+
+    const Camera* camera = selectedCamera();
+
+    if (camera) {
+        if (auto* session = m_streamingManager->session(camera->id)) {
+
+            m_sessionStateConnection =
+                connect(session,
+                        &StreamingSession::stateChanged,
+                        this,
+                        &CameraManagementViewModel::selectedCameraStateChanged);
+        }
+    }
+
+    emit selectedCameraStateChanged();
 }
 
 QString CameraManagementViewModel::selectedCameraName() const
@@ -178,9 +196,11 @@ void CameraManagementViewModel::connectSelectedCamera()
     m_streamingManager->startStreaming(*camera);
 }
 
-void CameraManagementViewModel::disconnectSelectedCamera()
+void CameraManagementViewModel::stopSelectedCamera()
 {
     const Camera* camera = selectedCamera();
+    if (!camera)
+        return;
     m_streamingManager->stopStreaming(camera->id);
 }
 
@@ -217,6 +237,21 @@ void CameraManagementViewModel::updateSelectedCamera()
     loadSelectedCameraIntoForm();
 
     emit selectedCameraChanged();
+}
+
+int CameraManagementViewModel::selectedCameraState() const
+{
+    const Camera* camera = selectedCamera();
+
+    if (!camera)
+        return static_cast<int>(ConnectionState::Disconnected);
+
+    auto* session = m_streamingManager->session(camera->id);
+
+    if (!session)
+        return static_cast<int>(ConnectionState::Disconnected);
+
+    return static_cast<int>(session->state());
 }
 
 void CameraManagementViewModel::clearSelection()

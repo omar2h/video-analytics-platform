@@ -17,12 +17,6 @@ StreamingSession::StreamingSession(QObject* parent)
     m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
     m_streamingThread = std::make_unique<QThread>();
 
-    // connect(
-    //     m_streamingWorker.get(),
-    //     &StreamingWorker::frameReady,
-    //     this,
-    //     &StreamingSession::frameReady);
-
     connect(m_streamingWorker.get(),
             &StreamingWorker::frameReady,
             this,
@@ -35,7 +29,7 @@ StreamingSession::StreamingSession(QObject* parent)
         m_streamingWorker.get(),
         &StreamingWorker::stateChanged,
         this,
-        &StreamingSession::stateChanged);
+        &StreamingSession::onStateChanged);
 
     connect(
         m_streamingWorker.get(),
@@ -69,6 +63,19 @@ void StreamingSession::start(const CameraConfig& config)
 void StreamingSession::stop()
 {
     m_streamingWorker->requestCancellation();
+}
+
+ConnectionState StreamingSession::state() const
+{
+    return m_state;
+}
+
+void StreamingSession::onStateChanged(const ConnectionState &state)
+{
+    if(m_state == state)
+        return;
+    m_state = state;
+    emit stateChanged(m_state);
 }
 
 }

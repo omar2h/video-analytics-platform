@@ -12,7 +12,6 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
     m_streamingSession(session)
 {
     Q_ASSERT(m_streamingSession);
-        qDebug() << "CameraStreamViewModel created for" << cameraId;
     connect(m_streamingSession,
             &StreamingSession::stateChanged,
                 this, &CameraStreamViewModel::onStateChanged);
