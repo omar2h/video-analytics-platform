@@ -10,13 +10,21 @@ Card {
         cameraManagementViewModel
         && cameraManagementViewModel.selectedIndex >= 0
 
+    Connections {
+        target: cameraManagementViewModel
+
+        function onFocusCameraNameRequested() {
+            cameraNameField.forceActiveFocus()
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Metrics.panelPadding
         spacing: Metrics.spacingMedium
 
         Label {
-            text: qsTr("Cameras")
+            text: qsTr("Camera Management")
 
             font.pixelSize: Fonts.sectionTitle
             font.bold: true
@@ -27,7 +35,9 @@ Card {
         Separator {}
 
         Label {
-            text: qsTr("Camera Information")
+            text: hasSelection
+                    ? qsTr("Edit Camera")
+                    : qsTr("New Camera")
             font.bold: true
             color: Colors.textPrimary
         }
@@ -41,6 +51,8 @@ Card {
 
 
         TextField {
+            id: cameraNameField
+
             Layout.fillWidth: true
             placeholderText: qsTr("Camera Name")
 
@@ -82,13 +94,6 @@ Card {
             color: Colors.error
         }
 
-        Separator {}
-
-        Label {
-            text: qsTr("Editing")
-            font.bold: true
-        }
-
         Button {
             text: hasSelection
                     ? qsTr("Save Camera")
@@ -102,27 +107,15 @@ Card {
             }
         }
 
-        RowLayout {
+        Separator {}
+
+        Button {
             Layout.fillWidth: true
-            spacing: Metrics.spacingSmall
+            text: qsTr("Delete Camera")
 
-            Button {
-                Layout.fillWidth: true
-                text: qsTr("Cancel")
+            enabled: hasSelection
 
-                enabled: hasSelection
-
-                onClicked: cameraManagementViewModel.clearSelection()
-            }
-
-            Button {
-                Layout.fillWidth: true
-                text: qsTr("Delete Camera")
-
-                enabled: hasSelection
-
-                onClicked: cameraManagementViewModel.deleteSelectedCamera()
-            }
+            onClicked: cameraManagementViewModel.deleteSelectedCamera()
         }
 
         Separator {}
@@ -168,9 +161,23 @@ Card {
 
         Separator {}
 
-        Label {
-            text: qsTr("Camera List")
-            font.bold: true
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Camera List")
+                font.bold: true
+
+                Layout.fillWidth: true
+            }
+
+            Button {
+                text: qsTr("+")
+
+                onClicked: {
+                    cameraManagementViewModel.beginAddCamera()
+                }
+            }
         }
 
         ListView {

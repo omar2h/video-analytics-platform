@@ -15,7 +15,7 @@ CameraManagementViewModel::CameraManagementViewModel(ICameraApplicationService* 
     m_cameraModel(std::make_unique<CameraListModel>())
 {
     reloadCameras();
-    clearForm();
+    beginAddCamera();
 }
 
 CameraListModel* CameraManagementViewModel::cameraModel() const
@@ -204,8 +204,7 @@ void CameraManagementViewModel::addCamera()
         return;
 
     reloadCameras();
-
-    clearForm();
+    beginAddCamera();
 }
 
 void CameraManagementViewModel::connectSelectedCamera()
@@ -235,7 +234,7 @@ void CameraManagementViewModel::deleteSelectedCamera()
     m_cameraApplicationService->removeCamera(camera->id);
 
     reloadCameras();
-    clearSelection();
+    beginAddCamera();
 }
 
 void CameraManagementViewModel::updateSelectedCamera()
@@ -321,9 +320,12 @@ double CameraManagementViewModel::selectedCameraBitrateMbps() const
     return 0.0;
 }
 
-void CameraManagementViewModel::clearSelection()
+void CameraManagementViewModel::beginAddCamera()
 {
+    setValidationError(CameraValidationError::None);
     setSelectedIndex(-1);
+
+    emit focusCameraNameRequested();
 }
 
 const Camera* CameraManagementViewModel::selectedCamera() const

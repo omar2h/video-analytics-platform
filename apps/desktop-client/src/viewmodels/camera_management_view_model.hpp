@@ -118,7 +118,7 @@ public:
     Q_INVOKABLE void stopSelectedCamera();
     Q_INVOKABLE void deleteSelectedCamera();
     Q_INVOKABLE void updateSelectedCamera();
-    Q_INVOKABLE void clearSelection();
+    Q_INVOKABLE void beginAddCamera();
 
 signals:
     void selectedIndexChanged();
@@ -132,6 +132,8 @@ signals:
     void selectedCameraStateChanged();
 
     void selectedCameraStatisticsChanged();
+
+    void focusCameraNameRequested();
 
 private:
     void reloadCameras();
