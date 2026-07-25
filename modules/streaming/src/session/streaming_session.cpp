@@ -80,9 +80,9 @@ const StreamStatistics& StreamingSession::statistics() const
     return m_statistics;
 }
 
-FrameExchange &StreamingSession::frameExchange()
+FrameSnapshot StreamingSession::currentFrame() const
 {
-    return m_frameExchange;
+    return m_frameExchange.snapshot();
 }
 
 void StreamingSession::onStateChanged(const ConnectionState &state)

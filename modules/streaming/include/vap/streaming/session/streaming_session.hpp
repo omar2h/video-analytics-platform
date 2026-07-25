@@ -33,8 +33,7 @@ public:
     ConnectionState state() const;
     const StreamStatistics& statistics() const;
 
-    [[nodiscard]]
-    FrameExchange& frameExchange();
+    FrameSnapshot currentFrame() const;
 
 signals:
     void frameUpdated();

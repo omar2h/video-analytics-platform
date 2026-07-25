@@ -98,9 +98,7 @@ double CameraStreamViewModel::bitrateMbps() const
 
 void CameraStreamViewModel::onFrameUpdated()
 {
-    auto snapshot = m_streamingSession
-                        ->frameExchange()
-                        .snapshot();
+    auto snapshot = m_streamingSession->currentFrame();
 
     if (!snapshot.valid)
         return;

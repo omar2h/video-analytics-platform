@@ -47,6 +47,7 @@ QImage VideoFrameProvider::requestImage(
 
 void VideoFrameProvider::clearImage(const QString& cameraId)
 {
+    QMutexLocker locker(&m_mutex);
     m_images.erase(cameraId);
 }
 
