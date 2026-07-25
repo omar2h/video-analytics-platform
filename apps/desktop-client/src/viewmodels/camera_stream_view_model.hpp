@@ -19,11 +19,13 @@ class CameraStreamViewModel : public QObject
     Q_PROPERTY(
         QImage currentFrame
         READ currentFrame
+        WRITE setCurrentFrame
         NOTIFY currentFrameChanged)
 
     Q_PROPERTY(
-        int frameRevision
+        quint64 frameRevision
         READ frameRevision
+        WRITE setFrameRevision
         NOTIFY frameRevisionChanged)
 
     Q_PROPERTY(bool hasVideo
@@ -44,8 +46,8 @@ public:
     QImage currentFrame() const;
     void setCurrentFrame(QImage image);
 
-    int frameRevision() const;
-    void setFrameRevision(int frameRevision);
+    quint64 frameRevision() const;
+    void setFrameRevision(quint64 frameRevision);
 
     bool hasVideo() const;
 
@@ -75,7 +77,7 @@ private:
     StreamingSession* m_streamingSession;
     ConnectionState m_state{ConnectionState::Disconnected};
     QImage m_currentFrame;
-    int m_frameRevision = 0;
+    quint64 m_frameRevision = 0;
     QString m_cameraId;
     bool m_hasVideo{};
 

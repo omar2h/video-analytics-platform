@@ -46,12 +46,12 @@ void CameraStreamViewModel::setCurrentFrame(QImage image)
     emit currentFrameChanged();
 }
 
-int CameraStreamViewModel::frameRevision() const
+quint64 CameraStreamViewModel::frameRevision() const
 {
     return m_frameRevision;
 }
 
-void CameraStreamViewModel::setFrameRevision(int frameRevision)
+void CameraStreamViewModel::setFrameRevision(quint64 frameRevision)
 {
     m_frameRevision = frameRevision;
     emit frameRevisionChanged();
