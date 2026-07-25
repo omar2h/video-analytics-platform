@@ -6,12 +6,21 @@ import "../components"
 import VAP 1.0
 
 Card {
+    property var cameraVm
+    property var streamVm
+
+    readonly property bool isStreaming:
+        streamVm
+        && (streamVm.state === ConnectionState.Connecting
+            || streamVm.state === ConnectionState.Connected
+            || streamVm.state === ConnectionState.Reconnecting)
+
     readonly property bool hasSelection:
-        cameraManagementViewModel
-        && cameraManagementViewModel.selectedIndex >= 0
+        cameraVm
+        && cameraVm.selectedIndex >= 0
 
     Connections {
-        target: cameraManagementViewModel
+        target: cameraVm
 
         function onFocusCameraNameRequested() {
             cameraNameField.forceActiveFocus()
@@ -56,13 +65,13 @@ Card {
             Layout.fillWidth: true
             placeholderText: qsTr("Camera Name")
 
-            text: cameraManagementViewModel
-                  ? cameraManagementViewModel.cameraName
+            text: cameraVm
+                  ? cameraVm.cameraName
                   : ""
 
             onTextChanged: {
-                if (cameraManagementViewModel)
-                    cameraManagementViewModel.cameraName = text
+                if (cameraVm)
+                    cameraVm.cameraName = text
             }
         }
 
@@ -76,19 +85,19 @@ Card {
             Layout.fillWidth: true
             placeholderText: qsTr("Camera URL")
 
-            text: cameraManagementViewModel
-                  ? cameraManagementViewModel.cameraUrl
+            text: cameraVm
+                  ? cameraVm.cameraUrl
                   : ""
 
             onTextChanged: {
-                if (cameraManagementViewModel)
-                    cameraManagementViewModel.cameraUrl = text
+                if (cameraVm)
+                    cameraVm.cameraUrl = text
             }
         }
 
         Label {
-            text: cameraManagementViewModel
-                  ? cameraManagementViewModel.validationMessage
+            text: cameraVm
+                  ? cameraVm.validationMessage
                   : ""
             visible: text.length > 0
             color: Colors.error
@@ -103,7 +112,7 @@ Card {
 
             onClicked: {
                 hasSelection ?
-                    cameraManagementViewModel.updateSelectedCamera() : cameraManagementViewModel.addCamera()
+                    cameraVm.updateSelectedCamera() : cameraVm.addCamera()
             }
         }
 
@@ -113,9 +122,9 @@ Card {
             Layout.fillWidth: true
             text: qsTr("Delete Camera")
 
-            enabled: hasSelection
+            enabled: hasSelection && streamVm
 
-            onClicked: cameraManagementViewModel.deleteSelectedCamera()
+            onClicked: cameraVm.deleteSelectedCamera()
         }
 
         Separator {}
@@ -128,34 +137,17 @@ Card {
         Button {
             Layout.fillWidth: true
 
-            enabled: hasSelection
+            enabled: hasSelection && streamVm
 
-            text: {
-                switch (cameraManagementViewModel.selectedCameraState) {
-
-                case ConnectionState.Connecting:
-                case ConnectionState.Connected:
-                case ConnectionState.Reconnecting:
-                    return qsTr("Stop")
-
-                default:
-                    return qsTr("Connect")
-                }
-            }
+            text: isStreaming
+                  ? qsTr("Stop")
+                  : qsTr("Connect")
 
             onClicked: {
-                switch (cameraManagementViewModel.selectedCameraState) {
-
-                case ConnectionState.Connecting:
-                case ConnectionState.Connected:
-                case ConnectionState.Reconnecting:
-                    cameraManagementViewModel.stopSelectedCamera()
-                    break
-
-                default:
-                    cameraManagementViewModel.connectSelectedCamera()
-                    break
-                }
+                if (isStreaming)
+                    cameraVm.stopSelectedCamera()
+                else
+                    cameraVm.connectSelectedCamera()
             }
         }
 
@@ -175,7 +167,7 @@ Card {
                 text: qsTr("+")
 
                 onClicked: {
-                    cameraManagementViewModel.beginAddCamera()
+                    cameraVm.beginAddCamera()
                 }
             }
         }
@@ -187,8 +179,8 @@ Card {
             spacing: Metrics.spacingSmall
             clip: true
 
-            model: cameraManagementViewModel
-                   ? cameraManagementViewModel.cameraModel
+            model: cameraVm
+                   ? cameraVm.cameraModel
                    : null
 
             delegate: Rectangle {
@@ -201,7 +193,7 @@ Card {
 
                 radius: Metrics.radiusSmall
 
-                color: cameraManagementViewModel.selectedIndex === index
+                color: cameraVm.selectedIndex === index
                        ? Colors.primary
                        : Colors.surfaceVariant
 
@@ -240,7 +232,7 @@ Card {
                 MouseArea {
                     anchors.fill: parent
 
-                    onClicked: cameraManagementViewModel.selectedIndex = index
+                    onClicked: cameraVm.selectedIndex = index
                 }
             }
         }

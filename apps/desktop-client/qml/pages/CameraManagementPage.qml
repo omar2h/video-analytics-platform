@@ -11,6 +11,12 @@ Page {
         cameraManagementViewModel.selectedIndex = 0
     }
 
+    readonly property var selectedStreamVm:
+            cameraManagementViewModel.selectedCameraId !== ""
+                ? liveMonitoringViewModel.streamViewModel(
+                      cameraManagementViewModel.selectedCameraId)
+                : null
+
     background: Rectangle {
         color: Colors.background
     }
@@ -35,6 +41,10 @@ Page {
             CameraListPanel {
                 Layout.preferredWidth: 300
                 Layout.fillHeight: true
+
+                cameraVm: cameraManagementViewModel
+
+                streamVm: selectedStreamVm
             }
 
             CameraDetailsPanel {
@@ -43,10 +53,7 @@ Page {
 
                 cameraVm: cameraManagementViewModel
 
-                streamVm: cameraManagementViewModel.selectedCameraId !== ""
-                          ? liveMonitoringViewModel.streamViewModel(
-                                cameraManagementViewModel.selectedCameraId)
-                          : null
+                streamVm: selectedStreamVm
             }
         }
     }
