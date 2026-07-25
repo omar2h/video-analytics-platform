@@ -7,7 +7,8 @@ import "../components"
 import VAP 1.0
 
 Card {
-    readonly property var vm: cameraManagementViewModel
+    property var cameraVm
+    property var streamVm
 
     ColumnLayout {
         anchors.fill: parent
@@ -43,7 +44,7 @@ Card {
             }
 
             Label {
-                text: vm ? vm.selectedCameraName : ""
+                text: cameraVm ? cameraVm.selectedCameraName : ""
                 color: Colors.textPrimary
             }
 
@@ -53,7 +54,7 @@ Card {
             }
 
             Label {
-                text: vm ? vm.selectedCameraUrl : ""
+                text: cameraVm ? cameraVm.selectedCameraUrl : ""
                 color: Colors.textPrimary
                 wrapMode: Text.Wrap
             }
@@ -79,8 +80,8 @@ Card {
             }
 
             StatusIndicator {
-                state: vm
-                    ? vm.selectedCameraState
+                state: streamVm
+                    ? streamVm.state
                     : ConnectionState.Disconnected
             }
         }
@@ -105,7 +106,7 @@ Card {
             }
 
             Label {
-                text: vm ? vm.selectedCameraResolution : "—"
+                text: streamVm ? streamVm.resolution : "—"
                 color: Colors.textPrimary
             }
 
@@ -115,8 +116,8 @@ Card {
             }
 
             Label {
-                text: vm && vm.selectedCameraCodec !== ""
-                        ? vm.selectedCameraCodec
+                text: streamVm && streamVm.codec !== ""
+                        ? streamVm.codec
                         : "—"
                 color: Colors.textPrimary
             }
@@ -127,8 +128,8 @@ Card {
             }
 
             Label {
-                text: vm && vm.selectedCameraFps > 0
-                        ? Number(vm.selectedCameraFps).toFixed(1)
+                text: streamVm && streamVm.fps > 0
+                        ? Number(streamVm.fps).toFixed(1)
                         : "—"
                 color: Colors.textPrimary
             }
@@ -139,8 +140,8 @@ Card {
             }
 
             Label {
-                text: vm && vm.selectedCameraBitrateMbps > 0
-                        ? Number(vm.selectedCameraBitrateMbps).toFixed(2) + " Mbps"
+                text: streamVm && streamVm.bitrateMbps > 0
+                        ? Number(streamVm.bitrateMbps).toFixed(2) + " Mbps"
                         : "—"
                 color: Colors.textPrimary
             }
@@ -151,7 +152,7 @@ Card {
             }
 
             Label {
-                text: vm ? vm.selectedCameraFramesDecoded : "0"
+                text: streamVm ? streamVm.framesDecoded : "0"
                 color: Colors.textPrimary
             }
 
@@ -161,7 +162,7 @@ Card {
             }
 
             Label {
-                text: vm ? vm.selectedCameraPacketsReceived : "0"
+                text: streamVm ? streamVm.packetsReceived : "0"
                 color: Colors.textPrimary
             }
         }

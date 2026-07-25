@@ -93,7 +93,6 @@ void StreamingSession::onStatisticsUpdated(
 {
     m_statistics = statistics;
     emit statisticsUpdated(m_statistics);
-    emit statisticsChanged();
 }
 
 }

@@ -22,7 +22,6 @@ LiveMonitoringViewModel::LiveMonitoringViewModel(
 CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     const QString& cameraId)
 {
-    qDebug() << "streamViewModel called for" << cameraId;
     auto it = m_streamViewModels.find(cameraId);
 
     if (it != m_streamViewModels.end())

@@ -12,6 +12,7 @@ class ICameraApplicationService;
 class StreamingManager;
 class StreamStatistics;
 class StreamingSession;
+class CameraStreamViewModel;
 class CameraManagementViewModel : public QObject
 {
     Q_OBJECT
@@ -36,34 +37,9 @@ class CameraManagementViewModel : public QObject
         READ selectedCameraUrl
         NOTIFY selectedCameraChanged)
 
-    Q_PROPERTY(
-        int selectedCameraState
-        READ selectedCameraState
-        NOTIFY selectedCameraStateChanged)
-
-    Q_PROPERTY(QString selectedCameraCodec
-        READ selectedCameraCodec
-        NOTIFY selectedCameraStatisticsChanged)
-
-    Q_PROPERTY(QString selectedCameraResolution
-        READ selectedCameraResolution
-        NOTIFY selectedCameraStatisticsChanged)
-
-    Q_PROPERTY(quint64 selectedCameraFramesDecoded
-        READ selectedCameraFramesDecoded
-        NOTIFY selectedCameraStatisticsChanged)
-
-    Q_PROPERTY(quint64 selectedCameraPacketsReceived
-        READ selectedCameraPacketsReceived
-        NOTIFY selectedCameraStatisticsChanged)
-
-    Q_PROPERTY(double selectedCameraFps
-        READ selectedCameraFps
-        NOTIFY selectedCameraStatisticsChanged)
-
-    Q_PROPERTY(double selectedCameraBitrateMbps
-        READ selectedCameraBitrateMbps
-        NOTIFY selectedCameraStatisticsChanged)
+    Q_PROPERTY(QString selectedCameraId
+        READ selectedCameraId
+        NOTIFY selectedCameraChanged)
 
     Q_PROPERTY(
         QString cameraName
@@ -106,12 +82,7 @@ public:
 
     int selectedCameraState() const;
 
-    QString selectedCameraCodec() const;
-    QString selectedCameraResolution() const;
-    quint64 selectedCameraFramesDecoded() const;
-    quint64 selectedCameraPacketsReceived() const;
-    double selectedCameraFps() const;
-    double selectedCameraBitrateMbps() const;
+    QString selectedCameraId() const;
 
     Q_INVOKABLE void addCamera();
     Q_INVOKABLE void connectSelectedCamera();
@@ -129,21 +100,12 @@ signals:
 
     void validationErrorChanged();
 
-    void selectedCameraStateChanged();
-
-    void selectedCameraStatisticsChanged();
-
     void focusCameraNameRequested();
 
 private:
     void reloadCameras();
     void loadSelectedCameraIntoForm();
     void clearForm();
-
-    [[nodiscard]]
-    StreamingSession* selectedSession() const;
-    [[nodiscard]]
-    const StreamStatistics *currentStatistics() const;
 
     const Camera* selectedCamera() const;
 
@@ -161,9 +123,6 @@ private:
     CameraValidationError m_validationError{
         CameraValidationError::None
     };
-
-    QMetaObject::Connection m_sessionStateConnection;
-    QMetaObject::Connection m_sessionStatisticsConnection;
 
 };
 

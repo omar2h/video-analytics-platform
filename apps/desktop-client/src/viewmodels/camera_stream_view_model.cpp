@@ -22,6 +22,12 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
         &StreamingSession::frameReady,
         this,
         &CameraStreamViewModel::onFrameReady);
+
+    connect(
+        m_streamingSession,
+        &StreamingSession::statisticsUpdated,
+        this,
+        &CameraStreamViewModel::onStatisticsUpdated);
 }
 
 int CameraStreamViewModel::state() const
@@ -42,6 +48,40 @@ int CameraStreamViewModel::frameRevision() const
 bool CameraStreamViewModel::hasVideo() const
 {
     return m_hasVideo;
+}
+
+QString CameraStreamViewModel::codec() const
+{
+    return m_streamingSession->statistics().codec;
+}
+
+QString CameraStreamViewModel::resolution() const
+{
+    const auto& stats = m_streamingSession->statistics();
+
+    return QString("%1 × %2")
+        .arg(stats.resolution.width())
+        .arg(stats.resolution.height());
+}
+
+quint64 CameraStreamViewModel::framesDecoded() const
+{
+    return m_streamingSession->statistics().framesDecoded;
+}
+
+quint64 CameraStreamViewModel::packetsReceived() const
+{
+    return m_streamingSession->statistics().packetsReceived;
+}
+
+double CameraStreamViewModel::fps() const
+{
+    return m_streamingSession->statistics().fps;
+}
+
+double CameraStreamViewModel::bitrateMbps() const
+{
+    return m_streamingSession->statistics().bitrateMbps;
 }
 
 void CameraStreamViewModel::onFrameReady(const QImage& frame)
@@ -85,6 +125,11 @@ void CameraStreamViewModel::onStateChanged(ConnectionState state)
     }
 
     emit stateChanged();
+}
+
+void CameraStreamViewModel::onStatisticsUpdated()
+{
+    emit statisticsChanged();
 }
 
 }

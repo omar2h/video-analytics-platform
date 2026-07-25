@@ -49,24 +49,6 @@ void CameraManagementViewModel::clearForm()
     setCameraUrl({});
 }
 
-StreamingSession* CameraManagementViewModel::selectedSession() const
-{
-    const auto* camera = selectedCamera();
-
-    if (!camera)
-        return nullptr;
-
-    return m_streamingManager->session(camera->id);
-}
-
-const StreamStatistics* CameraManagementViewModel::currentStatistics() const
-{
-    if (auto* session = selectedSession())
-        return &session->statistics();
-
-    return nullptr;
-}
-
 int CameraManagementViewModel::selectedIndex() const
 {
     return m_selectedIndex;
@@ -77,33 +59,12 @@ void CameraManagementViewModel::setSelectedIndex(int index)
     if (m_selectedIndex == index)
         return;
 
-    QObject::disconnect(m_sessionStateConnection);
-    QObject::disconnect(m_sessionStatisticsConnection);
-
     m_selectedIndex = index;
 
     loadSelectedCameraIntoForm();
 
     emit selectedIndexChanged();
     emit selectedCameraChanged();
-
-    if (auto* session = selectedSession())
-    {
-        m_sessionStateConnection =
-            connect(session,
-                    &StreamingSession::stateChanged,
-                    this,
-                    &CameraManagementViewModel::selectedCameraStateChanged);
-
-        m_sessionStatisticsConnection =
-            connect(session,
-                    &StreamingSession::statisticsUpdated,
-                    this,
-                    &CameraManagementViewModel::selectedCameraStatisticsChanged);
-    }
-
-    emit selectedCameraStateChanged();
-    emit selectedCameraStatisticsChanged();
 }
 
 QString CameraManagementViewModel::selectedCameraName() const
@@ -260,64 +221,13 @@ void CameraManagementViewModel::updateSelectedCamera()
     emit selectedCameraChanged();
 }
 
-int CameraManagementViewModel::selectedCameraState() const
+QString CameraManagementViewModel::selectedCameraId() const
 {
-    if (auto* session = selectedSession())
-        return static_cast<int>(session->state());
+    const auto* camera = selectedCamera();
 
-    return static_cast<int>(ConnectionState::Disconnected);
-}
-
-QString CameraManagementViewModel::selectedCameraCodec() const
-{
-    if (const auto* stats = currentStatistics())
-        return stats->codec;
-
-    return {};
-}
-
-QString CameraManagementViewModel::selectedCameraResolution() const
-{
-    if (const auto* stats = currentStatistics())
-    {
-        return QString("%1 × %2")
-            .arg(stats->resolution.width())
-            .arg(stats->resolution.height());
-    }
-
-    return {};
-}
-
-quint64 CameraManagementViewModel::selectedCameraFramesDecoded() const
-{
-    if (const auto* stats = currentStatistics())
-        return stats->framesDecoded;
-
-    return 0;
-}
-
-quint64 CameraManagementViewModel::selectedCameraPacketsReceived() const
-{
-    if (const auto* stats = currentStatistics())
-        return stats->packetsReceived;
-
-    return 0;
-}
-
-double CameraManagementViewModel::selectedCameraFps() const
-{
-    if (const auto* stats = currentStatistics())
-        return stats->fps;
-
-    return 0.0;
-}
-
-double CameraManagementViewModel::selectedCameraBitrateMbps() const
-{
-    if (const auto* stats = currentStatistics())
-        return stats->bitrateMbps;
-
-    return 0.0;
+    return camera
+               ? camera->id
+               : QString{};
 }
 
 void CameraManagementViewModel::beginAddCamera()

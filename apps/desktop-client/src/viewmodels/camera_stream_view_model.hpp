@@ -30,6 +30,13 @@ class CameraStreamViewModel : public QObject
         READ hasVideo
         NOTIFY hasVideoChanged)
 
+    Q_PROPERTY(QString codec READ codec NOTIFY statisticsChanged)
+    Q_PROPERTY(QString resolution READ resolution NOTIFY statisticsChanged)
+    Q_PROPERTY(double fps READ fps NOTIFY statisticsChanged)
+    Q_PROPERTY(double bitrateMbps READ bitrateMbps NOTIFY statisticsChanged)
+    Q_PROPERTY(quint64 framesDecoded READ framesDecoded NOTIFY statisticsChanged)
+    Q_PROPERTY(quint64 packetsReceived READ packetsReceived NOTIFY statisticsChanged)
+
 public:
     CameraStreamViewModel(const QString& cameraId, StreamingSession* session, QObject* parent = nullptr);
 
@@ -38,15 +45,26 @@ public:
     int frameRevision() const;
     bool hasVideo() const;
 
+    QString codec() const;
+    QString resolution() const;
+
+    double fps() const;
+    double bitrateMbps() const;
+
+    quint64 framesDecoded() const;
+    quint64 packetsReceived() const;
+
 signals:
     void stateChanged();
     void currentFrameChanged();
     void frameRevisionChanged();
     void hasVideoChanged();
+    void statisticsChanged();
 
 private slots:
     void onFrameReady(const QImage&);
     void onStateChanged(ConnectionState state);
+    void onStatisticsUpdated();
 
 private:
     // non-owning

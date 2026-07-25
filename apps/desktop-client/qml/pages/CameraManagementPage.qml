@@ -40,6 +40,13 @@ Page {
             CameraDetailsPanel {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+
+                cameraVm: cameraManagementViewModel
+
+                streamVm: cameraManagementViewModel.selectedCameraId !== ""
+                          ? liveMonitoringViewModel.streamViewModel(
+                                cameraManagementViewModel.selectedCameraId)
+                          : null
             }
         }
     }

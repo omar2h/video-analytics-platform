@@ -37,7 +37,6 @@ signals:
     void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
     void statisticsUpdated(const StreamStatistics& statistics);
-    void statisticsChanged();
 
 private slots:
     void onStateChanged(const ConnectionState&);

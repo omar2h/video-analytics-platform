@@ -115,6 +115,13 @@ bool FFmpegStreamingService::openInput(const QString &url)
 
     m_formatContext->interrupt_callback.opaque = this;
 
+    AVDictionary* options = nullptr;
+
+    av_dict_set(&options,
+                "rtsp_transport",
+                "tcp",
+                0);
+
     qCInfo(ffmpegStreamingLog)
         << "Opening stream:" << url;
 
@@ -122,7 +129,9 @@ bool FFmpegStreamingService::openInput(const QString &url)
         &m_formatContext,
         url.toUtf8().constData(),
         nullptr,
-        nullptr);
+        &options);
+
+    av_dict_free(&options);
 
     if (result == AVERROR_EXIT)
     {
