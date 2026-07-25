@@ -11,6 +11,7 @@ add_library(streaming STATIC
     include/vap/streaming/session/streaming_session.hpp
     include/vap/streaming/manager/streaming_manager.hpp
     include/vap/streaming/domain/stream_statistics.hpp
+    include/vap/streaming/frame/frame_exchange.hpp
 
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp
@@ -19,6 +20,7 @@ add_library(streaming STATIC
     src/worker/streaming_worker.cpp
     src/session/streaming_session.cpp
     src/manager/streaming_manager.cpp
+    src/frame/frame_exchange.cpp
 )
 
 pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
