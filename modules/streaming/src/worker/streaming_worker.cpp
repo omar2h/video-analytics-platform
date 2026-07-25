@@ -1,7 +1,5 @@
 #include <vap/streaming/worker/streaming_worker.hpp>
 
-#include <QThread>
-
 #include <vap/streaming/services/i_streaming_service.hpp>
 #include <vap/streaming/frame/frame_exchange.hpp>
 
@@ -38,8 +36,10 @@ StreamingWorker::StreamingWorker(
 
 void StreamingWorker::start(const QString& uri)
 {
+    m_cancelRequested.store(false);
+    m_reconnectPolicy.reset();
     emit stateChanged(ConnectionState::Connecting);
-    while (true)
+    while (!m_cancelRequested.load())
     {
         const auto reason = m_streamingService->stream(uri);
 
@@ -52,10 +52,16 @@ void StreamingWorker::start(const QString& uri)
             break;
         }
 
-        QThread::msleep(
-            m_reconnectPolicy.retryDelay().count());
+        if (!waitForRetryDelay())
+        {
+            break;
+        }
 
         m_reconnectPolicy.recordRetry();
+    }
+    if (m_cancelRequested.load())
+    {
+        emit stateChanged(ConnectionState::Disconnected);
     }
 }
 
@@ -64,7 +70,6 @@ bool StreamingWorker::handleExitReason(StreamingExitReason reason)
     switch (reason)
     {
     case StreamingExitReason::Cancelled:
-        emit stateChanged(ConnectionState::Disconnected);
         return false;
 
     case StreamingExitReason::InitializationFailure:
@@ -86,8 +91,30 @@ bool StreamingWorker::handleExitReason(StreamingExitReason reason)
     return false;
 }
 
+bool StreamingWorker::waitForRetryDelay()
+{
+    QMutexLocker locker(&m_waitMutex);
+
+    if (m_cancelRequested.load())
+    {
+        return false;
+    }
+
+    const auto timeout =
+        static_cast<unsigned long>(
+            m_reconnectPolicy.retryDelay().count());
+
+    m_waitCondition.wait(&m_waitMutex, timeout);
+
+    return !m_cancelRequested.load();
+}
+
 void StreamingWorker::requestCancellation()
 {
+    m_cancelRequested.store(true);
+
+    m_waitCondition.wakeAll();
+
     m_streamingService->requestCancellation();
 }
 

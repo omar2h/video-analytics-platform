@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QObject>
+#include <atomic>
+#include <QMutex>
+#include <QWaitCondition>
 
 #include <vap/streaming/streaming_exit_reason.hpp>
 #include <vap/streaming/reconnect/reconnect_policy.hpp>
@@ -32,10 +35,17 @@ signals:
 
 private:
     bool handleExitReason(StreamingExitReason reason);
+    bool waitForRetryDelay();
 
+private:
     IStreamingService* m_streamingService;
     FrameExchange& m_frameExchange;
     ReconnectPolicy m_reconnectPolicy;
+
+    std::atomic_bool m_cancelRequested{false};
+
+    QMutex m_waitMutex;
+    QWaitCondition m_waitCondition;
 };
 
 }

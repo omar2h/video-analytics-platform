@@ -89,6 +89,7 @@ void StreamingSession::onStateChanged(const ConnectionState &state)
 {
     if(m_state == state)
         return;
+    qDebug() << "state: " << static_cast<int>(state);
     m_state = state;
     emit stateChanged(m_state);
 }
