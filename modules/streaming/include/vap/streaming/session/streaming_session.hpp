@@ -5,6 +5,7 @@
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
+#include <vap/streaming/frame/frame_exchange.hpp>
 
 class QThread;
 class QImage;
@@ -32,6 +33,9 @@ public:
     ConnectionState state() const;
     const StreamStatistics& statistics() const;
 
+    [[nodiscard]]
+    FrameExchange& frameExchange();
+
 signals:
     void frameReady(const QImage&);
     void stateChanged(const ConnectionState&);
@@ -46,6 +50,7 @@ private:
     std::unique_ptr<QThread> m_streamingThread;
     std::unique_ptr<IStreamingService> m_streamingService;
     std::unique_ptr<StreamingWorker> m_streamingWorker;
+    FrameExchange m_frameExchange;
     ConnectionState m_state{ConnectionState::Disconnected};
 
     StreamStatistics m_statistics;

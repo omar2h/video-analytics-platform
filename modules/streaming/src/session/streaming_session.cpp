@@ -16,7 +16,7 @@ StreamingSession::StreamingSession(QObject* parent)
 : QObject(parent)
 {
     m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
-    m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get());
+    m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get(), m_frameExchange);
     m_streamingThread = std::make_unique<QThread>();
 
     connect(m_streamingWorker.get(),
@@ -78,6 +78,11 @@ ConnectionState StreamingSession::state() const
 const StreamStatistics& StreamingSession::statistics() const
 {
     return m_statistics;
+}
+
+FrameExchange &StreamingSession::frameExchange()
+{
+    return m_frameExchange;
 }
 
 void StreamingSession::onStateChanged(const ConnectionState &state)

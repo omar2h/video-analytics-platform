@@ -9,6 +9,7 @@
 namespace vap
 {
 class IStreamingService;
+class FrameExchange;
 class StreamingWorker : public QObject
 {
     Q_OBJECT
@@ -16,6 +17,7 @@ class StreamingWorker : public QObject
 public:
     explicit StreamingWorker(
         IStreamingService* streamingService,
+        FrameExchange& frameExchange,
         QObject* parent = nullptr);
 
     void requestCancellation();
@@ -32,6 +34,7 @@ private:
     bool handleExitReason(StreamingExitReason reason);
 
     IStreamingService* m_streamingService;
+    FrameExchange& m_frameExchange;
     ReconnectPolicy m_reconnectPolicy;
 };
 

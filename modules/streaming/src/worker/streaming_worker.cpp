@@ -3,15 +3,18 @@
 #include <QThread>
 
 #include <vap/streaming/services/i_streaming_service.hpp>
+#include <vap/streaming/frame/frame_exchange.hpp>
 
 namespace vap
 {
 
 StreamingWorker::StreamingWorker(
     IStreamingService* streamingService,
+    FrameExchange& frameExchange,
     QObject* parent)
     : QObject(parent)
-    , m_streamingService(streamingService)
+    , m_streamingService(streamingService),
+    m_frameExchange(frameExchange)
 {
     Q_ASSERT(m_streamingService != nullptr);
 
@@ -27,7 +30,10 @@ StreamingWorker::StreamingWorker(
     connect(m_streamingService,
             &IStreamingService::frameReady,
             this,
-            &StreamingWorker::frameReady);
+            [this](const QImage& frame){
+                m_frameExchange.publish(frame);
+                emit frameReady(frame);
+            });
 }
 
 void StreamingWorker::start(const QString& uri)
