@@ -37,7 +37,7 @@ public:
     FrameExchange& frameExchange();
 
 signals:
-    void frameReady(const QImage&);
+    void frameUpdated();
     void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
     void statisticsUpdated(const StreamStatistics& statistics);

@@ -32,7 +32,7 @@ StreamingWorker::StreamingWorker(
             this,
             [this](const QImage& frame){
                 m_frameExchange.publish(frame);
-                emit frameReady(frame);
+                emit frameUpdated();
             });
 }
 

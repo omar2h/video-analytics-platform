@@ -42,7 +42,11 @@ public:
 
     int state() const;
     QImage currentFrame() const;
+    void setCurrentFrame(QImage image);
+
     int frameRevision() const;
+    void setFrameRevision(int frameRevision);
+
     bool hasVideo() const;
 
     QString codec() const;
@@ -62,7 +66,7 @@ signals:
     void statisticsChanged();
 
 private slots:
-    void onFrameReady(const QImage&);
+    void onFrameUpdated();
     void onStateChanged(ConnectionState state);
     void onStatisticsUpdated();
 

@@ -19,9 +19,9 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
 
     connect(
         m_streamingSession,
-        &StreamingSession::frameReady,
+        &StreamingSession::frameUpdated,
         this,
-        &CameraStreamViewModel::onFrameReady);
+        &CameraStreamViewModel::onFrameUpdated);
 
     connect(
         m_streamingSession,
@@ -40,9 +40,21 @@ QImage CameraStreamViewModel::currentFrame() const
     return m_currentFrame;
 }
 
+void CameraStreamViewModel::setCurrentFrame(QImage image)
+{
+    m_currentFrame = std::move(image);
+    emit currentFrameChanged();
+}
+
 int CameraStreamViewModel::frameRevision() const
 {
     return m_frameRevision;
+}
+
+void CameraStreamViewModel::setFrameRevision(int frameRevision)
+{
+    m_frameRevision = frameRevision;
+    emit frameRevisionChanged();
 }
 
 bool CameraStreamViewModel::hasVideo() const
@@ -84,19 +96,23 @@ double CameraStreamViewModel::bitrateMbps() const
     return m_streamingSession->statistics().bitrateMbps;
 }
 
-void CameraStreamViewModel::onFrameReady(const QImage& frame)
+void CameraStreamViewModel::onFrameUpdated()
 {
+    auto snapshot = m_streamingSession
+                        ->frameExchange()
+                        .snapshot();
+
+    if (!snapshot.valid)
+        return;
+
+    setCurrentFrame(std::move(snapshot.image));
+    setFrameRevision(snapshot.revision);
+
     if (!m_hasVideo)
     {
         m_hasVideo = true;
         emit hasVideoChanged();
     }
-
-    m_currentFrame = frame;
-    emit currentFrameChanged();
-
-    ++m_frameRevision;
-    emit frameRevisionChanged();
 }
 
 void CameraStreamViewModel::onStateChanged(ConnectionState state)

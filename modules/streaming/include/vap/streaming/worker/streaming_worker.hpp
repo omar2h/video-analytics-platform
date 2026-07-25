@@ -26,7 +26,7 @@ public slots:
     void start(const QString& uri);
 
 signals:
-    void frameReady(const QImage& image);
+    void frameUpdated();
     void stateChanged(const ConnectionState& state);
     void errorOccurred(const QString& error);
 

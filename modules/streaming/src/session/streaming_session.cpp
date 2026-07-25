@@ -20,9 +20,9 @@ StreamingSession::StreamingSession(QObject* parent)
     m_streamingThread = std::make_unique<QThread>();
 
     connect(m_streamingWorker.get(),
-            &StreamingWorker::frameReady,
+            &StreamingWorker::frameUpdated,
             this,
-            &StreamingSession::frameReady);
+            &StreamingSession::frameUpdated);
 
     connect(
         m_streamingWorker.get(),
