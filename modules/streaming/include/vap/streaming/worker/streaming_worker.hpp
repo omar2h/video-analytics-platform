@@ -30,10 +30,6 @@ public:
 
 public slots:
     void start(const QString& uri);
-    void startRecording(
-        const RecordingConfiguration& configuration);
-
-    void stopRecording();
 
 signals:
     void frameUpdated();

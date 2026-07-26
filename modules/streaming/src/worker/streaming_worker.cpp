@@ -72,19 +72,6 @@ void StreamingWorker::start(const QString& uri)
     }
 }
 
-void StreamingWorker::startRecording(const RecordingConfiguration& configuration)
-{
-    const RecordingResult result =
-        m_streamingService->requestStartRecording(configuration);
-
-    emit recordingStarted(result);
-}
-
-void StreamingWorker::stopRecording()
-{
-    m_streamingService->requestStopRecording();
-}
-
 bool StreamingWorker::handleExitReason(StreamingExitReason reason)
 {
     switch (reason)

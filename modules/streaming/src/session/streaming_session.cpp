@@ -47,21 +47,6 @@ StreamingSession::StreamingSession(QObject* parent)
         this,
         &StreamingSession::onRecordingStateChanged);
 
-    QMetaObject::Connection c = connect(
-        this,
-        &StreamingSession::startRecordingRequested,
-        m_streamingWorker.get(),
-        &StreamingWorker::startRecording,
-        Qt::QueuedConnection);
-
-    Q_ASSERT(c);
-    connect(
-        this,
-        &StreamingSession::stopRecordingRequested,
-        m_streamingWorker.get(),
-        &StreamingWorker::stopRecording,
-        Qt::QueuedConnection);
-
     m_streamingService->moveToThread(m_streamingThread.get());
     m_streamingWorker->moveToThread(m_streamingThread.get());
 

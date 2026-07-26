@@ -53,9 +53,6 @@ signals:
     void statisticsUpdated(const StreamStatistics& statistics);
     void recordingStateChanged(RecordingState state);
 
-    void startRecordingRequested(const RecordingConfiguration& configuration);
-    void stopRecordingRequested();
-
 private slots:
     void onStateChanged(const ConnectionState&);
     void onStatisticsUpdated(const StreamStatistics& statistics);
