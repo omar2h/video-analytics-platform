@@ -5,6 +5,7 @@
 extern "C"
 {
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 }
 
 namespace vap
@@ -55,7 +56,7 @@ void FFmpegRecordingService::stopRecording()
 
     m_state = RecordingState::Stopping;
 
-    // FFmpeg trailer writing will happen here.
+    cleanup();
 
     m_state = RecordingState::Stopped;
 }
@@ -72,14 +73,62 @@ RecordingState FFmpegRecordingService::state() const noexcept
 
 RecordingResult FFmpegRecordingService::initializeOutput(const RecordingConfiguration &configuration, const AVStream &inputStream)
 {
-    Q_UNUSED(configuration);
-    Q_UNUSED(inputStream);
+    const QByteArray outputPath = configuration.outputPath.toUtf8();
 
-    // avformat_alloc_output_context2();
-    // avformat_new_stream();
-    // avcodec_parameters_copy();
-    // avio_open();
-    // avformat_write_header();
+    int result = avformat_alloc_output_context2(
+                    &m_outputContext,
+                    nullptr,
+                    nullptr,
+                    outputPath.constData());
+
+    if (result < 0 || !m_outputContext)
+    {
+        return RecordingResult::OutputContextAllocationFailed;
+    }
+
+    m_outputStream = avformat_new_stream(
+                        m_outputContext,
+                        nullptr);
+
+    if (!m_outputStream)
+    {
+        cleanup();
+        return RecordingResult::OutputStreamCreationFailed;
+    }
+
+    result = avcodec_parameters_copy(
+                m_outputStream->codecpar,
+                inputStream.codecpar);
+
+    if (result < 0)
+    {
+        cleanup();
+        return RecordingResult::CodecParametersCopyFailed;
+    }
+
+    m_outputStream->codecpar->codec_tag = 0;
+    m_outputStream->time_base = inputStream.time_base;
+
+    result = avio_open(
+                &m_outputContext->pb,
+                outputPath.constData(),
+                AVIO_FLAG_WRITE);
+
+    if (result < 0)
+    {
+        cleanup();
+        return RecordingResult::FileOpenFailed;
+    }
+
+    result = avformat_write_header(
+                m_outputContext,
+                nullptr);
+
+    if (result < 0)
+    {
+        cleanup();
+        return RecordingResult::HeaderWriteFailed;
+    }
     return RecordingResult::Success;
 }
 
@@ -88,6 +137,13 @@ void FFmpegRecordingService::cleanupOutputContext() noexcept
     if (!m_outputContext)
     {
         return;
+    }
+
+    if (m_outputContext &&
+        m_outputContext->pb &&
+        !(m_outputContext->oformat->flags & AVFMT_NOFILE))
+    {
+        avio_closep(&m_outputContext->pb);
     }
 
     avformat_free_context(m_outputContext);
