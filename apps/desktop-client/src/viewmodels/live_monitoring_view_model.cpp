@@ -30,7 +30,6 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     auto* session = m_streamingManager->session(cameraId);
 
     if (!session) {
-        qDebug() << "No session for" << cameraId;
         return nullptr;
     }
 

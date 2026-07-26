@@ -151,6 +151,28 @@ Card {
             }
         }
 
+        Label {
+            text: qsTr("Recording")
+            font.bold: true
+        }
+
+        Button {
+            Layout.fillWidth: true
+
+            enabled: streamVm && streamVm.recordingActionEnabled
+
+            text: streamVm.recording
+                    ? qsTr("Stop Recording")
+                    : qsTr("Record")
+
+            onClicked: {
+                if (streamVm.recording)
+                    streamVm.stopRecording()
+                else
+                    streamVm.startRecording()
+            }
+        }
+
         Separator {}
 
         RowLayout {

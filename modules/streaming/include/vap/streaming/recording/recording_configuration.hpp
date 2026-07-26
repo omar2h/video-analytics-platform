@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QMetaType>
 #include <QString>
 
 namespace vap
@@ -11,3 +12,5 @@ struct RecordingConfiguration
 };
 
 }
+
+Q_DECLARE_METATYPE(vap::RecordingConfiguration)

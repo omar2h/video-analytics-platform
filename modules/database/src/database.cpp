@@ -2,7 +2,6 @@
 
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 
 namespace vap
 {

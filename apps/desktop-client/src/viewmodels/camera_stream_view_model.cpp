@@ -1,8 +1,10 @@
 #include "camera_stream_view_model.hpp"
 
-#include <QDebug>
-
+#include <QDateTime>
+#include <QDir>
+#include <QStandardPaths>
 #include <vap/streaming/session/streaming_session.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 namespace vap
 {
@@ -28,6 +30,12 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
         &StreamingSession::statisticsUpdated,
         this,
         &CameraStreamViewModel::onStatisticsUpdated);
+
+    connect(
+        m_streamingSession,
+        &StreamingSession::recordingStateChanged,
+        this,
+        &CameraStreamViewModel::onRecordingStateChanged);
 }
 
 int CameraStreamViewModel::state() const
@@ -86,6 +94,41 @@ quint64 CameraStreamViewModel::packetsReceived() const
     return m_streamingSession->statistics().packetsReceived;
 }
 
+bool CameraStreamViewModel::recording() const
+{
+    return m_recordingState == RecordingState::Recording;
+}
+
+bool CameraStreamViewModel::recordingActionEnabled() const
+{
+    return m_state == ConnectionState::Connected;
+}
+
+void CameraStreamViewModel::startRecording()
+{
+    RecordingConfiguration config;
+
+    // temporary filename
+    QDir videosDir(
+        QStandardPaths::writableLocation(QStandardPaths::MoviesLocation));
+
+    videosDir.mkpath("VAP");
+
+    config.outputPath =
+        videosDir.filePath(
+            QString("%1_%2.mp4")
+                .arg(m_cameraId)
+                .arg(QDateTime::currentDateTime()
+                         .toString("yyyyMMdd_HHmmss")));
+
+    m_streamingSession->startRecording(config);
+}
+
+void CameraStreamViewModel::stopRecording()
+{
+    m_streamingSession->stopRecording();
+}
+
 double CameraStreamViewModel::fps() const
 {
     return m_streamingSession->statistics().fps;
@@ -139,11 +182,23 @@ void CameraStreamViewModel::onStateChanged(ConnectionState state)
     }
 
     emit stateChanged();
+    emit recordingActionEnabledChanged();
 }
 
 void CameraStreamViewModel::onStatisticsUpdated()
 {
     emit statisticsChanged();
+}
+
+void CameraStreamViewModel::onRecordingStateChanged(RecordingState state)
+{
+    if (m_recordingState == state)
+        return;
+
+    m_recordingState = state;
+
+    emit recordingChanged();
+    emit recordingActionEnabledChanged();
 }
 
 }

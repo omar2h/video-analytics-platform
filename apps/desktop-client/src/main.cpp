@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QDebug>
 
 #include "bootstrap/application_bootstrap.hpp"
 

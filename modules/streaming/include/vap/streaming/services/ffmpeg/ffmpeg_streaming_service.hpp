@@ -2,9 +2,11 @@
 
 #include <vap/streaming/services/i_streaming_service.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 #include <atomic>
 #include <QElapsedTimer>
+#include <optional>
 
 struct AVFormatContext;
 struct AVCodecContext;
@@ -25,13 +27,13 @@ public:
 
     StreamingExitReason stream(const QString& uri) override;
 
-    RecordingResult startRecording(
-        const RecordingConfiguration& configuration) override;
-
-    void stopRecording() override;
-
     [[nodiscard]]
     RecordingState recordingState() const noexcept override;
+
+    RecordingResult requestStartRecording(
+        const RecordingConfiguration& configuration);
+
+    void requestStopRecording();
 
     void requestCancellation() override;
 
@@ -75,6 +77,8 @@ private:
 
     void publishStatisticsIfNeeded();
 
+    void processPendingCommands();
+
 private:
     static int interruptCallback(void* opaque);
 
@@ -91,5 +95,10 @@ private:
     std::unique_ptr<FFmpegRecordingService> m_recordingService;
 
     std::atomic_bool m_stopRequested{false};
+
+    std::mutex m_commandMutex;
+
+    std::optional<RecordingConfiguration> m_pendingStartRecording;
+    bool m_pendingStopRecording = false;
 };
 }

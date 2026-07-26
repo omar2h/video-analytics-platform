@@ -10,12 +10,12 @@
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/recording/recording_result.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 namespace vap
 {
 class IStreamingService;
 class FrameExchange;
-class RecordingConfiguration;
 class StreamingWorker : public QObject
 {
     Q_OBJECT

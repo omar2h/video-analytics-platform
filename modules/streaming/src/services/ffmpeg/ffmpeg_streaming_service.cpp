@@ -5,6 +5,7 @@ Q_LOGGING_CATEGORY(ffmpegStreamingLog, "vap.streaming.ffmpeg")
 
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
 #include <vap/streaming/recording/ffmpeg_recording_service.hpp>
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -75,6 +76,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
 
     while (!m_stopRequested.load())
     {
+        processPendingCommands();
         if (!readNextPacket())
         {
             break;
@@ -94,35 +96,35 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     return StreamingExitReason::NetworkFailure;
 }
 
-RecordingResult FFmpegStreamingService::startRecording(const RecordingConfiguration &configuration)
-{
-    if (!m_formatContext || m_videoStreamIndex < 0)
-    {
-        return RecordingResult::NotStreaming;
-    }
-
-    const auto result =
-        m_recordingService->startRecording(
-        configuration,
-        *m_formatContext,
-        m_videoStreamIndex);
-
-    emit recordingStateChanged(m_recordingService->state());
-
-    return result;
-
-}
-
-void FFmpegStreamingService::stopRecording()
-{
-    m_recordingService->stopRecording();
-
-    emit recordingStateChanged(m_recordingService->state());
-}
-
 RecordingState FFmpegStreamingService::recordingState() const noexcept
 {
     return m_recordingService->state();
+}
+
+RecordingResult FFmpegStreamingService::requestStartRecording(const RecordingConfiguration& configuration)
+{
+    std::lock_guard lock(m_commandMutex);
+
+    if (m_pendingStartRecording)
+    {
+        return RecordingResult::AlreadyRecording;
+    }
+
+    if (m_recordingService->isRecording())
+    {
+        return RecordingResult::AlreadyRecording;
+    }
+
+    m_pendingStartRecording = configuration;
+
+    return RecordingResult::Success;
+}
+
+void FFmpegStreamingService::requestStopRecording()
+{
+    std::lock_guard lock(m_commandMutex);
+
+    m_pendingStopRecording = true;
 }
 
 void FFmpegStreamingService::requestCancellation()
@@ -638,6 +640,49 @@ void FFmpegStreamingService::publishStatisticsIfNeeded()
     {
         emit statisticsUpdated(m_statistics);
         m_statisticsTimer.restart();
+    }
+}
+
+void FFmpegStreamingService::processPendingCommands()
+{
+    std::optional<RecordingConfiguration> startRecording;
+    bool stopRecording = false;
+
+    {
+        std::lock_guard lock(m_commandMutex);
+
+        startRecording = std::move(m_pendingStartRecording);
+        m_pendingStartRecording.reset();
+
+        stopRecording = m_pendingStopRecording;
+        m_pendingStopRecording = false;
+    }
+
+    if (startRecording)
+    {
+        const RecordingResult result =
+            m_recordingService->startRecording(
+                *startRecording,
+                *m_formatContext,
+                m_videoStreamIndex);
+
+        if (result != RecordingResult::Success)
+        {
+            qCWarning(ffmpegStreamingLog)
+                << "Failed to start recording:"
+                << static_cast<int>(result);
+        }
+
+        emit recordingStateChanged(
+            m_recordingService->state());
+    }
+
+    if (stopRecording)
+    {
+        m_recordingService->stopRecording();
+
+        emit recordingStateChanged(
+            m_recordingService->state());
     }
 }
 

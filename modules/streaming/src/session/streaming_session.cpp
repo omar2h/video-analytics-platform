@@ -1,14 +1,12 @@
 #include <vap/streaming/session/streaming_session.hpp>
 
 #include <QThread>
-#include <QDebug>
 
 #include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
 #include <vap/camera/camera_config.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
-#include <vap/streaming/recording/recording_configuration.hpp>
 
 namespace vap
 {
@@ -49,6 +47,21 @@ StreamingSession::StreamingSession(QObject* parent)
         this,
         &StreamingSession::onRecordingStateChanged);
 
+    QMetaObject::Connection c = connect(
+        this,
+        &StreamingSession::startRecordingRequested,
+        m_streamingWorker.get(),
+        &StreamingWorker::startRecording,
+        Qt::QueuedConnection);
+
+    Q_ASSERT(c);
+    connect(
+        this,
+        &StreamingSession::stopRecordingRequested,
+        m_streamingWorker.get(),
+        &StreamingWorker::stopRecording,
+        Qt::QueuedConnection);
+
     m_streamingService->moveToThread(m_streamingThread.get());
     m_streamingWorker->moveToThread(m_streamingThread.get());
 
@@ -79,19 +92,12 @@ void StreamingSession::stop()
 
 void  StreamingSession::startRecording(const RecordingConfiguration &configuration)
 {
-    QMetaObject::invokeMethod(
-        m_streamingWorker.get(),
-        "startRecording",
-        Qt::QueuedConnection,
-        Q_ARG(RecordingConfiguration, configuration));
+    m_streamingService->requestStartRecording(configuration);
 }
 
 void StreamingSession::stopRecording()
 {
-    QMetaObject::invokeMethod(
-        m_streamingWorker.get(),
-        "stopRecording",
-        Qt::QueuedConnection);
+    m_streamingService->requestStopRecording();
 }
 
 RecordingState StreamingSession::recordingState() const noexcept
@@ -118,7 +124,6 @@ void StreamingSession::onStateChanged(const ConnectionState &state)
 {
     if(m_state == state)
         return;
-    qDebug() << "state: " << static_cast<int>(state);
     m_state = state;
     emit stateChanged(m_state);
 }
