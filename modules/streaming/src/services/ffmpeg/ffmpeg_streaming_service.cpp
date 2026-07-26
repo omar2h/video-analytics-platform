@@ -425,6 +425,11 @@ bool FFmpegStreamingService::readNextPacket()
 
         ++m_statistics.packetsReceived;
 
+        if (m_recordingService->isRecording())
+        {
+            m_recordingService->writePacket(*m_packet);
+        }
+
         if (sendPacketToDecoder())
         {
             receiveFrames();

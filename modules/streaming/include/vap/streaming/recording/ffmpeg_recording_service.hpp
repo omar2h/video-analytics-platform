@@ -3,6 +3,11 @@
 #include <vap/streaming/recording/recording_result.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
 
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+}
+
 
 struct AVFormatContext;
 struct AVStream;
@@ -36,6 +41,8 @@ public:
     [[nodiscard]]
     RecordingState state() const noexcept;
 
+    bool writePacket(const AVPacket& packet);
+
 private:
     RecordingResult initializeOutput(
         const RecordingConfiguration& configuration,
@@ -47,6 +54,7 @@ private:
     RecordingState m_state {RecordingState::Stopped};
     AVFormatContext* m_outputContext = nullptr;
     AVStream* m_outputStream = nullptr;
+    AVRational m_inputTimeBase {};
 };
 
 }
