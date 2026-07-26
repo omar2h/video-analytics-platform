@@ -2,6 +2,7 @@
 
 #include <vap/streaming/services/i_streaming_service.hpp>
 #include <vap/streaming/frame/frame_exchange.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 namespace vap
 {
@@ -32,6 +33,12 @@ StreamingWorker::StreamingWorker(
                 m_frameExchange.publish(frame);
                 emit frameUpdated();
             });
+
+    connect(
+        m_streamingService,
+        &IStreamingService::recordingStateChanged,
+        this,
+        &StreamingWorker::recordingStateChanged);
 }
 
 void StreamingWorker::start(const QString& uri)
@@ -63,6 +70,19 @@ void StreamingWorker::start(const QString& uri)
     {
         emit stateChanged(ConnectionState::Disconnected);
     }
+}
+
+void StreamingWorker::startRecording(const RecordingConfiguration& configuration)
+{
+    const RecordingResult result =
+        m_streamingService->startRecording(configuration);
+
+    emit recordingStarted(result);
+}
+
+void StreamingWorker::stopRecording()
+{
+    m_streamingService->stopRecording();
 }
 
 bool StreamingWorker::handleExitReason(StreamingExitReason reason)

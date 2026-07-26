@@ -8,6 +8,7 @@
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
 #include <vap/camera/camera_config.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 namespace vap
 {
@@ -42,6 +43,12 @@ StreamingSession::StreamingSession(QObject* parent)
         this,
         &StreamingSession::onStatisticsUpdated);
 
+    connect(
+        m_streamingWorker.get(),
+        &StreamingWorker::recordingStateChanged,
+        this,
+        &StreamingSession::onRecordingStateChanged);
+
     m_streamingService->moveToThread(m_streamingThread.get());
     m_streamingWorker->moveToThread(m_streamingThread.get());
 
@@ -68,6 +75,28 @@ void StreamingSession::start(const CameraConfig& config)
 void StreamingSession::stop()
 {
     m_streamingWorker->requestCancellation();
+}
+
+void  StreamingSession::startRecording(const RecordingConfiguration &configuration)
+{
+    QMetaObject::invokeMethod(
+        m_streamingWorker.get(),
+        "startRecording",
+        Qt::QueuedConnection,
+        Q_ARG(RecordingConfiguration, configuration));
+}
+
+void StreamingSession::stopRecording()
+{
+    QMetaObject::invokeMethod(
+        m_streamingWorker.get(),
+        "stopRecording",
+        Qt::QueuedConnection);
+}
+
+RecordingState StreamingSession::recordingState() const noexcept
+{
+    return m_recordingState;
 }
 
 ConnectionState StreamingSession::state() const
@@ -99,6 +128,16 @@ void StreamingSession::onStatisticsUpdated(
 {
     m_statistics = statistics;
     emit statisticsUpdated(m_statistics);
+}
+
+void StreamingSession::onRecordingStateChanged(RecordingState state)
+{
+    if (m_recordingState == state)
+        return;
+
+    m_recordingState = state;
+
+    emit recordingStateChanged(state);
 }
 
 }

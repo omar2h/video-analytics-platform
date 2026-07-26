@@ -6,6 +6,8 @@
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
 #include <vap/streaming/frame/frame_exchange.hpp>
+#include <vap/streaming/recording/recording_result.hpp>
+#include <vap/streaming/recording/recording_state.hpp>
 
 class QThread;
 class QImage;
@@ -13,6 +15,7 @@ namespace vap
 {
 class StreamingWorker;
 class CameraConfig;
+class RecordingConfiguration;
 class IStreamingService;
 
 class StreamingSession : public QObject
@@ -30,6 +33,14 @@ public:
     void start(const CameraConfig&);
     void stop();
 
+    void  startRecording(
+        const RecordingConfiguration& configuration);
+
+    void stopRecording();
+
+    [[nodiscard]]
+    RecordingState recordingState() const noexcept;
+
     ConnectionState state() const;
     const StreamStatistics& statistics() const;
 
@@ -40,10 +51,12 @@ signals:
     void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
     void statisticsUpdated(const StreamStatistics& statistics);
+    void recordingStateChanged(RecordingState state);
 
 private slots:
     void onStateChanged(const ConnectionState&);
     void onStatisticsUpdated(const StreamStatistics& statistics);
+    void onRecordingStateChanged(RecordingState state);
 
 private:
     std::unique_ptr<QThread> m_streamingThread;
@@ -51,6 +64,7 @@ private:
     std::unique_ptr<StreamingWorker> m_streamingWorker;
     FrameExchange m_frameExchange;
     ConnectionState m_state{ConnectionState::Disconnected};
+    RecordingState m_recordingState;
 
     StreamStatistics m_statistics;
 };

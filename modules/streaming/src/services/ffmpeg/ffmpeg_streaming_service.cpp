@@ -101,15 +101,23 @@ RecordingResult FFmpegStreamingService::startRecording(const RecordingConfigurat
         return RecordingResult::NotStreaming;
     }
 
-    return m_recordingService->startRecording(
+    const auto result =
+        m_recordingService->startRecording(
         configuration,
         *m_formatContext,
         m_videoStreamIndex);
+
+    emit recordingStateChanged(m_recordingService->state());
+
+    return result;
+
 }
 
 void FFmpegStreamingService::stopRecording()
 {
     m_recordingService->stopRecording();
+
+    emit recordingStateChanged(m_recordingService->state());
 }
 
 RecordingState FFmpegStreamingService::recordingState() const noexcept

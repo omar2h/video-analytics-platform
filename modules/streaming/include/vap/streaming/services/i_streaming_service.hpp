@@ -44,6 +44,7 @@ signals:
     void connected();
     void frameReady(const QImage& frame);
     void statisticsUpdated(const StreamStatistics& statistics);
+    void recordingStateChanged(RecordingState state);
 
 };
 
