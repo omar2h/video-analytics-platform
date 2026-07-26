@@ -14,3 +14,14 @@ cmake-build*/
 
 # OS
 .DS_Store
+
+/video_analytics.db
+*.user
+*.db
+
+# docs
+docs/design-decisions.md
+docs/developer-guide.md
+docs/executive-overview.md
+docs/interview-guide.md
+docs/recording.md

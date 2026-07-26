@@ -13,6 +13,12 @@ add_library(streaming STATIC
     include/vap/streaming/domain/stream_statistics.hpp
     include/vap/streaming/frame/frame_exchange.hpp
 
+    include/vap/streaming/recording/i_recording_service.hpp
+    include/vap/streaming/recording/recording_configuration.hpp
+    include/vap/streaming/recording/recording_state.hpp
+    include/vap/streaming/recording/ffmpeg_recording_service.hpp
+    include/vap/streaming/recording/recording_result.hpp
+
     src/services/ffmpeg/ffmpeg_streaming_service.cpp
     src/services/mock_streaming_service.cpp
     src/frame/ffmpeg_frame_converter.cpp
@@ -21,6 +27,8 @@ add_library(streaming STATIC
     src/session/streaming_session.cpp
     src/manager/streaming_manager.cpp
     src/frame/frame_exchange.cpp
+
+    src/recording/ffmpeg_recording_service.cpp
 )
 
 pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
