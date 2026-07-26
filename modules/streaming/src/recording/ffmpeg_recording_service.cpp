@@ -16,23 +16,33 @@ FFmpegRecordingService::~FFmpegRecordingService() noexcept
 }
 
 RecordingResult FFmpegRecordingService::startRecording(
-    const RecordingConfiguration& configuration)
+    const RecordingConfiguration& configuration,
+    const AVFormatContext& inputContext,
+    int videoStreamIndex)
 {
-    if (configuration.outputPath.isEmpty())
-    {
-        return RecordingResult::InvalidConfiguration;
-    }
-
     if (isRecording())
     {
         return RecordingResult::AlreadyRecording;
     }
 
-    m_state = RecordingState::Starting;
+    if (configuration.outputPath.isEmpty())
+    {
+        return RecordingResult::InvalidConfiguration;
+    }
 
-    // FFmpeg initialization will happen here in the next commit.
+    const AVStream* inputStream = inputContext.streams[videoStreamIndex];
+
+    Q_ASSERT(inputStream);
+
+    RecordingResult result = initializeOutput(configuration, *inputStream);
+
+    if (result != RecordingResult::Success)
+    {
+        return result;
+    }
 
     m_state = RecordingState::Recording;
+
     return RecordingResult::Success;
 }
 
@@ -58,6 +68,19 @@ bool FFmpegRecordingService::isRecording() const noexcept
 RecordingState FFmpegRecordingService::state() const noexcept
 {
     return m_state;
+}
+
+RecordingResult FFmpegRecordingService::initializeOutput(const RecordingConfiguration &configuration, const AVStream &inputStream)
+{
+    Q_UNUSED(configuration);
+    Q_UNUSED(inputStream);
+
+    // avformat_alloc_output_context2();
+    // avformat_new_stream();
+    // avcodec_parameters_copy();
+    // avio_open();
+    // avformat_write_header();
+    return RecordingResult::Success;
 }
 
 void FFmpegRecordingService::cleanupOutputContext() noexcept

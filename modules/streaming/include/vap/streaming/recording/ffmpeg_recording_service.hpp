@@ -1,19 +1,21 @@
 #pragma once
 
-#include <vap/streaming/recording/i_recording_service.hpp>
+#include <vap/streaming/recording/recording_result.hpp>
+#include <vap/streaming/recording/recording_state.hpp>
 
 
 struct AVFormatContext;
 struct AVStream;
+struct AVPacket;
 
 namespace vap
 {
-
-class FFmpegRecordingService : public IRecordingService
+class RecordingConfiguration;
+class FFmpegRecordingService
 {
 public:
     FFmpegRecordingService() noexcept = default;
-    ~FFmpegRecordingService() noexcept override;
+    ~FFmpegRecordingService() noexcept;
 
     FFmpegRecordingService(const FFmpegRecordingService&) = delete;
     FFmpegRecordingService& operator=(const FFmpegRecordingService&) = delete;
@@ -22,17 +24,22 @@ public:
     FFmpegRecordingService& operator=(FFmpegRecordingService&&) = delete;
 
     RecordingResult startRecording(
-        const RecordingConfiguration& configuration) override;
+        const RecordingConfiguration& configuration,
+        const AVFormatContext& inputContext,
+        int videoStreamIndex);
 
-    void stopRecording() override;
+    void stopRecording();
 
     [[nodiscard]]
-    bool isRecording() const noexcept override;
+    bool isRecording() const noexcept;
 
     [[nodiscard]]
-    RecordingState state() const noexcept override;
+    RecordingState state() const noexcept;
 
 private:
+    RecordingResult initializeOutput(
+        const RecordingConfiguration& configuration,
+        const AVStream& inputStream);
     void cleanupOutputContext() noexcept;
     void cleanup() noexcept;
 

@@ -13,7 +13,6 @@ add_library(streaming STATIC
     include/vap/streaming/domain/stream_statistics.hpp
     include/vap/streaming/frame/frame_exchange.hpp
 
-    include/vap/streaming/recording/i_recording_service.hpp
     include/vap/streaming/recording/recording_configuration.hpp
     include/vap/streaming/recording/recording_state.hpp
     include/vap/streaming/recording/ffmpeg_recording_service.hpp
