@@ -3,10 +3,13 @@
 #include <QObject>
 
 #include <vap/streaming/streaming_exit_reason.hpp>
+#include <vap/streaming/recording/recording_result.hpp>
+#include <vap/streaming/recording/recording_state.hpp>
 
 namespace vap
 {
 class StreamStatistics;
+class RecordingConfiguration;
 class IStreamingService : public QObject
 {
     Q_OBJECT
@@ -20,6 +23,13 @@ public:
     virtual ~IStreamingService() = default;
 
     virtual StreamingExitReason stream(const QString& uri) = 0;
+
+    virtual RecordingResult startRecording(const RecordingConfiguration& configuration) = 0;
+
+    virtual void stopRecording() = 0;
+
+    [[nodiscard]]
+    virtual RecordingState recordingState() const noexcept = 0;
 
     /// Requests cooperative cancellation of the active streaming session.
     ///

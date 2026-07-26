@@ -8,6 +8,7 @@ enum class RecordingResult
     Success,
     AlreadyRecording,
     InvalidConfiguration,
+    NotStreaming,
 
     OutputContextAllocationFailed,
     OutputStreamCreationFailed,

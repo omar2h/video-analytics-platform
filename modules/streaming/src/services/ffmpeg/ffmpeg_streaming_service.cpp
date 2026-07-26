@@ -94,6 +94,29 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     return StreamingExitReason::NetworkFailure;
 }
 
+RecordingResult FFmpegStreamingService::startRecording(const RecordingConfiguration &configuration)
+{
+    if (!m_formatContext || m_videoStreamIndex < 0)
+    {
+        return RecordingResult::NotStreaming;
+    }
+
+    return m_recordingService->startRecording(
+        configuration,
+        *m_formatContext,
+        m_videoStreamIndex);
+}
+
+void FFmpegStreamingService::stopRecording()
+{
+    m_recordingService->stopRecording();
+}
+
+RecordingState FFmpegStreamingService::recordingState() const noexcept
+{
+    return m_recordingService->state();
+}
+
 void FFmpegStreamingService::requestCancellation()
 {
     m_stopRequested.store(true);
@@ -427,7 +450,11 @@ bool FFmpegStreamingService::readNextPacket()
 
         if (m_recordingService->isRecording())
         {
-            m_recordingService->writePacket(*m_packet);
+            if (!m_recordingService->writePacket(*m_packet))
+            {
+                qCWarning(ffmpegStreamingLog)
+                    << "Failed to record packet.";
+            }
         }
 
         if (sendPacketToDecoder())
@@ -584,6 +611,11 @@ void FFmpegStreamingService::cleanup()
 {
     qCInfo(ffmpegStreamingLog)
         << "Cleanup started.";
+    if (m_recordingService->isRecording())
+    {
+        m_recordingService->stopRecording();
+    }
+
     cleanupFrame();
     cleanupPacket();
     cleanupDecoder();

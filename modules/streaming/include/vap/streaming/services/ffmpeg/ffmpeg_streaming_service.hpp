@@ -24,7 +24,17 @@ public:
     ~FFmpegStreamingService() override;
 
     StreamingExitReason stream(const QString& uri) override;
+
+    RecordingResult startRecording(
+        const RecordingConfiguration& configuration) override;
+
+    void stopRecording() override;
+
+    [[nodiscard]]
+    RecordingState recordingState() const noexcept override;
+
     void requestCancellation() override;
+
 
 private:
     bool openInput(const QString& url);
