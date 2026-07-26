@@ -13,6 +13,7 @@ struct AVFrame;
 namespace vap
 {
 class IFrameConverter;
+class FFmpegRecordingService;
 class FFmpegStreamingService : public IStreamingService
 {
     Q_OBJECT
@@ -77,6 +78,7 @@ private:
     int m_videoStreamIndex = -1;
 
     std::unique_ptr<IFrameConverter> m_frameConverter;
+    std::unique_ptr<FFmpegRecordingService> m_recordingService;
 
     std::atomic_bool m_stopRequested{false};
 };

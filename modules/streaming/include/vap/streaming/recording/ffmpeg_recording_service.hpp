@@ -2,6 +2,10 @@
 
 #include <vap/streaming/recording/i_recording_service.hpp>
 
+
+struct AVFormatContext;
+struct AVStream;
+
 namespace vap
 {
 
@@ -29,7 +33,13 @@ public:
     RecordingState state() const noexcept override;
 
 private:
+    void cleanupOutputContext() noexcept;
+    void cleanup() noexcept;
+
+private:
     RecordingState m_state {RecordingState::Stopped};
+    AVFormatContext* m_outputContext = nullptr;
+    AVStream* m_outputStream = nullptr;
 };
 
 }

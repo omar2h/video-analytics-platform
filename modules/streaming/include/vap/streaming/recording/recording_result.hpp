@@ -8,10 +8,10 @@ enum class RecordingResult
     Success,
     AlreadyRecording,
     InvalidConfiguration,
-    InternalError,
+    OutputContextAllocationFailed,
+    OutputStreamCreationFailed,
+    CodecParametersCopyFailed,
     FileOpenFailed,
-    StreamInitializationFailed,
     HeaderWriteFailed
 };
-
 }

@@ -4,7 +4,7 @@
 Q_LOGGING_CATEGORY(ffmpegStreamingLog, "vap.streaming.ffmpeg")
 
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
-
+#include <vap/streaming/recording/ffmpeg_recording_service.hpp>
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -31,7 +31,8 @@ namespace vap
 FFmpegStreamingService::FFmpegStreamingService(std::unique_ptr<IFrameConverter> frameConverter,
                                                QObject* parent)
     : IStreamingService(parent),
-     m_frameConverter(std::move(frameConverter))
+     m_frameConverter(std::move(frameConverter)),
+     m_recordingService(std::make_unique<FFmpegRecordingService>())
 {
     Q_ASSERT(m_frameConverter);
 

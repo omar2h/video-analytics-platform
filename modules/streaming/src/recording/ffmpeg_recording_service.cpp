@@ -2,10 +2,18 @@
 
 #include <vap/streaming/recording/recording_configuration.hpp>
 
+extern "C"
+{
+#include <libavformat/avformat.h>
+}
+
 namespace vap
 {
 
-FFmpegRecordingService::~FFmpegRecordingService() noexcept = default;
+FFmpegRecordingService::~FFmpegRecordingService() noexcept
+{
+    cleanup();
+}
 
 RecordingResult FFmpegRecordingService::startRecording(
     const RecordingConfiguration& configuration)
@@ -50,6 +58,23 @@ bool FFmpegRecordingService::isRecording() const noexcept
 RecordingState FFmpegRecordingService::state() const noexcept
 {
     return m_state;
+}
+
+void FFmpegRecordingService::cleanupOutputContext() noexcept
+{
+    if (!m_outputContext)
+    {
+        return;
+    }
+
+    avformat_free_context(m_outputContext);
+    m_outputContext = nullptr;
+    m_outputStream = nullptr;
+}
+
+void FFmpegRecordingService::cleanup() noexcept
+{
+    cleanupOutputContext();
 }
 
 }
