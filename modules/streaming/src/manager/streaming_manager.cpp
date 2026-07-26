@@ -30,7 +30,7 @@ void StreamingManager::startStreaming(const Camera& camera)
 
     Q_ASSERT(session);
 
-    session->start(camera.config);
+    session->start(camera);
 }
 
 void StreamingManager::stopStreaming(const QString& cameraId)

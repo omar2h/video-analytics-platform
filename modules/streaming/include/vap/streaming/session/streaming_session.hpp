@@ -9,6 +9,7 @@
 #include <vap/streaming/recording/recording_result.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
 #include <vap/streaming/recording/recording_configuration.hpp>
+#include <vap/camera/camera.hpp>
 
 class QThread;
 class QImage;
@@ -30,7 +31,7 @@ public:
     StreamingSession(QObject* parent = nullptr);
     ~StreamingSession();
 
-    void start(const CameraConfig&);
+    void start(const Camera& camera);
     void stop();
 
     void  startRecording(
@@ -44,6 +45,7 @@ public:
     ConnectionState state() const;
     const StreamStatistics& statistics() const;
 
+    QString cameraName() const;
     FrameSnapshot currentFrame() const;
 
 signals:
@@ -52,6 +54,7 @@ signals:
     void errorOccurred(const QString& error);
     void statisticsUpdated(const StreamStatistics& statistics);
     void recordingStateChanged(RecordingState state);
+    void recordingDurationChanged(qint64 seconds);
 
 private slots:
     void onStateChanged(const ConnectionState&);
@@ -62,6 +65,8 @@ private:
     std::unique_ptr<QThread> m_streamingThread;
     std::unique_ptr<IStreamingService> m_streamingService;
     std::unique_ptr<StreamingWorker> m_streamingWorker;
+    Camera m_camera;
+
     FrameExchange m_frameExchange;
     ConnectionState m_state{ConnectionState::Disconnected};
     RecordingState m_recordingState;

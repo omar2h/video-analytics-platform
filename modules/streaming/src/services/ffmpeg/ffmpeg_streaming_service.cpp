@@ -81,6 +81,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
         {
             break;
         }
+        publishRecordingDurationIfNeeded();
     }
     qCInfo(ffmpegStreamingLog)
         << "Stopped reading packets.";
@@ -125,6 +126,25 @@ void FFmpegStreamingService::requestStopRecording()
     std::lock_guard lock(m_commandMutex);
 
     m_pendingStopRecording = true;
+}
+
+qint64 FFmpegStreamingService::recordingDurationSeconds() const
+{
+    return m_recordingService->recordingDurationSeconds();
+}
+
+void FFmpegStreamingService::publishRecordingDurationIfNeeded()
+{
+    if (!m_recordingService->isRecording())
+        return;
+
+    const auto seconds = m_recordingService->recordingDurationSeconds();
+
+    if (seconds != m_lastPublishedDuration)
+    {
+        m_lastPublishedDuration = seconds;
+        emit recordingDurationChanged(seconds);
+    }
 }
 
 void FFmpegStreamingService::requestCancellation()
@@ -625,6 +645,9 @@ void FFmpegStreamingService::cleanup()
     {
         m_recordingService->stopRecording();
     }
+    emit recordingStateChanged(m_recordingService->state());
+    m_lastPublishedDuration = 0;
+    emit recordingDurationChanged(0);
 
     cleanupFrame();
     cleanupPacket();

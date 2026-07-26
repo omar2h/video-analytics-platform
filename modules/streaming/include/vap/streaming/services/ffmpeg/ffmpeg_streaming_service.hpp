@@ -35,8 +35,11 @@ public:
 
     void requestStopRecording();
 
-    void requestCancellation() override;
+    qint64 recordingDurationSeconds() const override;
 
+    void publishRecordingDurationIfNeeded();
+
+    void requestCancellation() override;
 
 private:
     bool openInput(const QString& url);
@@ -100,5 +103,7 @@ private:
 
     std::optional<RecordingConfiguration> m_pendingStartRecording;
     bool m_pendingStopRecording = false;
+
+    qint64 m_lastPublishedDuration{};
 };
 }

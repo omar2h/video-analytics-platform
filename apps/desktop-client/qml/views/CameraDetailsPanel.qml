@@ -147,24 +147,69 @@ Card {
             }
 
             Label {
-                text: qsTr("Frames")
+                text: qsTr("Recording")
+                color: Colors.textSecondary
+            }
+
+            RowLayout {
+                spacing: 6
+
+                Rectangle {
+                    implicitWidth: 10
+                    implicitHeight: 10
+                    radius: 5
+                    color: streamVm && streamVm.recording ? "#d32f2f" : "#757575"
+                }
+
+                Label {
+                    text: streamVm ? streamVm.recordingStateText : qsTr("Idle")
+                    color: Colors.textPrimary
+                }
+            }
+
+            Label {
+                text: qsTr("Recording Time")
                 color: Colors.textSecondary
             }
 
             Label {
-                text: streamVm ? streamVm.framesDecoded : "0"
+                text: streamVm ? streamVm.recordingDurationText : qsTr("00:00:00")
                 color: Colors.textPrimary
             }
 
             Label {
-                text: qsTr("Packets")
+                text: qsTr("Output")
                 color: Colors.textSecondary
             }
 
             Label {
-                text: streamVm ? streamVm.packetsReceived : "0"
+                text: streamVm && streamVm.recordingFileName !== ""
+                        ? streamVm.recordingFileName
+                        : "—"
+
                 color: Colors.textPrimary
+                elide: Text.ElideMiddle
             }
+
+            // Label {
+            //     text: qsTr("Frames")
+            //     color: Colors.textSecondary
+            // }
+
+            // Label {
+            //     text: streamVm ? streamVm.framesDecoded : "0"
+            //     color: Colors.textPrimary
+            // }
+
+            // Label {
+            //     text: qsTr("Packets")
+            //     color: Colors.textSecondary
+            // }
+
+            // Label {
+            //     text: streamVm ? streamVm.packetsReceived : "0"
+            //     color: Colors.textPrimary
+            // }
         }
     }
 }

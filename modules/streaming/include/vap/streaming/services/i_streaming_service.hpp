@@ -28,6 +28,8 @@ public:
 
     virtual void requestStopRecording() = 0;
 
+    virtual qint64 recordingDurationSeconds() const = 0;
+
     [[nodiscard]]
     virtual RecordingState recordingState() const noexcept = 0;
 
@@ -45,6 +47,7 @@ signals:
     void frameReady(const QImage& frame);
     void statisticsUpdated(const StreamStatistics& statistics);
     void recordingStateChanged(RecordingState state);
+    void recordingDurationChanged(qint64 seconds);
 
 };
 

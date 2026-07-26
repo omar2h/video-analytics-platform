@@ -47,6 +47,12 @@ StreamingSession::StreamingSession(QObject* parent)
         this,
         &StreamingSession::onRecordingStateChanged);
 
+    connect(
+        m_streamingService.get(),
+        &IStreamingService::recordingDurationChanged,
+        this,
+        &StreamingSession::recordingDurationChanged);
+
     m_streamingService->moveToThread(m_streamingThread.get());
     m_streamingWorker->moveToThread(m_streamingThread.get());
 
@@ -61,13 +67,15 @@ StreamingSession::~StreamingSession()
     m_streamingThread->wait();
 }
 
-void StreamingSession::start(const CameraConfig& config)
+void StreamingSession::start(const Camera& camera)
 {
+    m_camera = camera;
+
     QMetaObject::invokeMethod(
         m_streamingWorker.get(),
         "start",
         Qt::QueuedConnection,
-        Q_ARG(QString, config.url));
+        Q_ARG(QString, camera.config.url));
 }
 
 void StreamingSession::stop()
@@ -98,6 +106,11 @@ ConnectionState StreamingSession::state() const
 const StreamStatistics& StreamingSession::statistics() const
 {
     return m_statistics;
+}
+
+QString StreamingSession::cameraName() const
+{
+    return m_camera.name;
 }
 
 FrameSnapshot StreamingSession::currentFrame() const

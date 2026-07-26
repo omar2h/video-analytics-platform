@@ -64,6 +64,8 @@ RecordingResult FFmpegRecordingService::startRecording(
 
     m_state = RecordingState::Recording;
 
+    m_recordingTimer.start();
+
     return RecordingResult::Success;
 }
 
@@ -99,6 +101,16 @@ void FFmpegRecordingService::stopRecording()
 bool FFmpegRecordingService::isRecording() const noexcept
 {
     return m_state == RecordingState::Recording;
+}
+
+qint64 FFmpegRecordingService::recordingDurationSeconds() const
+{
+    if (!isRecording())
+    {
+        return 0;
+    }
+
+    return m_recordingTimer.elapsed() / 1000;
 }
 
 RecordingState FFmpegRecordingService::state() const noexcept

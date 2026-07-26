@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QElapsedTimer>
+
 #include <vap/streaming/recording/recording_result.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
 
@@ -38,6 +40,8 @@ public:
     [[nodiscard]]
     bool isRecording() const noexcept;
 
+    qint64 recordingDurationSeconds() const;
+
     [[nodiscard]]
     RecordingState state() const noexcept;
 
@@ -51,6 +55,8 @@ private:
     void cleanup() noexcept;
 
 private:
+    QElapsedTimer m_recordingTimer;
+
     RecordingState m_state {RecordingState::Stopped};
     AVFormatContext* m_outputContext = nullptr;
     AVStream* m_outputStream = nullptr;

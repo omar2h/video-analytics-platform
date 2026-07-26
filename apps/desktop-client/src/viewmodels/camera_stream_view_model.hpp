@@ -34,7 +34,10 @@ class CameraStreamViewModel : public QObject
         NOTIFY hasVideoChanged)
 
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
+    Q_PROPERTY(QString recordingStateText READ recordingStateText NOTIFY recordingChanged)
     Q_PROPERTY(bool recordingActionEnabled READ recordingActionEnabled NOTIFY recordingActionEnabledChanged)
+    Q_PROPERTY(QString recordingDurationText READ recordingDurationText NOTIFY recordingDurationChanged)
+    Q_PROPERTY(QString recordingFileName READ recordingFileName NOTIFY recordingChanged)
 
     Q_PROPERTY(QString codec READ codec NOTIFY statisticsChanged)
     Q_PROPERTY(QString resolution READ resolution NOTIFY statisticsChanged)
@@ -65,7 +68,12 @@ public:
     quint64 packetsReceived() const;
 
     bool recording() const;
+    QString recordingStateText() const;
     bool recordingActionEnabled() const;
+
+    QString recordingDurationText() const;
+
+    QString recordingFileName() const;
 
     Q_INVOKABLE void startRecording();
     Q_INVOKABLE void stopRecording();
@@ -78,12 +86,14 @@ signals:
     void statisticsChanged();
     void recordingActionEnabledChanged();
     void recordingChanged();
+    void recordingDurationChanged();
 
 private slots:
     void onFrameUpdated();
     void onStateChanged(ConnectionState state);
     void onStatisticsUpdated();
     void onRecordingStateChanged(RecordingState state);
+    void onRecordingDurationChanged(qint64 seconds);
 
 private:
     // non-owning
@@ -95,6 +105,8 @@ private:
     bool m_hasVideo{};
 
     RecordingState m_recordingState = RecordingState::Stopped;
+    qint64 m_recordingDuration{};
+    QString m_recordingFileName{};
 
 };
 }

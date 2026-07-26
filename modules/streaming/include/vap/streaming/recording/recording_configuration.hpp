@@ -8,9 +8,8 @@ namespace vap
 
 struct RecordingConfiguration
 {
-    QString outputPath;
+    QString outputPath{};
+    QString cameraName{}; // optional metadata
 };
 
 }
-
-Q_DECLARE_METATYPE(vap::RecordingConfiguration)
