@@ -62,6 +62,7 @@ StreamingManager
     ├── StreamingWorker
     ├── FFmpegStreamingService : IStreamingService
     │   └── FFmpegFrameConverter : IFrameConverter
+    │   └── FFmpegRecordingService
     ├── FrameExchange
     ├── connection state
     └── stream statistics
@@ -136,7 +137,13 @@ The worker runs blocking streaming attempts, applies reconnect policy, waits bet
 
 ### FFmpegStreamingService
 
-This infrastructure implementation owns FFmpeg contexts and performs one streaming attempt: open source, inspect streams, configure a decoder, read packets, decode frames, convert pixels, and emit results.
+This infrastructure implementation owns FFmpeg contexts and performs one streaming attempt: open source, inspect streams, configure a decoder, read packets, decode frames, convert pixels, coordinate packet-remux recording, and emit results.
+
+### FFmpegRecordingService
+
+`FFmpegRecordingService` is owned by the streaming service and used on the camera streaming thread. It remuxes encoded video packets into MP4 output. A request enters `Starting` and waits for a video keyframe before output initialization, so a newly created recording begins at a decodable video boundary.
+
+Recording requests may originate on the GUI thread, but `IStreamingService::enqueueStartRecording()` and `enqueueStopRecording()` only write mutex-protected pending-command state. `FFmpegStreamingService::processPendingCommands()` consumes those commands from its active streaming loop and is the sole owner of recorder state and output FFmpeg resources.
 
 ### FrameExchange
 
@@ -161,7 +168,8 @@ Interfaces are used where replacement is useful: repositories, validators, and s
 1. Bootstrap opens the database and creates a session for every persisted camera.
 2. QML invokes ViewModel commands on the GUI thread.
 3. A session starts video work on its streaming thread only when requested.
-4. On removal or application shutdown, the manager destroys sessions; a session requests cancellation and waits for its worker thread to end.
+4. Recording commands are queued safely from the session and consumed by the active streaming loop.
+5. On removal or application shutdown, the manager destroys sessions; a session requests cancellation, finalizes active recording, and waits for its worker thread to end.
 
 ## Camera CRUD flows
 
@@ -212,6 +220,6 @@ sequenceDiagram
 
 ## Out of scope today
 
-The active implementation does not include recording, analytics inference, PTZ, camera groups, authentication, or hardware-specific decoder selection. These belong to future application/infrastructure modules rather than the QML layer.
+The active implementation includes basic single-video-stream MP4 recording. It does not yet include retention policy, segmentation, audio recording, export workflows, analytics inference, PTZ, camera groups, authentication, or hardware-specific decoder selection. These belong to future application/infrastructure modules rather than the QML layer.
 
 Future high-density presentation can introduce a visibility-aware presentation scheduler and GPU-oriented renderer while retaining the current camera, session, and use-case boundaries. See the [Performance Guide](performance-guide.md).

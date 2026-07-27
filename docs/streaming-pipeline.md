@@ -88,6 +88,52 @@ consumer: snapshot() receives the latest available snapshot
 
 `FrameSnapshot.revision` identifies a new published frame. `decodeTime` enables future frame-age/latency monitoring. `valid` distinguishes an empty exchange from a real image.
 
+## Recording pipeline
+
+Recording consumes encoded video packets before they are sent to the decoder. It does not record `QImage` values from `FrameExchange`; live presentation and recorded-media output therefore have separate delivery contracts.
+
+```mermaid
+sequenceDiagram
+    participant UI as QML / ViewModel
+    participant SS as StreamingSession
+    participant FS as FFmpegStreamingService
+    participant RS as FFmpegRecordingService
+    participant MP4 as MP4 muxer
+
+    UI->>SS: startRecording(configuration)
+    SS->>FS: enqueueStartRecording(configuration)
+    Note over FS: stores pending command under mutex
+    loop active streaming loop
+        FS->>FS: processPendingCommands()
+        FS->>RS: requestRecording(...)
+        RS-->>FS: Starting
+        FS->>RS: handleVideoPacket(packet)
+        alt non-keyframe
+            RS-->>FS: wait for keyframe
+        else first keyframe
+            RS->>MP4: create output and write header
+            RS->>MP4: remux keyframe and subsequent packets
+            RS-->>FS: Recording
+        end
+    end
+    FS-->>SS: recording state / duration signal
+    SS-->>UI: ViewModel properties update
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> Stopped
+    Stopped --> Starting: start command consumed
+    Starting --> Recording: keyframe and MP4 initialization succeed
+    Starting --> Stopped: stop or stream cleanup
+    Starting --> Error: output initialization fails
+    Recording --> Stopping: stop or stream cleanup
+    Stopping --> Stopped: trailer and cleanup complete
+    Recording --> Error: packet write fails
+```
+
+`QElapsedTimer` provides the elapsed recording duration shown by QML. The streaming service publishes changed whole-second values while recording is active.
+
 ## Connection states
 
 ```mermaid
@@ -108,7 +154,6 @@ stateDiagram-v2
 
 `FFmpegStreamingService` updates codec, resolution, FPS, bitrate, received packet count, and decoded frame count. It emits statistics at approximately one-second intervals, and `StreamingSession` forwards them to `CameraStreamViewModel` for QML display.
 
-## Recording
+## Recording scope
 
-Recording is not implemented. A future recording subsystem should consume encoded packets or a dedicated media pipeline, not frames retrieved through the GUI-facing `FrameExchange`.
-
+Current recording remuxes the selected video stream into MP4 and begins only at a keyframe. Retention, segmentation, audio policy, export, storage quotas, and disk-space policy remain future work.

@@ -1,8 +1,8 @@
 # Video Analytics Platform (VAP)
 
-A production-oriented Video Management System (VMS) foundation built with modern C++20, Qt 6, and FFmpeg. VAP demonstrates per-camera session management, MVVM, explicit dependency composition, thread-aware RTSP streaming, and real-time video monitoring.
+A production-oriented Video Management System (VMS) foundation built with modern C++20, Qt 6, and FFmpeg. VAP demonstrates per-camera session management, MVVM, explicit dependency composition, thread-aware RTSP streaming, MP4 recording, and real-time video monitoring.
 
-> **Project status:** active development. The implemented scope is live monitoring and camera management; recording, analytics, PTZ, and multi-layout operations are roadmap items.
+> **Project status:** active development. Live monitoring, camera management, and basic MP4 recording are implemented. Analytics, PTZ, retention management, and multi-layout operations remain roadmap items.
 
 ## Features
 
@@ -14,6 +14,9 @@ A production-oriented Video Management System (VMS) foundation built with modern
 - Latest-frame exchange between streaming and presentation code.
 - Cooperative cancellation and interruptible reconnect delay.
 - Stream connection state and basic stream statistics.
+- Keyframe-aware MP4 packet-remux recording.
+- Recording state, elapsed duration, and output-file presentation in QML.
+- Thread-safe recording commands consumed by the streaming loop.
 - Unit tests for camera validation and SQLite repository behavior.
 
 ## Design goals
@@ -24,7 +27,7 @@ A production-oriented Video Management System (VMS) foundation built with modern
 - Per-camera stream lifecycle with cooperative cancellation and reconnect policy.
 - Latest-frame delivery suitable for live monitoring.
 - Interfaces where replacement and testing are valuable.
-- A foundation that can grow toward recording, analytics, PTZ, and GPU-oriented rendering.
+- A foundation that can grow toward retention management, analytics, PTZ, and GPU-oriented rendering.
 
 ## Screenshots
 
@@ -64,7 +67,9 @@ flowchart TB
     subgraph Worker[Streaming thread per camera]
         SW[StreamingWorker]
         FF[FFmpegStreamingService]
+        RS[FFmpegRecordingService]
         SW --> FF
+        FF --> RS
     end
 
     SS -->|queued start| SW
@@ -76,6 +81,7 @@ flowchart TB
 
 See [Architecture Guide](docs/architecture-guide.md) for subsystem details.
 For throughput and scale considerations, see the [Performance Guide](docs/performance-guide.md).
+For recording ownership and lifecycle, see the [Recording Architecture Guide](docs/recording.md).
 
 ## Current runtime ownership
 
@@ -91,6 +97,7 @@ ApplicationBootstrap
 │       ├── QThread
 │       ├── StreamingWorker
 │       ├── FFmpegStreamingService
+│       │   └── FFmpegRecordingService
 │       ├── FrameExchange
 │       └── StreamStatistics
 └── LiveMonitoringViewModel
@@ -104,7 +111,7 @@ apps/desktop-client/     Qt/QML application, bootstrap, ViewModels, models, prov
 modules/camera/          Camera domain, validation, repositories, application service
 modules/common/          Shared types and connection state
 modules/database/        SQLite connection and schema setup
-modules/streaming/       Sessions, worker, reconnect, FFmpeg, frame exchange
+modules/streaming/       Sessions, worker, reconnect, FFmpeg, frame exchange, recording
 modules/video/           Video-domain interfaces and value types
 tests/                   GoogleTest test targets
 docs/                    Architecture and contributor documentation
@@ -157,10 +164,12 @@ Implemented today:
 - FFmpeg video decode and RGB image conversion;
 - live Qt Quick monitoring UI;
 - connection state, basic statistics, retry policy, and cooperative cancellation.
+- start/stop MP4 recording from live video packets;
+- keyframe-aware recording initialization and recording state/duration UI updates.
 
 ## Roadmap
 
-- Recording and retention management.
+- Recording retention, disk-space policy, segmentation, and export workflows.
 - Analytics/inference pipeline and overlays.
 - Hardware-accelerated decode and GPU-native presentation.
 - Camera groups, saved layouts, fullscreen monitoring, and multi-page navigation.
@@ -172,6 +181,9 @@ Implemented today:
 
 | Release | Milestone |
 | --- | --- |
+| `v1.8.2` | Thread-safe recording command handling |
+| `v1.8.1` | Deferred, keyframe-aware MP4 recording initialization |
+| `v1.8.0` | MP4 recording controls, state, duration, and output information |
 | `v1.7.1` | Streaming architecture refinements and frame-exchange encapsulation |
 | `v1.7.0` | Latest-frame rendering architecture |
 | `v1.6.0` | Live stream statistics |
@@ -194,3 +206,7 @@ No license file is currently included in this repository. Add an explicit open-s
 - [FFmpeg](https://ffmpeg.org/) for multimedia demuxing and decoding.
 - [SQLite](https://www.sqlite.org/) for embedded persistence.
 - [GoogleTest](https://github.com/google/googletest) for unit testing.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release-by-release history.

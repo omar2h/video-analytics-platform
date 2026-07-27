@@ -17,12 +17,14 @@ flowchart LR
         SW[StreamingWorker]
         FF[FFmpegStreamingService]
         CV[FFmpegFrameConverter]
+        RS[FFmpegRecordingService]
     end
     FE[FrameExchange]
 
     SS -->|queued start| SW
     SW --> FF
     FF --> CV
+    FF --> RS
     SW -->|publish| FE
     FE -->|snapshot| VM
     SW -->|Qt signals| SS
@@ -116,7 +118,22 @@ Signals carry state and notifications:
 
 The actual latest image is retrieved through `FrameExchange`, not owned by the notification signal itself.
 
+## Recording command synchronization
+
+Recording does not use a separate thread. `FFmpegRecordingService` is owned by `FFmpegStreamingService` and runs in the camera's existing streaming thread, where it can safely remux packets read from that stream.
+
+```text
+GUI thread                         Streaming thread
+----------                         ----------------
+StreamingSession::startRecording   FFmpegStreamingService::processPendingCommands
+  │                                   │
+  └─ enqueueStartRecording()           └─ takes pending command under same mutex
+       locks command mutex                └─ accesses FFmpegRecordingService
+       stores configuration                  and FFmpeg output context
+```
+
+`enqueueStartRecording()` and `enqueueStopRecording()` are intentionally thread-safe command-ingress methods. They only update mutex-protected pending-command fields. The streaming loop is the sole owner of recorder state, muxer state, and FFmpeg output resources.
+
 ## Recording thread
 
-No recording thread exists in the current implementation. Recording must introduce its own explicit resource ownership, queueing/loss policy, and shutdown coordination when added.
-
+No separate recording thread exists. Future storage retention or export work may use dedicated workers, while packet remuxing remains colocated with packet ingest.
