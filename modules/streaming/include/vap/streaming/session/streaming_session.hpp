@@ -34,8 +34,7 @@ public:
     void start(const Camera& camera);
     void stop();
 
-    void  startRecording(
-        const RecordingConfiguration& configuration);
+    void startRecording(const RecordingConfiguration& configuration);
 
     void stopRecording();
 
@@ -53,6 +52,7 @@ signals:
     void stateChanged(const ConnectionState&);
     void errorOccurred(const QString& error);
     void statisticsUpdated(const StreamStatistics& statistics);
+
     void recordingStateChanged(RecordingState state);
     void recordingDurationChanged(qint64 seconds);
 

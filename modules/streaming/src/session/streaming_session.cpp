@@ -83,14 +83,14 @@ void StreamingSession::stop()
     m_streamingWorker->requestCancellation();
 }
 
-void  StreamingSession::startRecording(const RecordingConfiguration &configuration)
+void StreamingSession::startRecording(const RecordingConfiguration &configuration)
 {
-    m_streamingService->requestStartRecording(configuration);
+    m_streamingService->enqueueStartRecording(configuration);
 }
 
 void StreamingSession::stopRecording()
 {
-    m_streamingService->requestStopRecording();
+    m_streamingService->enqueueStopRecording();
 }
 
 RecordingState StreamingSession::recordingState() const noexcept

@@ -102,26 +102,14 @@ RecordingState FFmpegStreamingService::recordingState() const noexcept
     return m_recordingService->state();
 }
 
-RecordingResult FFmpegStreamingService::requestStartRecording(const RecordingConfiguration& configuration)
+void FFmpegStreamingService::enqueueStartRecording(const RecordingConfiguration& configuration)
 {
     std::lock_guard lock(m_commandMutex);
-
-    if (m_pendingStartRecording)
-    {
-        return RecordingResult::AlreadyRecording;
-    }
-
-    if (m_recordingService->state() != RecordingState::Stopped)
-    {
-        return RecordingResult::AlreadyRecording;
-    }
-
-    m_pendingStartRecording = configuration;
-
-    return RecordingResult::Success;
+    if (!m_pendingStartRecording)
+        m_pendingStartRecording = std::move(configuration);
 }
 
-void FFmpegStreamingService::requestStopRecording()
+void FFmpegStreamingService::enqueueStopRecording()
 {
     std::lock_guard lock(m_commandMutex);
 

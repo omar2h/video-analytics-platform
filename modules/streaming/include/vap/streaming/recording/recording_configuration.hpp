@@ -13,3 +13,5 @@ struct RecordingConfiguration
 };
 
 }
+
+Q_DECLARE_METATYPE(vap::RecordingConfiguration)

@@ -30,10 +30,10 @@ public:
     [[nodiscard]]
     RecordingState recordingState() const noexcept override;
 
-    RecordingResult requestStartRecording(
-        const RecordingConfiguration& configuration);
+    void enqueueStartRecording(
+        const RecordingConfiguration& configuration) override;
 
-    void requestStopRecording();
+    void enqueueStopRecording();
 
     qint64 recordingDurationSeconds() const override;
 

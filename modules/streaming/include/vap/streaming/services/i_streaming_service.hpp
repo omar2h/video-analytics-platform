@@ -24,9 +24,9 @@ public:
 
     virtual StreamingExitReason stream(const QString& uri) = 0;
 
-    virtual RecordingResult requestStartRecording(const RecordingConfiguration& configuration) = 0;
+    virtual void enqueueStartRecording(const RecordingConfiguration& configuration) = 0;
 
-    virtual void requestStopRecording() = 0;
+    virtual void enqueueStopRecording() = 0;
 
     virtual qint64 recordingDurationSeconds() const = 0;
 
