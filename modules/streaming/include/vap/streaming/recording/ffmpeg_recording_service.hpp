@@ -4,6 +4,7 @@
 
 #include <vap/streaming/recording/recording_result.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
+#include <vap/streaming/recording/recording_configuration.hpp>
 
 extern "C"
 {
@@ -17,7 +18,6 @@ struct AVPacket;
 
 namespace vap
 {
-class RecordingConfiguration;
 class FFmpegRecordingService
 {
 public:
@@ -30,37 +30,40 @@ public:
     FFmpegRecordingService(FFmpegRecordingService&&) = delete;
     FFmpegRecordingService& operator=(FFmpegRecordingService&&) = delete;
 
-    RecordingResult startRecording(
+    RecordingResult requestRecording(
         const RecordingConfiguration& configuration,
         const AVFormatContext& inputContext,
         int videoStreamIndex);
 
     void stopRecording();
 
-    [[nodiscard]]
-    bool isRecording() const noexcept;
-
     qint64 recordingDurationSeconds() const;
 
     [[nodiscard]]
     RecordingState state() const noexcept;
 
-    bool writePacket(const AVPacket& packet);
+    void handleVideoPacket(const AVPacket& packet);
 
 private:
-    RecordingResult initializeOutput(
+    RecordingResult initializeRecording(
         const RecordingConfiguration& configuration,
         const AVStream& inputStream);
+    bool writePacket(const AVPacket &packet);
     void cleanupOutputContext() noexcept;
     void cleanup() noexcept;
 
 private:
     QElapsedTimer m_recordingTimer;
 
-    RecordingState m_state {RecordingState::Stopped};
+    RecordingState m_state{RecordingState::Stopped};
+
+    std::optional<RecordingConfiguration> m_pendingConfiguration;
+
+    const AVStream* m_inputStream = nullptr;
+
     AVFormatContext* m_outputContext = nullptr;
     AVStream* m_outputStream = nullptr;
-    AVRational m_inputTimeBase {};
+    AVRational m_inputTimeBase{};
 };
 
 }

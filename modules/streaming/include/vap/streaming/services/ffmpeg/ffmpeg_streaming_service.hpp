@@ -85,6 +85,7 @@ private:
 private:
     static int interruptCallback(void* opaque);
 
+private:
     AVFormatContext* m_formatContext = nullptr;
     AVCodecContext* m_codecContext = nullptr;
     AVPacket* m_packet = nullptr;
@@ -102,6 +103,7 @@ private:
     std::mutex m_commandMutex;
 
     std::optional<RecordingConfiguration> m_pendingStartRecording;
+    std::optional<RecordingConfiguration> m_recordingRequest;
     bool m_pendingStopRecording = false;
 
     qint64 m_lastPublishedDuration{};

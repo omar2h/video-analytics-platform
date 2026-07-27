@@ -32,12 +32,12 @@ FFmpegRecordingService::~FFmpegRecordingService() noexcept
     cleanup();
 }
 
-RecordingResult FFmpegRecordingService::startRecording(
+RecordingResult FFmpegRecordingService::requestRecording(
     const RecordingConfiguration& configuration,
     const AVFormatContext& inputContext,
     int videoStreamIndex)
 {
-    if (isRecording())
+    if (m_state != RecordingState::Stopped)
     {
         return RecordingResult::AlreadyRecording;
     }
@@ -47,30 +47,26 @@ RecordingResult FFmpegRecordingService::startRecording(
         return RecordingResult::InvalidConfiguration;
     }
 
-    const AVStream* inputStream = inputContext.streams[videoStreamIndex];
-
-    Q_ASSERT(inputStream);
+    // Save everything needed to start later.
+    m_pendingConfiguration = configuration;
+    m_inputStream = inputContext.streams[videoStreamIndex];
 
     qCInfo(ffmpegRecordingLog)
-        << "Starting recording to:"
-        << configuration.outputPath;
+        << "Recording requested. Waiting for first keyframe.";
 
-    RecordingResult result = initializeOutput(configuration, *inputStream);
-
-    if (result != RecordingResult::Success)
-    {
-        return result;
-    }
-
-    m_state = RecordingState::Recording;
-
-    m_recordingTimer.start();
+    m_state = RecordingState::Starting;
 
     return RecordingResult::Success;
 }
 
 void FFmpegRecordingService::stopRecording()
 {
+    if (m_state == RecordingState::Starting)
+    {
+        cleanup();
+        return;
+    }
+
     if (m_state != RecordingState::Recording)
     {
         return;
@@ -98,14 +94,9 @@ void FFmpegRecordingService::stopRecording()
     m_state = RecordingState::Stopped;
 }
 
-bool FFmpegRecordingService::isRecording() const noexcept
-{
-    return m_state == RecordingState::Recording;
-}
-
 qint64 FFmpegRecordingService::recordingDurationSeconds() const
 {
-    if (!isRecording())
+    if (m_state != RecordingState::Recording)
     {
         return 0;
     }
@@ -118,9 +109,75 @@ RecordingState FFmpegRecordingService::state() const noexcept
     return m_state;
 }
 
+void FFmpegRecordingService::handleVideoPacket(const AVPacket& packet)
+{
+    switch (m_state)
+    {
+    case RecordingState::Stopped:
+        return;
+
+    case RecordingState::Starting:
+    {
+        const bool isKeyFrame = (packet.flags & AV_PKT_FLAG_KEY) != 0;
+
+        if (!isKeyFrame)
+        {
+            return;
+        }
+
+        Q_ASSERT(m_pendingConfiguration.has_value());
+        Q_ASSERT(m_inputStream != nullptr);
+
+        const auto result =
+            initializeRecording(*m_pendingConfiguration, *m_inputStream);
+
+        if (result != RecordingResult::Success)
+        {
+            cleanup();
+            m_state = RecordingState::Error;
+            return;
+        }
+
+        m_recordingTimer.start();
+
+        m_pendingConfiguration.reset();
+
+        m_state = RecordingState::Recording;
+
+        if (!writePacket(packet))
+        {
+            cleanup();
+
+            m_state = RecordingState::Error;
+            return;
+        }
+
+        return;
+    }
+
+    case RecordingState::Recording:
+    {
+        if (!writePacket(packet))
+        {
+            cleanup();
+
+            m_state = RecordingState::Error;
+            return;
+        }
+        return;
+    }
+
+    case RecordingState::Stopping:
+        return;
+
+    case RecordingState::Error:
+        return;
+    }
+}
+
 bool FFmpegRecordingService::writePacket(const AVPacket &packet)
 {
-    if (!isRecording() ||
+    if (m_state != RecordingState::Recording ||
         !m_outputContext ||
         !m_outputStream)
     {
@@ -157,10 +214,9 @@ bool FFmpegRecordingService::writePacket(const AVPacket &packet)
     av_packet_unref(&outputPacket);
 
     return success;
-
 }
 
-RecordingResult FFmpegRecordingService::initializeOutput(const RecordingConfiguration &configuration, const AVStream &inputStream)
+RecordingResult FFmpegRecordingService::initializeRecording(const RecordingConfiguration &configuration, const AVStream &inputStream)
 {
     const QByteArray outputPath = configuration.outputPath.toUtf8();
 
@@ -239,7 +295,9 @@ RecordingResult FFmpegRecordingService::initializeOutput(const RecordingConfigur
         return RecordingResult::HeaderWriteFailed;
     }
     qCInfo(ffmpegRecordingLog)
-        << "Recording initialized successfully.";
+        << "Recording started:"
+        << configuration.outputPath;
+
     return RecordingResult::Success;
 }
 
@@ -265,6 +323,10 @@ void FFmpegRecordingService::cleanupOutputContext() noexcept
 void FFmpegRecordingService::cleanup() noexcept
 {
     cleanupOutputContext();
+    m_pendingConfiguration.reset();
+    m_inputStream = nullptr;
+    m_state = RecordingState::Stopped;
+    m_recordingTimer.invalidate();
 }
 
 }

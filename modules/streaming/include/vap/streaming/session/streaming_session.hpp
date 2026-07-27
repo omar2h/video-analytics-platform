@@ -69,7 +69,7 @@ private:
 
     FrameExchange m_frameExchange;
     ConnectionState m_state{ConnectionState::Disconnected};
-    RecordingState m_recordingState;
+    RecordingState m_recordingState{RecordingState::Stopped};
 
     StreamStatistics m_statistics;
 };

@@ -111,7 +111,7 @@ RecordingResult FFmpegStreamingService::requestStartRecording(const RecordingCon
         return RecordingResult::AlreadyRecording;
     }
 
-    if (m_recordingService->isRecording())
+    if (m_recordingService->state() != RecordingState::Stopped)
     {
         return RecordingResult::AlreadyRecording;
     }
@@ -135,7 +135,7 @@ qint64 FFmpegStreamingService::recordingDurationSeconds() const
 
 void FFmpegStreamingService::publishRecordingDurationIfNeeded()
 {
-    if (!m_recordingService->isRecording())
+    if (m_recordingService->state() != RecordingState::Recording)
         return;
 
     const auto seconds = m_recordingService->recordingDurationSeconds();
@@ -478,13 +478,15 @@ bool FFmpegStreamingService::readNextPacket()
 
         ++m_statistics.packetsReceived;
 
-        if (m_recordingService->isRecording())
+        const auto previousState =
+            m_recordingService->state();
+
+        m_recordingService->handleVideoPacket(*m_packet);
+
+        if (previousState != m_recordingService->state())
         {
-            if (!m_recordingService->writePacket(*m_packet))
-            {
-                qCWarning(ffmpegStreamingLog)
-                    << "Failed to record packet.";
-            }
+            emit recordingStateChanged(
+                m_recordingService->state());
         }
 
         if (sendPacketToDecoder())
@@ -641,7 +643,7 @@ void FFmpegStreamingService::cleanup()
 {
     qCInfo(ffmpegStreamingLog)
         << "Cleanup started.";
-    if (m_recordingService->isRecording())
+    if (m_recordingService->state() != RecordingState::Stopped)
     {
         m_recordingService->stopRecording();
     }
@@ -683,21 +685,17 @@ void FFmpegStreamingService::processPendingCommands()
 
     if (startRecording)
     {
-        const RecordingResult result =
-            m_recordingService->startRecording(
+        const auto result =
+            m_recordingService->requestRecording(
                 *startRecording,
                 *m_formatContext,
                 m_videoStreamIndex);
 
-        if (result != RecordingResult::Success)
+        if (result == RecordingResult::Success)
         {
-            qCWarning(ffmpegStreamingLog)
-                << "Failed to start recording:"
-                << static_cast<int>(result);
+            emit recordingStateChanged(
+                m_recordingService->state());
         }
-
-        emit recordingStateChanged(
-            m_recordingService->state());
     }
 
     if (stopRecording)
