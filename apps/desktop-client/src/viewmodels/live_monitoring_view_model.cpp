@@ -43,6 +43,28 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
 
     auto* streamViewModel = viewModel.get();
 
+    connect(
+        streamViewModel,
+        &CameraStreamViewModel::sessionUnavailable,
+        this,
+        [this, cameraId, streamViewModel]
+        {
+            auto it = m_streamViewModels.find(cameraId);
+
+            if (it == m_streamViewModels.end() ||
+                it->second.get() != streamViewModel)
+            {
+                return;
+            }
+
+            m_videoFrameProvider->clearImage(cameraId);
+
+            auto* retiredViewModel = it->second.release();
+            m_streamViewModels.erase(it);
+
+            retiredViewModel->deleteLater();
+        });
+
     connect(streamViewModel,
             &CameraStreamViewModel::currentFrameChanged,
             this,

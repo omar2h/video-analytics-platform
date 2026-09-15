@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QImage>
+#include <QPointer>
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
@@ -87,6 +88,7 @@ signals:
     void recordingActionEnabledChanged();
     void recordingChanged();
     void recordingDurationChanged();
+    void sessionUnavailable();
 
 private slots:
     void onFrameUpdated();
@@ -94,10 +96,10 @@ private slots:
     void onStatisticsUpdated();
     void onRecordingStateChanged(RecordingState state);
     void onRecordingDurationChanged(qint64 seconds);
+    void onSessionDestroyed();
 
 private:
-    // non-owning
-    StreamingSession* m_streamingSession;
+    QPointer<StreamingSession> m_streamingSession;
     ConnectionState m_state{ConnectionState::Disconnected};
     QImage m_currentFrame;
     quint64 m_frameRevision = 0;

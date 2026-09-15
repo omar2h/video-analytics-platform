@@ -14,34 +14,39 @@ CameraStreamViewModel::CameraStreamViewModel(const QString& cameraId, StreamingS
     m_streamingSession(session)
 {
     Q_ASSERT(m_streamingSession);
-    connect(m_streamingSession,
+    connect(session,
             &StreamingSession::stateChanged,
             this,
             &CameraStreamViewModel::onStateChanged);
 
     connect(
-        m_streamingSession,
+        session,
         &StreamingSession::frameUpdated,
         this,
         &CameraStreamViewModel::onFrameUpdated);
 
     connect(
-        m_streamingSession,
+        session,
         &StreamingSession::statisticsUpdated,
         this,
         &CameraStreamViewModel::onStatisticsUpdated);
 
     connect(
-        m_streamingSession,
+        session,
         &StreamingSession::recordingStateChanged,
         this,
         &CameraStreamViewModel::onRecordingStateChanged);
 
     connect(
-        m_streamingSession,
+        session,
         &StreamingSession::recordingDurationChanged,
         this,
         &CameraStreamViewModel::onRecordingDurationChanged);
+    connect(
+        session,
+        &QObject::destroyed,
+        this,
+        &CameraStreamViewModel::onSessionDestroyed);
 }
 
 int CameraStreamViewModel::state() const
@@ -78,11 +83,16 @@ bool CameraStreamViewModel::hasVideo() const
 
 QString CameraStreamViewModel::codec() const
 {
-    return m_streamingSession->statistics().codec;
+    return m_streamingSession
+               ? m_streamingSession->statistics().codec
+               : QString{};
 }
 
 QString CameraStreamViewModel::resolution() const
 {
+    if (!m_streamingSession)
+        return {};
+
     const auto& stats = m_streamingSession->statistics();
 
     return QString("%1 × %2")
@@ -92,12 +102,16 @@ QString CameraStreamViewModel::resolution() const
 
 quint64 CameraStreamViewModel::framesDecoded() const
 {
-    return m_streamingSession->statistics().framesDecoded;
+    return m_streamingSession
+               ? m_streamingSession->statistics().framesDecoded
+               : 0;
 }
 
 quint64 CameraStreamViewModel::packetsReceived() const
 {
-    return m_streamingSession->statistics().packetsReceived;
+    return m_streamingSession
+               ? m_streamingSession->statistics().packetsReceived
+               : 0;
 }
 
 bool CameraStreamViewModel::recording() const
@@ -124,7 +138,8 @@ QString CameraStreamViewModel::recordingStateText() const
 
 bool CameraStreamViewModel::recordingActionEnabled() const
 {
-    return m_state == ConnectionState::Connected;
+    return m_streamingSession
+           && m_state == ConnectionState::Connected;
 }
 
 QString CameraStreamViewModel::recordingDurationText() const
@@ -147,11 +162,12 @@ QString CameraStreamViewModel::recordingFileName() const
 
 void CameraStreamViewModel::startRecording()
 {
+    if (!m_streamingSession)
+        return;
     RecordingConfiguration config;
 
     // temporary filename
-    QDir videosDir(
-        QStandardPaths::writableLocation(QStandardPaths::MoviesLocation));
+    QDir videosDir(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation));
 
     videosDir.mkpath("VAP");
     config.outputPath =
@@ -167,21 +183,30 @@ void CameraStreamViewModel::startRecording()
 
 void CameraStreamViewModel::stopRecording()
 {
+    if (!m_streamingSession)
+        return;
+
     m_streamingSession->stopRecording();
 }
 
 double CameraStreamViewModel::fps() const
 {
-    return m_streamingSession->statistics().fps;
+    return m_streamingSession
+               ? m_streamingSession->statistics().fps
+               : 0.0;
 }
 
 double CameraStreamViewModel::bitrateMbps() const
 {
-    return m_streamingSession->statistics().bitrateMbps;
+    return m_streamingSession
+               ? m_streamingSession->statistics().bitrateMbps
+               : 0.0;
 }
 
 void CameraStreamViewModel::onFrameUpdated()
 {
+    if (!m_streamingSession)
+        return;
     auto snapshot = m_streamingSession->currentFrame();
 
     if (!snapshot.valid)
@@ -250,6 +275,32 @@ void CameraStreamViewModel::onRecordingDurationChanged(qint64 seconds)
     m_recordingDuration = seconds;
 
     emit recordingDurationChanged();
+}
+
+void CameraStreamViewModel::onSessionDestroyed()
+{
+    m_streamingSession.clear();
+
+    m_state = ConnectionState::Disconnected;
+    m_currentFrame = {};
+    m_frameRevision = 0;
+    m_hasVideo = false;
+
+    m_recordingState = RecordingState::Stopped;
+    m_recordingDuration = 0;
+    m_recordingFileName.clear();
+
+    emit stateChanged();
+    emit currentFrameChanged();
+    emit frameRevisionChanged();
+    emit hasVideoChanged();
+    emit statisticsChanged();
+    emit recordingChanged();
+    emit recordingActionEnabledChanged();
+    emit recordingDurationChanged();
+
+    // Keep this last: the owner will arrange our removal.
+    emit sessionUnavailable();
 }
 
 }
