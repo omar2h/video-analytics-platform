@@ -129,3 +129,35 @@ TEST(AnalyticsSessionTest, ReturnsResultForSubmittedFrame)
     session.disable();
     EXPECT_FALSE(session.isEnabled());
 }
+
+TEST(AnalyticsSessionTest, RejectsFramesFromPreviousActivation)
+{
+    int argc = 1;
+    char applicationName[] = "analytics_session_test";
+    char* argv[] = {applicationName, nullptr};
+    QCoreApplication app(argc, argv);
+
+    vap::AnalyticsSession session(
+        []
+        {
+            return std::make_unique<FakeDetector>();
+        });
+
+    const auto oldGeneration = session.enable(7);
+
+    session.disable();
+
+    const auto newGeneration = session.enable(7);
+
+    ASSERT_NE(oldGeneration, newGeneration);
+
+    vap::AnalyticsFrame oldFrame;
+    oldFrame.identity = {7, oldGeneration, 42};
+    oldFrame.decodeTime = std::chrono::steady_clock::now();
+    oldFrame.image = QImage(16, 16, QImage::Format_RGB888);
+    oldFrame.image.fill(Qt::red);
+
+    EXPECT_FALSE(session.submitFrame(std::move(oldFrame)));
+
+    session.disable();
+}
