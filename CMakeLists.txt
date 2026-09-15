@@ -8,6 +8,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(VAP_BUILD_ANALYTICS
+    "Build the analytics module"
+    OFF
+)
+
 include(CTest)
 enable_testing()
 
@@ -35,5 +40,17 @@ add_subdirectory(modules/camera)
 add_subdirectory(modules/streaming)
 add_subdirectory(modules/database)
 add_subdirectory(apps/desktop-client)
+
+
+if(VAP_BUILD_ANALYTICS)
+    find_package(OpenCV 4 REQUIRED COMPONENTS
+        core
+        imgproc
+        imgcodecs
+    )
+
+    add_subdirectory(modules/analytics)
+    add_subdirectory(apps/analytics-demo)
+endif()
 add_subdirectory(tests)
 
