@@ -14,47 +14,65 @@ namespace vap
 StreamingSession::StreamingSession(QObject* parent)
 : QObject(parent)
 {
-    m_streamingService = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
-    m_streamingWorker = std::make_unique<StreamingWorker>(m_streamingService.get(), m_frameExchange);
     m_streamingThread = std::make_unique<QThread>();
 
-    connect(m_streamingWorker.get(),
+    auto service = std::make_unique<FFmpegStreamingService>(std::make_unique<FFmpegFrameConverter>());
+
+    auto worker = std::make_unique<StreamingWorker>(service.get(), m_frameExchange);
+
+    m_streamingService = service.get();
+    m_streamingWorker = worker.get();
+
+    connect(m_streamingWorker,
             &StreamingWorker::frameUpdated,
             this,
             &StreamingSession::frameUpdated);
 
     connect(
-        m_streamingWorker.get(),
+        m_streamingWorker,
         &StreamingWorker::stateChanged,
         this,
         &StreamingSession::onStateChanged);
 
     connect(
-        m_streamingWorker.get(),
+        m_streamingWorker,
         &StreamingWorker::errorOccurred,
         this,
         &StreamingSession::errorOccurred);
 
     connect(
-        m_streamingService.get(),
+        m_streamingService,
         &IStreamingService::statisticsUpdated,
         this,
         &StreamingSession::onStatisticsUpdated);
 
     connect(
-        m_streamingWorker.get(),
+        m_streamingWorker,
         &StreamingWorker::recordingStateChanged,
         this,
         &StreamingSession::onRecordingStateChanged);
 
     connect(
-        m_streamingService.get(),
+        m_streamingService,
         &IStreamingService::recordingDurationChanged,
         this,
         &StreamingSession::recordingDurationChanged);
 
-    m_streamingService->moveToThread(m_streamingThread.get());
-    m_streamingWorker->moveToThread(m_streamingThread.get());
+    connect(
+        m_streamingThread.get(),
+        &QThread::finished,
+        m_streamingWorker,
+        &QObject::deleteLater);
+
+    // Transfer service ownership to the worker.
+    service->setParent(worker.get());
+    service.release();
+
+    // Moving the worker also moves its child service.
+    worker->moveToThread(m_streamingThread.get());
+
+    // Thread-finish cleanup now controls the worker's deletion.
+    worker.release();
 
     m_streamingThread->start();
 }
@@ -79,7 +97,7 @@ void StreamingSession::start(const Camera& camera)
 
     m_camera = camera;
 
-    auto* worker = m_streamingWorker.get();
+    auto* worker = m_streamingWorker;
     const auto token = m_stopSource.get_token();
 
     QMetaObject::invokeMethod(

@@ -66,8 +66,10 @@ private:
     std::stop_source m_stopSource;
 
     std::unique_ptr<QThread> m_streamingThread;
-    std::unique_ptr<IStreamingService> m_streamingService;
-    std::unique_ptr<StreamingWorker> m_streamingWorker;
+    // Borrowed pointers. The worker owns the service as a QObject child.
+    // The worker is deleted when the streaming thread finishes.
+    IStreamingService* m_streamingService{nullptr};
+    StreamingWorker* m_streamingWorker{nullptr};
     Camera m_camera;
 
     FrameExchange m_frameExchange;
