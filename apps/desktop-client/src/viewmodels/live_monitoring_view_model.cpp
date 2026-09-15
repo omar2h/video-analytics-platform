@@ -6,6 +6,8 @@
 #include <vap/streaming/session/streaming_session.hpp>
 #include <src/providers/video_frame_provider.hpp>
 
+#include <QQmlEngine>
+
 namespace vap
 {
 
@@ -34,6 +36,10 @@ CameraStreamViewModel* LiveMonitoringViewModel::streamViewModel(
     }
 
     auto viewModel = std::make_unique<CameraStreamViewModel>(cameraId, session);
+
+    QQmlEngine::setObjectOwnership(
+        viewModel.get(),
+        QQmlEngine::CppOwnership);
 
     auto* streamViewModel = viewModel.get();
 
