@@ -4,7 +4,7 @@
 #include <vap/streaming/domain/stream_statistics.hpp>
 #include <vap/streaming/recording/recording_configuration.hpp>
 
-#include <atomic>
+#include <stop_token>
 #include <QElapsedTimer>
 #include <optional>
 
@@ -25,7 +25,7 @@ public:
                                     QObject* parent = nullptr);
     ~FFmpegStreamingService() override;
 
-    StreamingExitReason stream(const QString& uri) override;
+    StreamingExitReason stream(const QString& uri, std::stop_token stopToken) override;
 
     [[nodiscard]]
     RecordingState recordingState() const noexcept override;
@@ -38,8 +38,6 @@ public:
     qint64 recordingDurationSeconds() const override;
 
     void publishRecordingDurationIfNeeded();
-
-    void requestCancellation() override;
 
 private:
     bool openInput(const QString& url);
@@ -98,7 +96,7 @@ private:
     std::unique_ptr<IFrameConverter> m_frameConverter;
     std::unique_ptr<FFmpegRecordingService> m_recordingService;
 
-    std::atomic_bool m_stopRequested{false};
+    std::stop_token m_stopToken;
 
     std::mutex m_commandMutex;
 

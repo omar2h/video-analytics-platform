@@ -54,9 +54,14 @@ FFmpegStreamingService::~FFmpegStreamingService()
     avformat_network_deinit();
 }
 
-StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
+StreamingExitReason FFmpegStreamingService::stream(const QString& uri, std::stop_token stopToken)
 {
-    m_stopRequested.store(false);
+    m_stopToken = stopToken;
+
+    if (m_stopToken.stop_requested())
+    {
+        return StreamingExitReason::Cancelled;
+    }
     m_statistics = {};
     m_statisticsTimer.restart();
 
@@ -66,7 +71,15 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
     if (!initializeEverything(uri))
     {
         cleanup();
-        return StreamingExitReason::InitializationFailure;
+        return m_stopToken.stop_requested()
+                   ? StreamingExitReason::Cancelled
+                   : StreamingExitReason::InitializationFailure;
+    }
+
+    if (m_stopToken.stop_requested())
+    {
+        cleanup();
+        return StreamingExitReason::Cancelled;
     }
 
     qCInfo(ffmpegStreamingLog)
@@ -74,7 +87,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
 
     emit connected();
 
-    while (!m_stopRequested.load())
+    while (!m_stopToken.stop_requested())
     {
         processPendingCommands();
         if (!readNextPacket())
@@ -90,7 +103,7 @@ StreamingExitReason FFmpegStreamingService::stream(const QString& uri)
 
     cleanup();
 
-    if (m_stopRequested.load())
+    if (m_stopToken.stop_requested())
     {
         return StreamingExitReason::Cancelled;
     }
@@ -135,9 +148,11 @@ void FFmpegStreamingService::publishRecordingDurationIfNeeded()
     }
 }
 
-void FFmpegStreamingService::requestCancellation()
+int FFmpegStreamingService::interruptCallback(void* opaque)
 {
-    m_stopRequested.store(true);
+    const auto* service = static_cast<FFmpegStreamingService*>(opaque);
+
+    return service->m_stopToken.stop_requested() ? 1 : 0;
 }
 
 bool FFmpegStreamingService::openInput(const QString &url)
@@ -693,14 +708,6 @@ void FFmpegStreamingService::processPendingCommands()
         emit recordingStateChanged(
             m_recordingService->state());
     }
-}
-
-int FFmpegStreamingService::interruptCallback(void* opaque)
-{
-    auto* service =
-        static_cast<FFmpegStreamingService*>(opaque);
-
-    return service->m_stopRequested.load() ? 1 : 0;
 }
 
 }

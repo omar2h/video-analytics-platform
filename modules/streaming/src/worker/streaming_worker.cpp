@@ -41,14 +41,24 @@ StreamingWorker::StreamingWorker(
         &StreamingWorker::recordingStateChanged);
 }
 
-void StreamingWorker::start(const QString& uri)
+void StreamingWorker::start(const QString& uri, std::stop_token stopToken)
 {
-    m_cancelRequested.store(false);
+    if (stopToken.stop_requested())
+    {
+        emit stateChanged(ConnectionState::Disconnected);
+        return;
+    }
+
     m_reconnectPolicy.reset();
     emit stateChanged(ConnectionState::Connecting);
-    while (!m_cancelRequested.load())
+
+    while (!stopToken.stop_requested())
     {
-        const auto reason = m_streamingService->stream(uri);
+        const auto reason =
+            m_streamingService->stream(uri, stopToken);
+
+        if (stopToken.stop_requested())
+            break;
 
         if (!handleExitReason(reason))
             break;
@@ -59,14 +69,13 @@ void StreamingWorker::start(const QString& uri)
             break;
         }
 
-        if (!waitForRetryDelay())
-        {
+        if (!waitForRetryDelay(stopToken))
             break;
-        }
 
         m_reconnectPolicy.recordRetry();
     }
-    if (m_cancelRequested.load())
+
+    if (stopToken.stop_requested())
     {
         emit stateChanged(ConnectionState::Disconnected);
     }
@@ -98,31 +107,18 @@ bool StreamingWorker::handleExitReason(StreamingExitReason reason)
     return false;
 }
 
-bool StreamingWorker::waitForRetryDelay()
+bool StreamingWorker::waitForRetryDelay(
+    std::stop_token stopToken)
 {
-    QMutexLocker locker(&m_waitMutex);
+    std::unique_lock<std::mutex> lock(m_waitMutex);
 
-    if (m_cancelRequested.load())
-    {
-        return false;
-    }
+    m_waitCondition.wait_for(
+        lock,
+        stopToken,
+        m_reconnectPolicy.retryDelay(),
+        [] { return false; });
 
-    const auto timeout =
-        static_cast<unsigned long>(
-            m_reconnectPolicy.retryDelay().count());
-
-    m_waitCondition.wait(&m_waitMutex, timeout);
-
-    return !m_cancelRequested.load();
-}
-
-void StreamingWorker::requestCancellation()
-{
-    m_cancelRequested.store(true);
-
-    m_waitCondition.wakeAll();
-
-    m_streamingService->requestCancellation();
+    return !stopToken.stop_requested();
 }
 
 }

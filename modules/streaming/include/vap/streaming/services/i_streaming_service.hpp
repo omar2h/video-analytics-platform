@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <stop_token>
 
 #include <vap/streaming/streaming_exit_reason.hpp>
 #include <vap/streaming/recording/recording_result.hpp>
@@ -22,7 +23,7 @@ public:
 
     virtual ~IStreamingService() = default;
 
-    virtual StreamingExitReason stream(const QString& uri) = 0;
+    virtual StreamingExitReason stream(const QString& uri, std::stop_token stopToken) = 0;
 
     virtual void enqueueStartRecording(const RecordingConfiguration& configuration) = 0;
 
@@ -32,15 +33,6 @@ public:
 
     [[nodiscard]]
     virtual RecordingState recordingState() const noexcept = 0;
-
-    /// Requests cooperative cancellation of the active streaming session.
-    ///
-    /// Thread-safe.
-    /// May be called from any thread.
-    ///
-    /// The streaming thread will observe the cancellation request
-    /// through the FFmpeg interrupt callback.
-    virtual void requestCancellation() = 0;
 
 signals:
     void connected();

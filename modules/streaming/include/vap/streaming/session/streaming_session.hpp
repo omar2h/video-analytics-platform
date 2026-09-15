@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <memory>
+#include <stop_token>
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
@@ -62,6 +63,8 @@ private slots:
     void onRecordingStateChanged(RecordingState state);
 
 private:
+    std::stop_source m_stopSource;
+
     std::unique_ptr<QThread> m_streamingThread;
     std::unique_ptr<IStreamingService> m_streamingService;
     std::unique_ptr<StreamingWorker> m_streamingWorker;

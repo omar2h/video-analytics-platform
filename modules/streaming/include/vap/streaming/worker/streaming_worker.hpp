@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QObject>
-#include <atomic>
-#include <QMutex>
-#include <QWaitCondition>
+#include <condition_variable>
+#include <mutex>
+#include <stop_token>
 
 #include <vap/streaming/streaming_exit_reason.hpp>
 #include <vap/streaming/reconnect/reconnect_policy.hpp>
@@ -26,10 +26,7 @@ public:
         FrameExchange& frameExchange,
         QObject* parent = nullptr);
 
-    void requestCancellation();
-
-public slots:
-    void start(const QString& uri);
+    void start(const QString& uri, std::stop_token stopToken);
 
 signals:
     void frameUpdated();
@@ -40,17 +37,15 @@ signals:
 
 private:
     bool handleExitReason(StreamingExitReason reason);
-    bool waitForRetryDelay();
+    bool waitForRetryDelay(std::stop_token stopToken);
 
 private:
     IStreamingService* m_streamingService;
     FrameExchange& m_frameExchange;
     ReconnectPolicy m_reconnectPolicy;
 
-    std::atomic_bool m_cancelRequested{false};
-
-    QMutex m_waitMutex;
-    QWaitCondition m_waitCondition;
+    std::mutex m_waitMutex;
+    std::condition_variable_any m_waitCondition;
 };
 
 }

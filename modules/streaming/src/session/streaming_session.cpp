@@ -61,7 +61,7 @@ StreamingSession::StreamingSession(QObject* parent)
 
 StreamingSession::~StreamingSession()
 {
-    m_streamingWorker->requestCancellation();
+    m_stopSource.request_stop();
 
     m_streamingThread->quit();
     m_streamingThread->wait();
@@ -69,18 +69,33 @@ StreamingSession::~StreamingSession()
 
 void StreamingSession::start(const Camera& camera)
 {
+    Q_ASSERT(QThread::currentThread() == thread());
+
+    // Cancel the previous active or queued run.
+    m_stopSource.request_stop();
+
+    // Give the new run an independent cancellation state.
+    m_stopSource = std::stop_source{};
+
     m_camera = camera;
 
+    auto* worker = m_streamingWorker.get();
+    const auto token = m_stopSource.get_token();
+
     QMetaObject::invokeMethod(
-        m_streamingWorker.get(),
-        "start",
-        Qt::QueuedConnection,
-        Q_ARG(QString, camera.config.url));
+        worker,
+        [worker, uri = camera.config.url, token]
+        {
+            worker->start(uri, token);
+        },
+        Qt::QueuedConnection);
 }
 
 void StreamingSession::stop()
 {
-    m_streamingWorker->requestCancellation();
+    Q_ASSERT(QThread::currentThread() == thread());
+
+    m_stopSource.request_stop();
 }
 
 void StreamingSession::startRecording(const RecordingConfiguration &configuration)

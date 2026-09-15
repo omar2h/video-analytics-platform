@@ -9,13 +9,12 @@ MockStreamingService::MockStreamingService(QObject* parent) : IStreamingService(
 {
 }
 
-StreamingExitReason MockStreamingService::stream(const QString& uri)
+StreamingExitReason MockStreamingService::stream(const QString&, std::stop_token stopToken)
 {
-    return StreamingExitReason::StreamEnded;
+    return stopToken.stop_requested()
+               ? StreamingExitReason::Cancelled
+               : StreamingExitReason::StreamEnded;
 }
 
-void MockStreamingService::requestCancellation()
-{
-}
 
 }
