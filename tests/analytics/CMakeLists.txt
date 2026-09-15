@@ -28,3 +28,24 @@ set_target_properties(analytics_postprocessing_test PROPERTIES
 include(GoogleTest)
 
 gtest_discover_tests(analytics_postprocessing_test)
+
+add_executable(analytics_session_test
+    analytics_session_test.cpp
+)
+
+target_link_libraries(analytics_session_test
+    PRIVATE
+        GTest::gtest_main
+        analytics_qt
+)
+
+set_target_properties(analytics_session_test PROPERTIES
+    AUTOMOC OFF
+    AUTOUIC OFF
+    AUTORCC OFF
+    CXX_EXTENSIONS OFF
+)
+
+gtest_discover_tests(analytics_session_test
+    PROPERTIES TIMEOUT 15
+)
