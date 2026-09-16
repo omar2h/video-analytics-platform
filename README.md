@@ -40,7 +40,7 @@ A C++20/Qt desktop application for multi-camera RTSP monitoring and MP4 recordin
 
 | Camera management | Live monitoring |
 | --- | --- |
-| `docs/images/camera-management.png` | `docs/images/live-monitoring.png` |
+| ![Camera management](docs/images/camera-management.png) | ![Live monitoring](docs/images/live-monitoring.png) |
 
 ## Technology stack
 
