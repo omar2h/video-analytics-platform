@@ -52,6 +52,7 @@ if(VAP_BUILD_ANALYTICS)
     add_subdirectory(modules/analytics)
     add_subdirectory(modules/analytics-qt)
     add_subdirectory(apps/analytics-demo)
+    add_subdirectory(apps/analytics-live-demo)
 endif()
 add_subdirectory(tests)
 
