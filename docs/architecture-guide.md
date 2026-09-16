@@ -218,8 +218,10 @@ sequenceDiagram
     end
 ```
 
-## Out of scope today
+## Current scope and future work
 
-The active implementation includes basic single-video-stream MP4 recording. It does not yet include retention policy, segmentation, audio recording, export workflows, analytics inference, PTZ, camera groups, authentication, or hardware-specific decoder selection. These belong to future application/infrastructure modules rather than the QML layer.
+The active implementation includes MP4 packet-remux recording and initial single-camera analytics with live overlays. See [Live Analytics](live-analytics.md) for its threading, buffering, and limitations.
+
+Retention policy, recording segmentation, audio recording, export workflows, multi-camera analytics scheduling, PTZ, camera groups, authentication, and hardware-specific decoder selection remain future work.
 
 Future high-density presentation can introduce a visibility-aware presentation scheduler and GPU-oriented renderer while retaining the current camera, session, and use-case boundaries. See the [Performance Guide](performance-guide.md).

@@ -2,6 +2,24 @@
 
 All notable project changes are documented here. Entries correspond to repository tags.
 
+## [1.10.0] — Initial live analytics overlays
+
+- Add an asynchronous analytics session with latest-frame and latest-result mailboxes.
+- Integrate YOLOX detection into the first configured desktop camera.
+- Add QML detection overlays with coordinate scaling and stale-result expiration.
+- Attach stream-run identifiers to decoded frames.
+- Preserve cancellation across queued starts and reconnection attempts.
+- Correct streaming-worker destruction and QML ownership.
+- Safely retire camera view models when sessions are removed.
+- Add analytics and session-removal regression tests.
+
+## [1.9.0] — Standalone object detection
+
+- Add detection value types and the detector interface.
+- Implement YOLOX-Nano inference through ONNX Runtime.
+- Add image preprocessing, prediction decoding, and class-aware NMS.
+- Add a command-line image detection demo.
+
 ## [1.8.2] — Thread-safe recording command handling
 
 - Add mutex-protected start/stop recording command ingress.
