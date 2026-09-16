@@ -5,12 +5,17 @@
 namespace vap
 {
 
-void FrameExchange::publish(QImage frame, std::chrono::steady_clock::time_point decodeTime)
+void FrameExchange::publish(
+    QImage frame,
+    std::chrono::steady_clock::time_point decodeTime,
+    std::uint64_t streamRunId)
 {
     std::lock_guard<QMutex> lock(m_mutex);
+
     m_snapshot.image = std::move(frame);
     ++m_snapshot.revision;
     m_snapshot.decodeTime = decodeTime;
+    m_snapshot.streamRunId = streamRunId;
     m_snapshot.valid = true;
 }
 

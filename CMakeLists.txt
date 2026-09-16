@@ -53,6 +53,12 @@ if(VAP_BUILD_ANALYTICS)
     add_subdirectory(modules/analytics-qt)
     add_subdirectory(apps/analytics-demo)
     add_subdirectory(apps/analytics-live-demo)
+
+    target_link_libraries(desktop_client PRIVATE analytics_qt)
+
+    target_compile_definitions(desktop_client
+        PRIVATE VAP_HAS_ANALYTICS=1
+    )
 endif()
 add_subdirectory(tests)
 

@@ -2,6 +2,9 @@
 
 #include <QThread>
 
+#include <limits>
+#include <stdexcept>
+
 #include <vap/streaming/worker/streaming_worker.hpp>
 #include <vap/streaming/services/ffmpeg/ffmpeg_streaming_service.hpp>
 #include <vap/streaming/frame/ffmpeg_frame_converter.hpp>
@@ -89,22 +92,26 @@ void StreamingSession::start(const Camera& camera)
 {
     Q_ASSERT(QThread::currentThread() == thread());
 
-    // Cancel the previous active or queued run.
-    m_stopSource.request_stop();
+    if (m_streamRunId ==
+        std::numeric_limits<std::uint64_t>::max())
+    {
+        throw std::overflow_error("Stream run counter exhausted.");
+    }
 
-    // Give the new run an independent cancellation state.
+    m_stopSource.request_stop();
     m_stopSource = std::stop_source{};
 
     m_camera = camera;
+    const auto runId = ++m_streamRunId;
 
     auto* worker = m_streamingWorker;
     const auto token = m_stopSource.get_token();
 
     QMetaObject::invokeMethod(
         worker,
-        [worker, uri = camera.config.url, token]
+        [worker, uri = camera.config.url, token, runId]
         {
-            worker->start(uri, token);
+            worker->start(uri, token, runId);
         },
         Qt::QueuedConnection);
 }
@@ -148,7 +155,21 @@ QString StreamingSession::cameraName() const
 
 FrameSnapshot StreamingSession::currentFrame() const
 {
-    return m_frameExchange.snapshot();
+    const auto runId = streamRunId();
+    auto snapshot = m_frameExchange.snapshot();
+
+    if (runId == 0 || snapshot.streamRunId != runId)
+        return {};
+
+    return snapshot;
+}
+
+std::uint64_t StreamingSession::streamRunId() const
+{
+    Q_ASSERT(QThread::currentThread() == thread());
+
+    // Zero means no active requested run.
+    return m_stopSource.stop_requested() ? 0 : m_streamRunId;
 }
 
 void StreamingSession::onStateChanged(const ConnectionState &state)

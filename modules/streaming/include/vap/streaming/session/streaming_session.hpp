@@ -3,6 +3,7 @@
 #include <QObject>
 #include <memory>
 #include <stop_token>
+#include <cstdint>
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/domain/stream_statistics.hpp>
@@ -48,6 +49,9 @@ public:
     QString cameraName() const;
     FrameSnapshot currentFrame() const;
 
+    [[nodiscard]]
+    std::uint64_t streamRunId() const;
+
 signals:
     void frameUpdated();
     void stateChanged(const ConnectionState&);
@@ -77,6 +81,8 @@ private:
     RecordingState m_recordingState{RecordingState::Stopped};
 
     StreamStatistics m_statistics;
+
+    std::uint64_t m_streamRunId{};
 };
 
 }

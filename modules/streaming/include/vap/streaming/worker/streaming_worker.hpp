@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <stop_token>
+#include <cstdint>
 
 #include <vap/streaming/streaming_exit_reason.hpp>
 #include <vap/streaming/reconnect/reconnect_policy.hpp>
@@ -26,7 +27,10 @@ public:
         FrameExchange& frameExchange,
         QObject* parent = nullptr);
 
-    void start(const QString& uri, std::stop_token stopToken);
+    void start(
+        const QString& uri,
+        std::stop_token stopToken,
+        std::uint64_t streamRunId);
 
 signals:
     void frameUpdated();
@@ -46,6 +50,8 @@ private:
 
     std::mutex m_waitMutex;
     std::condition_variable_any m_waitCondition;
+
+    std::uint64_t m_streamRunId{};
 };
 
 }

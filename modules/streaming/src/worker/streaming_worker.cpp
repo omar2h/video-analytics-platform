@@ -30,7 +30,10 @@ StreamingWorker::StreamingWorker(
             &IStreamingService::frameReady,
             this,
             [this](const QImage& frame){
-                m_frameExchange.publish(frame);
+                m_frameExchange.publish(
+                    frame,
+                    std::chrono::steady_clock::now(),
+                    m_streamRunId);
                 emit frameUpdated();
             });
 
@@ -41,13 +44,17 @@ StreamingWorker::StreamingWorker(
         &StreamingWorker::recordingStateChanged);
 }
 
-void StreamingWorker::start(const QString& uri, std::stop_token stopToken)
-{
+void StreamingWorker::start(
+    const QString& uri,
+    std::stop_token stopToken,
+    std::uint64_t streamRunId){
     if (stopToken.stop_requested())
     {
         emit stateChanged(ConnectionState::Disconnected);
         return;
     }
+
+    m_streamRunId = streamRunId;
 
     m_reconnectPolicy.reset();
     emit stateChanged(ConnectionState::Connecting);
