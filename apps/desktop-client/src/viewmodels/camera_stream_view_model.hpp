@@ -3,9 +3,12 @@
 #include <QObject>
 #include <QImage>
 #include <QPointer>
+#include <QSize>
 
 #include <vap/common/connection_state.hpp>
 #include <vap/streaming/recording/recording_state.hpp>
+
+#include "../models/detection_list_model.hpp"
 
 namespace vap
 {
@@ -47,6 +50,16 @@ class CameraStreamViewModel : public QObject
     Q_PROPERTY(quint64 framesDecoded READ framesDecoded NOTIFY statisticsChanged)
     Q_PROPERTY(quint64 packetsReceived READ packetsReceived NOTIFY statisticsChanged)
 
+    Q_PROPERTY(
+        QAbstractItemModel* detectionModel
+            READ detectionModel
+                CONSTANT)
+
+    Q_PROPERTY(
+        QSize detectionImageSize
+            READ detectionImageSize
+                NOTIFY detectionImageSizeChanged)
+
 public:
     CameraStreamViewModel(const QString& cameraId, StreamingSession* session, QObject* parent = nullptr);
 
@@ -79,6 +92,16 @@ public:
     Q_INVOKABLE void startRecording();
     Q_INVOKABLE void stopRecording();
 
+    QAbstractItemModel* detectionModel() noexcept;
+
+    QSize detectionImageSize() const noexcept;
+
+    void updateDetections(
+        QList<DetectionOverlayItem> detections,
+        QSize imageSize);
+
+    void clearDetections();
+
 signals:
     void stateChanged();
     void currentFrameChanged();
@@ -89,6 +112,8 @@ signals:
     void recordingChanged();
     void recordingDurationChanged();
     void sessionUnavailable();
+
+    void detectionImageSizeChanged();
 
 private slots:
     void onFrameUpdated();
@@ -109,6 +134,9 @@ private:
     RecordingState m_recordingState = RecordingState::Stopped;
     qint64 m_recordingDuration{};
     QString m_recordingFileName{};
+
+    DetectionListModel m_detectionModel;
+    QSize m_detectionImageSize;
 
 };
 }

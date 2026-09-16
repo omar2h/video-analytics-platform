@@ -18,6 +18,9 @@ qt_add_executable(desktop_client
 
     src/providers/video_frame_provider.hpp
     src/providers/video_frame_provider.cpp
+
+    src/models/detection_list_model.hpp
+    src/models/detection_list_model.cpp
 )
 
 set_source_files_properties(

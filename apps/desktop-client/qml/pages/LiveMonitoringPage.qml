@@ -71,6 +71,12 @@ Page {
                     ? "image://video/" + id + "?rev=" + stream.frameRevision
                     : ""
 
+                detectionModel: stream ? stream.detectionModel : null
+
+                detectionImageSize: stream
+                    ? stream.detectionImageSize
+                    : Qt.size(0, 0)
+
 
             }
 

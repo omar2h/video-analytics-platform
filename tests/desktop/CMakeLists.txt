@@ -13,6 +13,9 @@ add_executable(session_removal_test
 
     "${DESKTOP_SOURCE_DIR}/src/providers/video_frame_provider.hpp"
     "${DESKTOP_SOURCE_DIR}/src/providers/video_frame_provider.cpp"
+
+    "${DESKTOP_SOURCE_DIR}/src/models/detection_list_model.hpp"
+    "${DESKTOP_SOURCE_DIR}/src/models/detection_list_model.cpp"
 )
 
 target_compile_features(session_removal_test PRIVATE cxx_std_20)

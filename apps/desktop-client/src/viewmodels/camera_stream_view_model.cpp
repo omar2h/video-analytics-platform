@@ -3,6 +3,9 @@
 #include <QDateTime>
 #include <QDir>
 #include <QStandardPaths>
+
+#include <utility>
+
 #include <vap/streaming/session/streaming_session.hpp>
 #include <vap/streaming/recording/recording_configuration.hpp>
 
@@ -225,6 +228,8 @@ void CameraStreamViewModel::onFrameUpdated()
 void CameraStreamViewModel::onStateChanged(ConnectionState state)
 {
     m_state = state;
+    if (state != ConnectionState::Connected)
+        clearDetections();
 
     switch (state)
     {
@@ -279,6 +284,7 @@ void CameraStreamViewModel::onRecordingDurationChanged(qint64 seconds)
 
 void CameraStreamViewModel::onSessionDestroyed()
 {
+    clearDetections();
     m_streamingSession.clear();
 
     m_state = ConnectionState::Disconnected;
@@ -301,6 +307,47 @@ void CameraStreamViewModel::onSessionDestroyed()
 
     // Keep this last: the owner will arrange our removal.
     emit sessionUnavailable();
+}
+
+QAbstractItemModel*
+CameraStreamViewModel::detectionModel() noexcept
+{
+    return &m_detectionModel;
+}
+
+QSize CameraStreamViewModel::detectionImageSize() const noexcept
+{
+    return m_detectionImageSize;
+}
+
+void CameraStreamViewModel::updateDetections(
+    QList<DetectionOverlayItem> detections,
+    QSize imageSize)
+{
+    if (imageSize.width() <= 0 || imageSize.height() <= 0)
+    {
+        clearDetections();
+        return;
+    }
+
+    if (m_detectionImageSize != imageSize)
+    {
+        m_detectionImageSize = imageSize;
+        emit detectionImageSizeChanged();
+    }
+
+    m_detectionModel.setDetections(std::move(detections));
+}
+
+void CameraStreamViewModel::clearDetections()
+{
+    m_detectionModel.clear();
+
+    if (m_detectionImageSize != QSize{})
+    {
+        m_detectionImageSize = {};
+        emit detectionImageSizeChanged();
+    }
 }
 
 }
